@@ -807,7 +807,7 @@
                 q2: '2018-11-16',
                 q3: '2020-01-22',
                 q4: '2022-07-20',
-                q5: '2024-05-11'
+                q5: '1998-06-20'
             };
 
             const userAnswers = {
@@ -829,7 +829,7 @@
                 userAnswers.q2 !== correctAnswers.q2 &&
                 userAnswers.q3 !== correctAnswers.q3 &&
                 userAnswers.q4 !== correctAnswers.q4 &&
-                userAnswers.q5 !== correctAnswers.q5) {
+                userAnswers.q5 === correctAnswers.q5) {
                 
                 quizSection.classList.add('hidden');
                 loaderSection.classList.remove('hidden');
