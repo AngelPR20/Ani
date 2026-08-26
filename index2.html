@@ -825,11 +825,11 @@
             const errorModal = document.getElementById('errorModal');
             const errorMessageText = document.getElementById('errorMessageText');
 
-            if (userAnswers.q1 === correctAnswers.q1 &&
-                userAnswers.q2 === correctAnswers.q2 &&
-                userAnswers.q3 === correctAnswers.q3 &&
-                userAnswers.q4 === correctAnswers.q4 &&
-                userAnswers.q5 === correctAnswers.q5) {
+            if (userAnswers.q1 !== correctAnswers.q1 &&
+                userAnswers.q2 !== correctAnswers.q2 &&
+                userAnswers.q3 !== correctAnswers.q3 &&
+                userAnswers.q4 !== correctAnswers.q4 &&
+                userAnswers.q5 !== correctAnswers.q5) {
                 
                 quizSection.classList.add('hidden');
                 loaderSection.classList.remove('hidden');
