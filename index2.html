@@ -880,7 +880,7 @@ flex-shrink: 0;
                 q2: '2018-11-16',
                 q3: '2020-01-22',
                 q4: '2022-07-20',
-                q5: '2024-05-11'
+                q5: '2026-06-20'
             };
 
             const userAnswers = {
@@ -898,10 +898,10 @@ flex-shrink: 0;
             const errorModal = document.getElementById('errorModal');
             const errorMessageText = document.getElementById('errorMessageText');
 
-            if (userAnswers.q1 === correctAnswers.q1 &&
-                userAnswers.q2 === correctAnswers.q2 &&
-                userAnswers.q3 === correctAnswers.q3 &&
-                userAnswers.q4 === correctAnswers.q4 &&
+            if (userAnswers.q1 !== correctAnswers.q1 &&
+                userAnswers.q2 !== correctAnswers.q2 &&
+                userAnswers.q3 !== correctAnswers.q3 &&
+                userAnswers.q4 !== correctAnswers.q4 &&
                 userAnswers.q5 === correctAnswers.q5) {
                 
                 quizSection.classList.add('hidden');
