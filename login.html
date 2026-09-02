@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanzasPro - Login</title>
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Carga el tema guardado antes de renderizar para evitar parpadeos -->
+    <script>
+        const savedTheme = localStorage.getItem('finanzaspro_theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    </script>
+</head>
+<body class="d-flex align-items-center justify-content-center min-vh-100">
+
+    <!-- Splash Screen -->
+    <div id="splash">
+        <i class="fas fa-wallet splash-logo"></i>
+        <h4 class="mt-4 text-main fw-semibold">Autenticando...</h4>
+    </div>
+
+    <div class="container py-4">
+        <div class="w-150 mx-auto" style="max-width: 450px;">
+            
+            <!-- 1. LOGIN -->
+            <div id="login" class="app-view active">
+                <div class="glass glass-card text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 70px; height: 70px;">
+                        <i class="fas fa-wallet fs-2"></i>
+                    </div>
+                    <h2 class="mb-5 fw-bold">Bienvenido</h2>
+                    <div class="text-start mb-3">
+                        <label class="form-label fw-medium ms-1">Usuario</label>
+                        <input type="text" class="form-control glass-input" placeholder="Ingresa tu usuario">
+                    </div>
+                    <div class="text-start mb-4">
+                        <label class="form-label fw-medium ms-1">Contraseña</label>
+                        <input type="password" class="form-control glass-input" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary btn-lg w-100 mb-4 fw-bold" style="border-radius: 12px;" onclick="login()">Ingresar al Sistema</button>
+                    <p class="text-muted">¿Eres nuevo? <a onclick="navigateAuth('registro')">Registra tu cuenta</a></p>
+                </div>
+            </div>
+
+            <!-- 2. REGISTRO -->
+            <div id="registro" class="app-view">
+                <div class="glass glass-card">
+                    <h3 class="mb-4 text-center fw-bold">Nueva Cuenta</h3>
+                    <div class="mb-3"><input type="text" class="form-control glass-input" placeholder="Nombre de usuario"></div>
+                    <div class="mb-3"><input type="email" class="form-control glass-input" placeholder="Correo electrónico"></div>
+                    <div class="mb-4"><input type="password" class="form-control glass-input" placeholder="Contraseña"></div>
+                    <button class="btn btn-primary btn-lg w-100 mb-4 fw-bold" style="border-radius: 12px;" onclick="simulateRegistration()">Registrarse</button>
+                    <div class="text-center"><a onclick="navigateAuth('login')"><i class="fas fa-arrow-left me-1"></i> Volver</a></div>
+                </div>
+            </div>
+
+            <!-- 3. VERIFICACIÓN -->
+            <div id="verificacion" class="app-view">
+                <div class="glass glass-card text-center">
+                    <h3 class="mb-3 fw-bold">Validación 2FA</h3>
+                    <p class="text-muted mb-4">Introduce el código de 6 dígitos enviado a tu correo.</p>
+                    <input type="text" class="form-control glass-input mb-3 text-center fs-2 fw-bold tracking-widest" placeholder="000000" maxlength="6" style="letter-spacing: 8px;">
+                    <p class="text-danger fw-bold fs-5 mb-4" id="timerDisplay">01:00</p>
+                    <button class="btn btn-primary btn-lg w-100 mb-3 fw-bold" style="border-radius: 12px;" onclick="navigateAuth('login')">Verificar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script personalizado -->
+    <script src="scripts.js"></script>
+</body>
+</html>
