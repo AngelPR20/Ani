@@ -3,6 +3,11 @@ window.myBarChart = null;
 window.myDoughnutChart = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Restaurar estado del sidebar colapsado
+    if (localStorage.getItem('finanzaspro_sidebar_collapsed') === 'true') {
+        document.body.classList.add('sidebar-collapsed');
+    }
+
     // Sincronizar el interruptor de modo oscuro al cargar la página
     const themeSwitch = document.getElementById('darkModeSwitch');
     if (themeSwitch) {
@@ -47,9 +52,10 @@ function navigate(viewId, element) {
     window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-// Colapsar Sidebar en Desktop
+// Colapsar Sidebar en Desktop y Guardar Estado
 function toggleDesktopSidebar() {
-    document.body.classList.toggle('sidebar-collapsed');
+    const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+    localStorage.setItem('finanzaspro_sidebar_collapsed', isCollapsed);
     
     // Dar tiempo a la transición CSS antes de redimensionar los gráficos
     setTimeout(() => {
@@ -73,7 +79,6 @@ function toggleTheme() {
 
 // Cerrar Sesión
 function logout() {
-    // Aquí puedes agregar limpieza de localStorage o sessionStorage si manejas tokens
     window.location.href = 'login.html';
 }
 
@@ -94,7 +99,6 @@ function simulateRegistration() {
 }
 
 function login() {
-    // Redirige al panel del dashboard completo
     window.location.href = 'dashboard.html';
 }
 
