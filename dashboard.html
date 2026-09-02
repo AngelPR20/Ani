@@ -22,16 +22,22 @@
     </script>
 </head>
 <body class="logged-in">
+    <!-- Aplica la clase antes del primer renderizado visual -->
+    <script>
+        if (localStorage.getItem('finanzaspro_sidebar_collapsed') === 'true') {
+            document.body.classList.add('sidebar-collapsed');
+        }
+    </script>
 
-    <!-- Ya no necesitamos el backdrop para móviles, pero se conserva para prevenir errores en scripts preexistentes -->
+    <!-- Backdrop para móviles -->
     <div id="sidebar-backdrop"></div>
     <aside id="sidebar" class="active">
         <!-- Botón de colapso (Solo Desktop) -->
         <button class="sidebar-collapse-btn" onclick="toggleDesktopSidebar()">
-            <i class="fas fa-chevron-left text-white" style="font-size: 0.8rem;"></i>
+            <i class="fas fa-chevron-left text-white"></i>
         </button>
 
-        <div class="sidebar-header d-flex align-items-center mb-3 px-2">
+        <div class="sidebar-header d-flex align-items-center mb-3 px-1">
             <div class="brand-icon bg-primary text-white rounded p-2 me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; min-width: 36px;">
                 <i class="fas fa-wallet fs-6"></i>
             </div>
@@ -40,11 +46,10 @@
 
         <!-- Contenedor de Navegación -->
         <div class="sidebar-content">
-            <p class="menu-title text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px; margin-left: 0.5rem; margin-bottom: 0.3rem;">Menú Principal</p>
             <a class="nav-item-custom active-link" onclick="navigate('dashboard', this)" data-tooltip="Dashboard"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
             <a class="nav-item-custom" onclick="navigate('mantenimientos', this)" data-tooltip="Mantenimientos"><i class="fas fa-folder-open"></i> <span>Mantenimientos</span></a>
             <a class="nav-item-custom" onclick="navigate('metas', this)" data-tooltip="Metas Financieras"><i class="fas fa-bullseye"></i> <span>Metas Financieras</span></a>
-            <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-clipboard-list"></i> <span>Presupuestos</span></a>
+            <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-bullseye"></i> <span>Presupuestos</span></a>
         </div>
 
         <!-- Pie del Sidebar -->
@@ -58,7 +63,7 @@
     <div id="main-wrapper">
         <div class="w-100">
             
-            <!-- Header Móvil: Botón Menú reemplazado por botón Cerrar Sesión -->
+            <!-- Header Móvil -->
             <div id="mobile-header">
                 <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i> FinanzasPro</h5>
                 <button class="btn btn-outline-danger border-0 d-flex align-items-center justify-content-center p-2" onclick="logout()" style="border-radius: 8px; width: 40px; height: 40px;">
@@ -66,14 +71,14 @@
                 </button>
             </div>
 
-            <!-- 4. DASHBOARD ADMIN -->
+            <!-- DASHBOARD ADMIN -->
             <div id="dashboard" class="app-view active">
-                <div class="d-flex justify-content-between align-items-end mb-4">
+                <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
                     <div>
                         <h2 class="fw-bold mb-1">Visión General</h2>
                         <p class="text-muted mb-0">Revisa tu estado financiero actualizado.</p>
                     </div>
-                    <button class="btn btn-primary d-none d-md-block px-4 py-2" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                    <button class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
                         <i class="fas fa-plus me-2"></i>Nueva Transacción
                     </button>
                 </div>
@@ -157,7 +162,7 @@
                 </div>
             </div>
 
-            <!-- 5. CONFIGURACIÓN -->
+            <!-- CONFIGURACIÓN -->
             <div id="configuracion" class="app-view">
                 <h2 class="fw-bold mb-4">Configuración del Sistema</h2>
                 <div class="row g-4">
