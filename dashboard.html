@@ -15,24 +15,32 @@
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Carga el tema guardado antes de renderizar para evitar parpadeos -->
+    <style>
+        /* Corrección para el apilamiento de modales y su backdrop */
+        #actionAlertModal {
+            z-index: 1070 !important;
+        }
+        body.modal-open .modal-backdrop + .modal-backdrop {
+            z-index: 1060 !important;
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            backdrop-filter: blur(3px) !important;
+        }
+    </style>
+
     <script>
         const savedTheme = localStorage.getItem('finanzaspro_theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
 </head>
 <body class="logged-in">
-    <!-- Aplica la clase antes del primer renderizado visual -->
     <script>
         if (localStorage.getItem('finanzaspro_sidebar_collapsed') === 'true') {
             document.body.classList.add('sidebar-collapsed');
         }
     </script>
 
-    <!-- Backdrop para móviles -->
     <div id="sidebar-backdrop"></div>
     <aside id="sidebar" class="active">
-        <!-- Botón de colapso (Solo Desktop) -->
         <button class="sidebar-collapse-btn" onclick="toggleDesktopSidebar()">
             <i class="fas fa-chevron-left text-white"></i>
         </button>
@@ -44,26 +52,22 @@
             <h4 class="brand-text mb-0 fw-bold fs-5">FinanzasPro</h4>
         </div>
 
-        <!-- Contenedor de Navegación -->
         <div class="sidebar-content">
             <a class="nav-item-custom active-link" onclick="navigate('dashboard', this)" data-tooltip="Dashboard"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
             <a class="nav-item-custom" onclick="navigate('mantenimientos', this)" data-tooltip="Mantenimientos"><i class="fas fa-folder-open"></i> <span>Mantenimientos</span></a>
             <a class="nav-item-custom" onclick="navigate('metas', this)" data-tooltip="Metas Financieras"><i class="fas fa-bullseye"></i> <span>Metas Financieras</span></a>
-            <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-bullseye"></i> <span>Presupuestos</span></a>
+            <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-file-invoice-dollar"></i> <span>Presupuestos</span></a>
         </div>
 
-        <!-- Pie del Sidebar -->
         <div class="mt-2 border-top border-secondary pt-2" style="border-opacity: 0.2;">
             <a class="nav-item-custom" onclick="navigate('configuracion', this)" data-tooltip="Configuración"><i class="fas fa-cog"></i> <span>Configuración</span></a>
             <a class="nav-item-custom text-danger mt-1" onclick="logout()" data-tooltip="Cerrar Sesión"><i class="fas fa-sign-out-alt text-danger"></i> <span>Cerrar Sesión</span></a>
         </div>
     </aside>
 
-    <!-- Contenedor Principal -->
     <div id="main-wrapper">
         <div class="w-100">
             
-            <!-- Header Móvil -->
             <div id="mobile-header">
                 <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i> FinanzasPro</h5>
                 <button class="btn btn-outline-danger border-0 d-flex align-items-center justify-content-center p-2" onclick="logout()" style="border-radius: 8px; width: 40px; height: 40px;">
@@ -162,6 +166,124 @@
                 </div>
             </div>
 
+            <!-- GESTIÓN DE METAS -->
+            <div id="metas" class="app-view">
+                <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
+                    <div>
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                            <h2 class="fw-bold mb-0">Metas Financieras</h2>
+                        </div>
+                        <p class="text-muted mb-0">Gestiona y monitorea tus objetivos de ahorro y ganancias.</p>
+                    </div>
+                    <button id="headerNewGoalBtn" class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                        <i class="fas fa-plus me-2"></i>Nueva Meta
+                    </button>
+                </div>
+                <span id="overallAverageBadge" class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-2" style="font-size: 0.85rem; border-radius: 8px;">Promedio General: 0.00%</span>
+                <div class="row g-3" id="goals-container">
+                    <!-- Las metas o el estado vacío se inyectarán aquí mediante JavaScript -->
+                </div>
+            </div>
+
+            <!-- PRESUPUESTOS Y RESERVAS (Estructura Maestro-Detalle) -->
+            <div id="presupuesto" class="app-view">
+                <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Presupuesto Mensual</h2>
+                        <p class="text-muted mb-0">Estructura maestro-detalle: Selecciona un período para gestionar sus registros.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="addNewBudgetPeriodModal()">
+                            <i class="fas fa-calendar-plus me-2"></i>Nuevo Período
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- PANEL MAESTRO (Lista de Meses con Altura Máxima y Scroll) -->
+                    <div class="col-lg-4 col-xl-3">
+                        <div class="glass p-3 h-100">
+                            <h5 class="fw-bold mb-4">Períodos (Maestro)</h5>
+                            <!-- Se aplicó overflow-y para el scroll, overflow-x oculto y min-height para asegurar espacio para el dropdown -->
+                            <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px; padding-right: 4px; overflow-y: auto; overflow-x: hidden;">
+                                <!-- Inyectado por JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL DETALLE (Registros del Mes) -->
+                    <div class="col-lg-8 col-xl-9">
+                        <div class="glass p-4 h-100" id="detail-view-container">
+                            <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4 pb-3 border-bottom border-secondary" style="border-opacity: 0.2;">
+                                <h4 class="fw-bold mb-0 text-primary" id="detail-month-title">Detalles</h4>
+                                <!-- Botón "Nuevo Registro" ubicado en la cabecera del detalle -->
+                                <button class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
+                                    <i class="fas fa-plus me-2"></i>Nuevo Registro
+                                </button>
+                            </div>
+
+                            <!-- Resumen Financiero Superior -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                                        <div class="bg-danger bg-opacity-10 text-danger rounded p-3 me-3 fs-4"><i class="fas fa-file-invoice-dollar"></i></div>
+                                        <div>
+                                            <small class="text-muted d-block">Gastos Fijos</small>
+                                            <h5 class="fw-bold mb-0 text-danger" id="totalFixedExpenses">$0.00</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                                        <div class="bg-info bg-opacity-10 text-info rounded p-3 me-3 fs-4"><i class="fas fa-piggy-bank"></i></div>
+                                        <div>
+                                            <small class="text-muted d-block">Reservas</small>
+                                            <h5 class="fw-bold mb-0 text-info" id="totalReserves">$0.00</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 fs-4"><i class="fas fa-balance-scale"></i></div>
+                                        <div>
+                                            <small class="text-muted d-block">Afecta Balance</small>
+                                            <h5 class="fw-bold mb-0 text-primary" id="totalAffectingBalance">$0.00</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vista de Tabla (Escritorio) -->
+                            <div class="d-none d-lg-block">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0" style="color: var(--bs-body-color);">
+                                        <thead>
+                                            <tr style="border-bottom: 2px solid var(--glass-border);">
+                                                <th class="bg-transparent text-muted small py-3">TIPO</th>
+                                                <th class="bg-transparent text-muted small py-3">CONCEPTO / DESCRIPCIÓN</th>
+                                                <th class="bg-transparent text-muted small py-3">AFECTA BALANCE</th>
+                                                <th class="bg-transparent text-muted small py-3 text-end">MONTO</th>
+                                                <th class="bg-transparent text-muted small py-3 text-end">ACCIONES</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="budget-table-body">
+                                            <!-- Inyectado mediante JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Vista de Tarjetas (Móviles/Tablets) -->
+                            <div class="d-lg-none">
+                                <div class="row g-3" id="budget-cards-container">
+                                    <!-- Inyectado mediante JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- CONFIGURACIÓN -->
             <div id="configuracion" class="app-view">
                 <h2 class="fw-bold mb-4">Configuración del Sistema</h2>
@@ -204,13 +326,11 @@
             <!-- Vistas adicionales -->
             <div id="detalles" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Reportes y Detalles</h2><p class="text-muted mt-2">Módulo de impresión y exportación a Excel.</p></div></div>
             <div id="mantenimientos" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Mantenimientos</h2><p class="text-muted mt-2">Gestión de Bancos, Wallets y Categorías.</p></div></div>
-            <div id="metas" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Gestión de Metas</h2><p class="text-muted mt-2">Configura tus objetivos de ahorro.</p></div></div>
-            <div id="presupuesto" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Presupuestos Mensuales</h2><p class="text-muted mt-2">Gestión de gastos fijos y débitos automáticos.</p></div></div>
 
         </div>
     </div>
 
-    <!-- Modal Nuevo Registro -->
+    <!-- Modal Nuevo Registro (Transacción) -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
@@ -241,6 +361,301 @@
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
             <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Nueva Meta -->
+    <div class="modal fade" id="addGoalModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Registrar Nueva Meta</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label text-muted small">Título de la Meta</label>
+                    <input type="text" id="goalTitle" class="form-control glass-input" placeholder="Ej. Salario Anual, Bonos...">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Monto a alcanzar ($)</label>
+                    <input type="number" id="goalTarget" class="form-control glass-input" placeholder="0.00">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Monto inicial alcanzado ($)</label>
+                    <input type="number" id="goalCurrent" class="form-control glass-input" placeholder="0.00" value="0">
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Ícono</label>
+                    <select id="goalIcon" class="form-select glass-input">
+                        <option value="fas fa-briefcase">💼 Maletín (Trabajo/Salario)</option>
+                        <option value="fas fa-gift">🎁 Regalo (Bonos)</option>
+                        <option value="fas fa-globe-americas">🌎 Mundo (Remesas)</option>
+                        <option value="fas fa-car">🚗 Auto</option>
+                        <option value="fas fa-home">🏠 Casa</option>
+                        <option value="fas fa-piggy-bank">🐖 Alcancía</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción o Nota (Opcional)</label>
+                    <textarea id="goalDesc" class="form-control glass-input" rows="2" placeholder="Detalles de la meta..."></textarea>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewGoal()">Guardar Meta</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Meta -->
+    <div class="modal fade" id="editGoalModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Editar Meta</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label text-muted small">Título de la Meta</label>
+                    <input type="text" id="editGoalTitle" class="form-control glass-input">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Monto a alcanzar ($)</label>
+                    <input type="number" id="editGoalTarget" class="form-control glass-input">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Monto alcanzado ($)</label>
+                    <input type="number" id="editGoalCurrent" class="form-control glass-input">
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Ícono</label>
+                    <select id="editGoalIcon" class="form-select glass-input">
+                        <option value="fas fa-briefcase">💼 Maletín (Trabajo/Salario)</option>
+                        <option value="fas fa-gift">🎁 Regalo (Bonos)</option>
+                        <option value="fas fa-globe-americas">🌎 Mundo (Remesas)</option>
+                        <option value="fas fa-car">🚗 Auto</option>
+                        <option value="fas fa-home">🏠 Casa</option>
+                        <option value="fas fa-piggy-bank">🐖 Alcancía</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción o Nota</label>
+                    <textarea id="editGoalDesc" class="form-control glass-input" rows="2"></textarea>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedGoal()">Actualizar Meta</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Nuevo Item de Presupuesto -->
+    <div class="modal fade" id="addBudgetItemModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Nuevo Gasto Fijo o Reserva</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label text-muted small">Tipo</label>
+                    <select id="budgetType" class="form-select glass-input">
+                        <option value="Gasto Fijo">Gasto Fijo</option>
+                        <option value="Reserva">Reserva de Efectivo</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Título</label>
+                    <input type="text" id="budgetTitle" class="form-control glass-input" placeholder="Ej. Pago luz eléctrica, Supermercado...">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Monto ($)</label>
+                    <input type="number" id="budgetAmount" class="form-control glass-input" placeholder="0.00">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Ícono</label>
+                    <select id="budgetIcon" class="form-select glass-input">
+                        <option value="fas fa-bolt">⚡ Luz Eléctrica</option>
+                        <option value="fas fa-shopping-basket">🛒 Compras / Mercado</option>
+                        <option value="fas fa-shield-alt">🛡️ Fondo de Emergencia</option>
+                        <option value="fas fa-wifi">📶 Internet / Servicios</option>
+                        <option value="fas fa-home">🏠 Alquiler / Vivienda</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-switch p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="budgetAffectsBalance" checked style="cursor: pointer;">
+                        <label class="form-check-label fw-medium ms-2" for="budgetAffectsBalance" style="cursor: pointer;">
+                            ¿Afecta el balance general de mi cartera?
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción (Opcional)</label>
+                    <textarea id="budgetDesc" class="form-control glass-input" rows="2" placeholder="Detalles adicionales..."></textarea>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveBudgetItem()">Guardar Item</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Item de Presupuesto -->
+    <div class="modal fade" id="editBudgetItemModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Editar Gasto Fijo o Reserva</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-6">
+                    <label class="form-label text-muted small">Tipo</label>
+                    <select id="editBudgetType" class="form-select glass-input">
+                        <option value="Gasto Fijo">Gasto Fijo</option>
+                        <option value="Reserva">Reserva de Efectivo</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Mes / Período</label>
+                    <select id="editBudgetMonth" class="form-select glass-input">
+                        <!-- Dinámico -->
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Título</label>
+                    <input type="text" id="editBudgetTitle" class="form-control glass-input">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Monto ($)</label>
+                    <input type="number" id="editBudgetAmount" class="form-control glass-input">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Ícono</label>
+                    <select id="editBudgetIcon" class="form-select glass-input">
+                        <option value="fas fa-bolt">⚡ Luz Eléctrica</option>
+                        <option value="fas fa-shopping-basket">🛒 Compras / Mercado</option>
+                        <option value="fas fa-shield-alt">🛡️ Fondo de Emergencia</option>
+                        <option value="fas fa-wifi">📶 Internet / Servicios</option>
+                        <option value="fas fa-home">🏠 Alquiler / Vivienda</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-switch p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="editBudgetAffectsBalance" style="cursor: pointer;">
+                        <label class="form-check-label fw-medium ms-2" for="editBudgetAffectsBalance" style="cursor: pointer;">
+                            ¿Afecta el balance general de mi cartera?
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción (Opcional)</label>
+                    <textarea id="editBudgetDesc" class="form-control glass-input" rows="2"></textarea>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedBudgetItem()">Actualizar Item</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Nuevo Período (Estética unificada) -->
+    <div class="modal fade" id="addBudgetPeriodModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content glass p-3 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Nuevo Período</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label text-muted small">Nombre del Período / Mes</label>
+                <input type="text" id="newPeriodNameInput" class="form-control glass-input" placeholder="Ej. Enero 2027">
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
+            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;" onclick="saveNewBudgetPeriod()">Crear Período</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Período (Encabezado) -->
+    <div class="modal fade" id="editBudgetPeriodModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content glass p-3 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Editar Período</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label text-muted small">Nombre del Período / Mes</label>
+                <input type="text" id="editPeriodNameInput" class="form-control glass-input">
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
+            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;" onclick="saveEditedBudgetPeriod()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Elegante de Confirmación -->
+    <div class="modal fade" id="actionConfirmModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content glass p-3 text-center border-0" style="background: var(--body-bg);">
+          <div class="modal-body">
+            <div class="mb-3 text-warning">
+                <i class="fas fa-exclamation-circle fa-3x"></i>
+            </div>
+            <h5 class="modal-title fw-bold mb-2" id="confirmModalTitle">¿Estás seguro?</h5>
+            <p class="text-muted small mb-4" id="confirmModalText">Esta acción requiere tu confirmación.</p>
+            <div class="d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" id="confirmModalBtn" style="border-radius: 8px;">Confirmar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Elegante de Alerta -->
+    <div class="modal fade" id="actionAlertModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content glass p-3 text-center border-0" style="background: var(--body-bg);">
+          <div class="modal-body">
+            <div class="mb-3 text-danger">
+                <i class="fas fa-exclamation-triangle fa-3x"></i>
+            </div>
+            <h5 class="modal-title fw-bold mb-2" id="alertModalTitle">Atención</h5>
+            <p class="text-muted small mb-4" id="alertModalText">Mensaje de alerta.</p>
+            <div class="d-flex justify-content-center">
+                <button type="button" class="btn btn-primary btn-sm px-4 fw-bold" data-bs-dismiss="modal" style="border-radius: 8px;">Entendido</button>
+            </div>
           </div>
         </div>
       </div>
