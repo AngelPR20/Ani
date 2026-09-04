@@ -87,7 +87,7 @@ a:hover { text-decoration: underline; opacity: 0.8; }
     outline: none;
 }
 
-/* Efecto Borroso en Modal Backdrop con TransiciÃ³n Suave */
+/* Efecto Borroso en Modal Backdrop con Transición Suave */
 .modal-backdrop {
     opacity: 0;
     background-color: rgba(15, 23, 42, 0.45);
@@ -184,7 +184,7 @@ a:hover { text-decoration: underline; opacity: 0.8; }
 #mobile-header { display: none; }
 
 /* -------------------------------------------------------------
-   DISPOSITIVOS MÃ“VILES (ESTILO FLUTTER BOTTOM NAVIGATION BAR)
+   DISPOSITIVOS MÓVILES (ESTILO FLUTTER BOTTOM NAVIGATION BAR)
 -------------------------------------------------------------- */
 @media (max-width: 991.98px) {
     body.logged-in #mobile-header {
@@ -316,7 +316,7 @@ a:hover { text-decoration: underline; opacity: 0.8; }
 
 .chart-container { position: relative; height: 320px; width: 100%; }
 
-/* BotÃ³n colapsar (Desktop) - Centrado verticalmente y semi-transparente */
+/* Botón colapsar (Desktop) - Centrado verticalmente y semi-transparente */
 .sidebar-collapse-btn {
     position: absolute;
     top: 50%;
@@ -402,3 +402,55 @@ a:hover { text-decoration: underline; opacity: 0.8; }
         opacity: 1; visibility: visible; transform: translateY(-50%) scale(1);
     }
 }
+
+/* Colores de Rangos para Metas */
+.goal-red { color: #ef4444 !important; }
+.bg-goal-red { background-color: #ef4444 !important; }
+
+.goal-orange { color: #f97316 !important; }
+.bg-goal-orange { background-color: #f97316 !important; }
+
+.goal-yellow { color: #eab308 !important; }
+.bg-goal-yellow { background-color: #eab308 !important; }
+
+.goal-green { color: #22c55e !important; }
+.bg-goal-green { background-color: #22c55e !important; }
+
+/* Ajuste sutil para la barra de progreso en el fondo oscuro */
+.progress-bg-custom {
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+}
+
+/* Fix para superposición de dropdowns en listas con backdrop-filter */
+.month-item-row { position: relative; z-index: 1; transition: z-index 0.2s; }
+.month-item-row:hover, .month-item-row:focus-within, .month-item-row.show { z-index: 10; }
+
+/* Gradientes Modificados: Colores vivos a ligeramente más oscuros y brillantes */
+.grad-text-red {
+    background: linear-gradient(90deg, #ff4d4d, #cc0000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.grad-bg-red { background: linear-gradient(90deg, #ff4d4d, #cc0000) !important; }
+
+.grad-text-orange {
+    background: linear-gradient(90deg, #ffa500, #e65c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.grad-bg-orange { background: linear-gradient(90deg, #ffa500, #e65c00) !important; }
+
+.grad-text-lgreen {
+    background: linear-gradient(90deg, #a3e635, #65a30d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.grad-bg-lgreen { background: linear-gradient(90deg, #a3e635, #65a30d) !important; }
+
+.grad-text-green {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.grad-bg-green { background: linear-gradient(90deg, #22c55e, #16a34a) !important; }
