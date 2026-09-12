@@ -82,7 +82,7 @@
                         <h2 class="fw-bold mb-1">Visión General</h2>
                         <p class="text-muted mb-0">Revisa tu estado financiero actualizado.</p>
                     </div>
-                    <button class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                    <button class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
                         <i class="fas fa-plus me-2"></i>Nueva Transacción
                     </button>
                 </div>
@@ -171,15 +171,15 @@
                 <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
                     <div>
                         <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                            <h2 class="fw-bold mb-0">Metas Financieras</h2>
+                            <h2 class="fw-bold mb-0">Metas</h2>
                         </div>
                         <p class="text-muted mb-0">Gestiona y monitorea tus objetivos de ahorro y ganancias.</p>
                     </div>
-                    <button id="headerNewGoalBtn" class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                    <button id="headerNewGoalBtn" class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
                         <i class="fas fa-plus me-2"></i>Nueva Meta
                     </button>
                 </div>
-                <span id="overallAverageBadge" class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-2" style="font-size: 0.85rem; border-radius: 8px;">Promedio General: 0.00%</span>
+                <span id="overallAverageBadge" class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3" style="font-size: 0.85rem; border-radius: 8px;">Promedio General: 0.00%</span>
                 <div class="row g-3" id="goals-container">
                     <!-- Las metas o el estado vacío se inyectarán aquí mediante JavaScript -->
                 </div>
@@ -189,11 +189,11 @@
             <div id="presupuesto" class="app-view">
                 <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
                     <div>
-                        <h2 class="fw-bold mb-1">Presupuesto Mensual</h2>
-                        <p class="text-muted mb-0">Estructura maestro-detalle: Selecciona un período para gestionar sus registros.</p>
+                        <h2 class="fw-bold mb-1">Presupuesto</h2>
+                        <p class="text-muted mb-0">Selecciona un período para gestionar sus registros.</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="addNewBudgetPeriodModal()">
+                        <button class="btn btn-sm btn-outline-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" onclick="addNewBudgetPeriodModal()">
                             <i class="fas fa-calendar-plus me-2"></i>Nuevo Período
                         </button>
                     </div>
@@ -203,7 +203,7 @@
                     <!-- PANEL MAESTRO (Lista de Meses con Altura Máxima y Scroll) -->
                     <div class="col-lg-4 col-xl-3">
                         <div class="glass p-3 h-100">
-                            <h5 class="fw-bold mb-4">Períodos (Maestro)</h5>
+                            <h5 class="fw-bold mb-4">Períodos</h5>
                             <!-- Se aplicó overflow-y para el scroll, overflow-x oculto y min-height para asegurar espacio para el dropdown -->
                             <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px; padding-right: 4px; overflow-y: auto; overflow-x: hidden;">
                                 <!-- Inyectado por JS -->
@@ -217,7 +217,7 @@
                             <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4 pb-3 border-bottom border-secondary" style="border-opacity: 0.2;">
                                 <h4 class="fw-bold mb-0 text-primary" id="detail-month-title">Detalles</h4>
                                 <!-- Botón "Nuevo Registro" ubicado en la cabecera del detalle -->
-                                <button class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
+                                <button class="btn btn-sm btn-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
                                     <i class="fas fa-plus me-2"></i>Nuevo Registro
                                 </button>
                             </div>
@@ -260,9 +260,9 @@
                                         <thead>
                                             <tr style="border-bottom: 2px solid var(--glass-border);">
                                                 <th class="bg-transparent text-muted small py-3">TIPO</th>
-                                                <th class="bg-transparent text-muted small py-3">CONCEPTO / DESCRIPCIÓN</th>
+                                                <th class="bg-transparent text-muted small py-3">CONCEPTO</th>
                                                 <th class="bg-transparent text-muted small py-3">AFECTA BALANCE</th>
-                                                <th class="bg-transparent text-muted small py-3 text-end">MONTO</th>
+                                                <th class="bg-transparent text-muted small py-3">MONTO</th>
                                                 <th class="bg-transparent text-muted small py-3 text-end">ACCIONES</th>
                                             </tr>
                                         </thead>

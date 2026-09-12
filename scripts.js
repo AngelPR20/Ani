@@ -149,7 +149,7 @@ function renderGoals() {
                     <i class="fas fa-bullseye fa-3x text-muted mb-3"></i>
                     <h5 class="fw-bold">No tienes metas registradas</h5>
                     <p class="text-muted small mb-3">Crea tu primera meta financiera para comenzar a monitorear tus objetivos.</p>
-                    <button class="btn btn-primary px-4 py-2" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                    <button class="btn btn-sm btn-primary px-3 py-2" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
                         <i class="fas fa-plus me-2"></i>Crear Meta
                     </button>
                 </div>
@@ -211,7 +211,7 @@ function renderGoals() {
                             </div>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-link text-muted px-2 py-1" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
-                                <ul class="dropdown-menu dropdown-menu-end glass border-0 shadow">
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
                                     <li><button class="dropdown-item py-2" onclick="openEditGoalModal(${goal.id})"><i class="fas fa-edit me-2 text-primary"></i>Editar</button></li>
                                     <li><button class="dropdown-item py-2 text-danger" onclick="confirmDeleteGoal(${goal.id})"><i class="fas fa-trash-alt me-2"></i>Eliminar</button></li>
                                 </ul>
@@ -326,7 +326,7 @@ let budgetData = {
         { id: 102, type: 'Reserva', title: 'Fondo de Emergencia', amount: 200.00, affectsBalance: true, icon: 'fas fa-shield-alt', desc: 'Ahorro mensual' }
     ],
     "Octubre": [
-        { id: 201, type: 'Gasto Fijo', title: 'Alquiler / Vivienda', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago mensual' }
+        { id: 201, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago mensual' }
     ],
     "Noviembre": [],
     "Diciembre": []
@@ -357,16 +357,16 @@ function renderMasterMonths() {
 
         // data-bs-boundary="window" asegura que el menú sobrepase el contenedor con desbordamiento
         html += `
-            <div class="d-flex align-items-center justify-content-between p-2 rounded month-item-row ${isActive ? 'bg-primary text-white shadow-sm' : 'glass'}">
-                <div class="d-flex align-items-center px-2 flex-grow-1" style="cursor: pointer;" onclick="selectBudgetMonth('${month}')">
+            <div class="d-flex align-items-center justify-content-between rounded month-item-row ${isActive ? 'bg-primary text-white shadow-sm' : 'glass'}">
+                <div class="d-flex align-items-center p-2 flex-grow-1" style="cursor: pointer;" onclick="selectBudgetMonth('${month}')">
                     <i class="fas fa-calendar-alt me-2 ${isActive ? 'text-white' : 'text-primary'}"></i>
                     <span class="fw-medium ${textClass}">${month}</span>
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-sm btn-link ${isActive ? 'text-white' : 'text-muted'} px-2 py-1 me-1" data-bs-toggle="dropdown" data-bs-boundary="window"><i class="fas fa-ellipsis-v"></i></button>
-                    <ul class="dropdown-menu dropdown-menu-end glass border-0 shadow">
-                        <li><button class="dropdown-item py-2" onclick="openEditPeriodModal('${month}')"><i class="fas fa-edit me-2 text-primary"></i>Renombrar Período</button></li>
-                        <li><button class="dropdown-item py-2 text-danger" onclick="confirmDeletePeriod('${month}')"><i class="fas fa-trash-alt me-2"></i>Eliminar Período</button></li>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                        <li><button class="dropdown-item py-2" onclick="openEditPeriodModal('${month}')"><i class="fas fa-edit me-2 text-primary"></i>Renombrar</button></li>
+                        <li><button class="dropdown-item py-2 text-danger" onclick="confirmDeletePeriod('${month}')"><i class="fas fa-trash-alt me-2"></i>Eliminar</button></li>
                     </ul>
                 </div>
             </div>`;
@@ -458,7 +458,7 @@ function renderBudgetDetail() {
                     </div>
                 </td>
                 <td class="py-3">${affectsBadge}</td>
-                <td class="py-3 text-end fw-bold">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                <td class="py-3 fw-bold">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                 <td class="py-3 text-end">
                     <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditBudgetItem(${item.id})"><i class="fas fa-edit"></i></button>
                     <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
