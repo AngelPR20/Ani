@@ -142,7 +142,7 @@ let userWallets = [
         affectsBalance: true, 
         desc: 'Cuenta de ahorros principal',
         movements: [
-            { id: 1001, type: 'Ingreso', desc: 'Depósito de nómina', date: '2026-09-01 10:30', amount: 1500.00 }
+            { id: 1001, type: 'Ingreso', category: 'Nómina', desc: 'Depósito de nómina mensual', date: '2026-09-01 10:30', amount: 1500.00 }
         ]
     },
     { 
@@ -153,7 +153,7 @@ let userWallets = [
         affectsBalance: false, 
         desc: 'Ahorro a largo plazo',
         movements: [
-            { id: 1002, type: 'Ingreso', desc: 'Rendimiento mensual', date: '2026-09-05 14:00', amount: 200.00 }
+            { id: 1002, type: 'Ingreso', category: 'Inversión', desc: 'Rendimiento mensual de acciones', date: '2026-09-05 14:00', amount: 200.00 }
         ]
     },
     { 
@@ -164,7 +164,7 @@ let userWallets = [
         affectsBalance: true, 
         desc: 'Dinero en billetera',
         movements: [
-            { id: 1003, type: 'Gasto', desc: 'Compra de almuerzo', date: '2026-09-10 12:15', amount: 25.00 }
+            { id: 1003, type: 'Gasto', category: 'Alimentación', desc: 'Compra de almuerzo en restaurante', date: '2026-09-10 12:15', amount: 25.00 }
         ]
     }
 ];
@@ -172,18 +172,8 @@ let userWallets = [
 function renderWallets() {
     const container = document.getElementById('wallets-container');
     const headerNewWalletBtn = document.getElementById('headerNewWalletBtn');
-    const txWalletSelect = document.getElementById('txWalletSelect');
     
     if (!container) return;
-
-    // Actualizar selector de carteras en el modal de transacciones
-    if (txWalletSelect) {
-        let optionsHtml = '';
-        userWallets.forEach(w => {
-            optionsHtml += `<option value="${w.id}">${w.title} (Balance: $${w.balance.toLocaleString('en-US', {minimumFractionDigits: 2})})</option>`;
-        });
-        txWalletSelect.innerHTML = optionsHtml;
-    }
 
     if (userWallets.length === 0) {
         if (headerNewWalletBtn) headerNewWalletBtn.style.display = 'none';
@@ -266,12 +256,19 @@ function openWalletMovementsPage(walletId) {
     if (titleEl) titleEl.textContent = `Movimientos de: ${wallet.title}`;
     if (subtitleEl) subtitleEl.textContent = wallet.desc || 'Gestión y control de transacciones de la cartera.';
 
-    // Inicializar fechas de filtro amplias (por defecto últimos 30 días o histórico)
+    // Asignar por defecto los últimos 30 días de diferencia entre hasta (hoy) y desde (hace 30 días)
     const inputFrom = document.getElementById('filterDateFrom');
     const inputTo = document.getElementById('filterDateTo');
 
-    if (inputFrom) inputFrom.value = '';
-    if (inputTo) inputTo.value = '';
+    const today = new Date();
+    const dateToIso = today.toISOString().split('T')[0];
+
+    const pastDate = new Date();
+    pastDate.setDate(today.getDate() - 30);
+    const dateFromIso = pastDate.toISOString().split('T')[0];
+
+    if (inputFrom) inputFrom.value = dateFromIso;
+    if (inputTo) inputTo.value = dateToIso;
 
     renderWalletMovementsTable();
     navigate('wallet-movements-view');
@@ -286,9 +283,45 @@ function printWalletMovements() {
     window.print();
 }
 
+// Función robusta para exportar a Excel usando la librería externa SheetJS (xlsx)
 function exportWalletMovementsExcel() {
     if (!activeWalletForMovements) return;
-    showAlertModal('Exportar a Excel', `Generando archivo Excel (.xlsx) con los movimientos de la cartera: ${activeWalletForMovements.title}.`);
+
+    const inputFrom = document.getElementById('filterDateFrom');
+    const inputTo = document.getElementById('filterDateTo');
+    const fromDateVal = inputFrom ? inputFrom.value : '';
+    const toDateVal = inputTo ? inputTo.value : '';
+
+    let movements = activeWalletForMovements.movements || [];
+
+    if (fromDateVal && toDateVal) {
+        movements = movements.filter(m => {
+            const mDateStr = m.date.split(' ')[0];
+            return mDateStr >= fromDateVal && mDateStr <= toDateVal;
+        });
+    }
+
+    if (movements.length === 0) {
+        showAlertModal('Sin datos', 'No hay movimientos en el rango seleccionado para exportar.');
+        return;
+    }
+
+    // Preparar filas para la hoja de Excel
+    const dataToExport = movements.map(m => ({
+        'Tipo': m.type,
+        'Categoría (Concepto)': m.category || 'General',
+        'Monto ($)': m.amount,
+        'Fecha y Hora': m.date,
+        'Descripción': m.desc || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Movimientos');
+
+    // Generar archivo y descargar automáticamente
+    const safeTitle = activeWalletForMovements.title.replace(/[^a-zA-Z0-9]/g, '_');
+    XLSX.writeFile(workbook, `Movimientos_${safeTitle}.xlsx`);
 }
 
 function renderWalletMovementsTable() {
@@ -321,7 +354,7 @@ function renderWalletMovementsTable() {
     }
 
     if (movements.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No se encontraron movimientos con los filtros seleccionados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No se encontraron movimientos con los filtros seleccionados.</td></tr>`;
         return;
     }
 
@@ -333,13 +366,20 @@ function renderWalletMovementsTable() {
             : '<div class="rounded-circle bg-danger bg-opacity-10 text-danger p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="fas fa-arrow-up fs-6"></i></div>';
         const amountColor = isIncome ? 'text-success' : 'text-danger';
         const amountPrefix = isIncome ? '+' : '-';
+        
+        // Icono tooltip para la descripción opcional
+        const hasDesc = mov.desc && mov.desc.trim() !== '';
+        const descIconHtml = hasDesc 
+            ? `<button type="button" class="btn btn-sm btn-link text-info p-0 shadow-none" data-bs-toggle="tooltip" data-bs-placement="top" title="${mov.desc}"><i class="fas fa-info-circle fs-5"></i></button>`
+            : `<span class="text-muted small">-</span>`;
 
         html += `
             <tr>
                 <td class="py-3 text-nowrap">${typeIcon} <span class="ms-2 fw-medium">${mov.type}</span></td>
-                <td class="py-3 fw-medium text-nowrap">${mov.desc}</td>
+                <td class="py-3 fw-medium text-nowrap">${mov.category || 'General'}</td>
                 <td class="py-3 fw-bold ${amountColor} text-nowrap">${amountPrefix}$${mov.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                 <td class="py-3 text-muted small text-nowrap">${mov.date}</td>
+                <td class="py-3 text-center text-nowrap">${descIconHtml}</td>
                 <td class="py-3 text-end text-nowrap">
                     <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditTransactionModal(${mov.id})"><i class="fas fa-edit"></i></button>
                     <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteTransaction(${mov.id})"><i class="fas fa-trash-alt"></i></button>
@@ -347,73 +387,73 @@ function renderWalletMovementsTable() {
             </tr>`;
     });
     tbody.innerHTML = html;
+
+    // Reactivar tooltips nuevos en la tabla
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 }
 
-// Registrar Transacción (Funcionamiento Completo y Actualización de Cartera)
+// Registrar Transacción vinculada automáticamente a la cartera activa con fecha y hora separadas
 function saveNewTransaction() {
-    const walletId = parseInt(document.getElementById('txWalletSelect').value);
-    const type = document.getElementById('txType').value;
-    const amount = parseFloat(document.getElementById('txAmount').value);
-    const dateTimeInput = document.getElementById('txDateTime').value;
-    const desc = document.getElementById('txDesc').value.trim();
-
-    const wallet = userWallets.find(w => w.id === walletId);
-    if (!wallet) {
-        showAlertModal('Error', 'Debe seleccionar una cartera válida.');
+    if (!activeWalletForMovements) {
+        showAlertModal('Error', 'No hay ninguna cartera activa seleccionada.');
         return;
     }
+
+    const type = document.getElementById('txType').value;
+    const amount = parseFloat(document.getElementById('txAmount').value);
+    const dateVal = document.getElementById('txDate').value;
+    const timeVal = document.getElementById('txTime').value;
+    const category = document.getElementById('txCategory').value.trim();
+    const desc = document.getElementById('txDesc').value.trim();
 
     if (isNaN(amount) || amount <= 0) {
         showAlertModal('Monto inválido', 'Por favor ingresa un monto mayor a cero.');
         return;
     }
 
-    if (!desc) {
-        showAlertModal('Concepto requerido', 'Por favor ingresa una descripción o concepto para la transacción.');
+    if (!category) {
+        showAlertModal('Categoría requerida', 'Por favor ingresa la categoría o concepto principal de la transacción.');
         return;
     }
 
-    // Formatear fecha y hora
+    // Combinar fecha y hora o asignar la actual si están vacías
     let formattedDate = '';
-    if (dateTimeInput) {
-        formattedDate = dateTimeInput.replace('T', ' ');
-    } else {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
-    }
+    const now = new Date();
+    const curDate = dateVal || now.toISOString().split('T')[0];
+    const curTime = timeVal || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    formattedDate = `${curDate} ${curTime}`;
 
     const newMov = {
         id: Date.now(),
         type,
+        category,
         desc,
         date: formattedDate,
         amount
     };
 
-    if (!wallet.movements) wallet.movements = [];
-    wallet.movements.push(newMov);
+    if (!activeWalletForMovements.movements) activeWalletForMovements.movements = [];
+    activeWalletForMovements.movements.push(newMov);
 
     // Alterar balance de la cartera
     if (type === 'Ingreso') {
-        wallet.balance += amount;
+        activeWalletForMovements.balance += amount;
     } else {
-        wallet.balance -= amount;
+        activeWalletForMovements.balance -= amount;
     }
 
     renderWallets();
-    if (activeWalletForMovements && activeWalletForMovements.id === wallet.id) {
-        renderWalletMovementsTable();
-    }
+    renderWalletMovementsTable();
 
     // Limpiar campos del modal
     document.getElementById('txAmount').value = '';
+    document.getElementById('txCategory').value = '';
     document.getElementById('txDesc').value = '';
-    document.getElementById('txDateTime').value = '';
+    document.getElementById('txDate').value = '';
+    document.getElementById('txTime').value = '';
 
     const modalEl = document.getElementById('addTransactionModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -430,8 +470,12 @@ function openEditTransactionModal(movId) {
     currentEditingTransactionId = movId;
     document.getElementById('editTxType').value = mov.type;
     document.getElementById('editTxAmount').value = mov.amount;
-    document.getElementById('editTxDesc').value = mov.desc;
-    document.getElementById('editTxDateTime').value = mov.date.replace(' ', 'T');
+    document.getElementById('editTxCategory').value = mov.category || '';
+    document.getElementById('editTxDesc').value = mov.desc || '';
+    
+    const parts = mov.date.split(' ');
+    document.getElementById('editTxDate').value = parts[0] || '';
+    document.getElementById('editTxTime').value = parts[1] || '';
 
     const modal = new bootstrap.Modal(document.getElementById('editTransactionModal'));
     modal.show();
@@ -444,8 +488,10 @@ function saveEditedTransaction() {
 
     const newType = document.getElementById('editTxType').value;
     const newAmount = parseFloat(document.getElementById('editTxAmount').value);
+    const newCategory = document.getElementById('editTxCategory').value.trim();
     const newDesc = document.getElementById('editTxDesc').value.trim();
-    const newDateTime = document.getElementById('editTxDateTime').value.replace('T', ' ');
+    const newDate = document.getElementById('editTxDate').value;
+    const newTime = document.getElementById('editTxTime').value;
 
     if (isNaN(newAmount) || newAmount <= 0) {
         showAlertModal('Monto inválido', 'Ingrese un monto válido.');
@@ -468,8 +514,11 @@ function saveEditedTransaction() {
 
     mov.type = newType;
     mov.amount = newAmount;
+    mov.category = newCategory;
     mov.desc = newDesc;
-    mov.date = newDateTime || mov.date;
+    if (newDate && newTime) {
+        mov.date = `${newDate} ${newTime}`;
+    }
 
     renderWallets();
     renderWalletMovementsTable();
@@ -497,153 +546,71 @@ function confirmDeleteTransaction(movId) {
     });
 }
 
-function saveNewWallet() {
-    const title = document.getElementById('walletTitle').value.trim();
-    const balance = parseFloat(document.getElementById('walletBalance').value) || 0;
-    const icon = document.getElementById('walletIcon').value;
-    const affectsBalance = document.getElementById('walletAffectsBalance').checked;
-    const desc = document.getElementById('walletDesc').value.trim();
-
-    if (!title) {
-        showAlertModal('Datos incompletos', 'Por favor ingresa un título para la cartera.');
-        return;
-    }
-
-    const newWallet = {
-        id: Date.now(),
-        title,
-        balance,
-        icon,
-        affectsBalance,
-        desc,
-        movements: balance > 0 ? [{ id: Date.now(), type: 'Ingreso', desc: 'Balance inicial', date: '2026-09-12 12:23', amount: balance }] : []
-    };
-
-    userWallets.push(newWallet);
-    renderWallets();
-
-    document.getElementById('walletTitle').value = '';
-    document.getElementById('walletBalance').value = '0';
-    document.getElementById('walletDesc').value = '';
-    document.getElementById('walletAffectsBalance').checked = true;
-
-    const modalEl = document.getElementById('addWalletModal');
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-    if (modalInstance) modalInstance.hide();
-}
-
-let currentEditingWalletId = null;
-
-function openEditWalletModal(id) {
-    const wallet = userWallets.find(w => w.id === id);
-    if (!wallet) return;
-
-    currentEditingWalletId = id;
-    document.getElementById('editWalletTitle').value = wallet.title;
-    document.getElementById('editWalletIcon').value = wallet.icon;
-    document.getElementById('editWalletAffectsBalance').checked = wallet.affectsBalance;
-    document.getElementById('editWalletDesc').value = wallet.desc || '';
-
-    const modal = new bootstrap.Modal(document.getElementById('editWalletModal'));
+// Funciones auxiliares para modales
+function showAlertModal(title, text) {
+    const titleEl = document.getElementById('alertModalTitle');
+    const textEl = document.getElementById('alertModalText');
+    if (titleEl) titleEl.textContent = title;
+    if (textEl) textEl.textContent = text;
+    const modal = new bootstrap.Modal(document.getElementById('actionAlertModal'));
     modal.show();
 }
 
-function saveEditedWallet() {
-    const wallet = userWallets.find(w => w.id === currentEditingWalletId);
-    if (!wallet) return;
+function showConfirmModal(title, text, callback) {
+    const titleEl = document.getElementById('confirmModalTitle');
+    const textEl = document.getElementById('confirmModalText');
+    if (titleEl) titleEl.textContent = title;
+    if (textEl) textEl.textContent = text;
+    
+    const confirmBtn = document.getElementById('confirmModalBtn');
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
 
-    wallet.title = document.getElementById('editWalletTitle').value.trim();
-    wallet.icon = document.getElementById('editWalletIcon').value;
-    wallet.affectsBalance = document.getElementById('editWalletAffectsBalance').checked;
-    wallet.desc = document.getElementById('editWalletDesc').value.trim();
-
-    renderWallets();
-
-    const modalEl = document.getElementById('editWalletModal');
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-    if (modalInstance) modalInstance.hide();
-}
-
-function confirmDeleteWallet(id) {
-    showConfirmModal('¿Eliminar Cartera?', 'Esta acción eliminará la cartera permanentemente.', () => {
-        userWallets = userWallets.filter(w => w.id !== id);
-        renderWallets();
+    newBtn.addEventListener('click', () => {
+        const modalEl = document.getElementById('actionConfirmModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+        callback();
     });
+
+    const modal = new bootstrap.Modal(document.getElementById('actionConfirmModal'));
+    modal.show();
 }
 
-
 // ==========================================
-// 4. MÓDULO DE METAS FINANCIERAS
+// 4. MÓDULO DE METAS (GOALS)
 // ==========================================
 
-let financialGoals = [
-    { id: 1, title: 'Auto Nuevo', target: 10000.00, current: 6500.00, icon: 'fas fa-car', desc: 'Ahorro para inicial del vehículo' },
-    { id: 2, title: 'Vacaciones', target: 3000.00, current: 900.00, icon: 'fas fa-globe-americas', desc: 'Viaje de fin de año' }
+let userGoals = [
+    { id: 1, title: 'Auto Nuevo', target: 10000, current: 6500, icon: 'fas fa-car', desc: 'Ahorro para vehículo del año' },
+    { id: 2, title: 'Vacaciones', target: 3000, current: 900, icon: 'fas fa-globe-americas', desc: 'Viaje familiar veraniego' }
 ];
 
 function renderGoals() {
     const container = document.getElementById('goals-container');
-    const badge = document.getElementById('overallAverageBadge');
-    const headerNewGoalBtn = document.getElementById('headerNewGoalBtn');
-    
+    const overallBadge = document.getElementById('overallAverageBadge');
     if (!container) return;
 
-    if (financialGoals.length === 0) {
-        if (headerNewGoalBtn) headerNewGoalBtn.style.display = 'none';
-        if (badge) badge.style.display = 'none';
-
-        container.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <div class="p-4 d-inline-block" style="border-radius: 16px;">
-                    <i class="fas fa-bullseye fa-3x text-muted mb-3"></i>
-                    <h5 class="fw-bold">No tienes metas registradas</h5>
-                    <p class="text-muted small mb-3">Crea tu primera meta financiera para comenzar a monitorear tus objetivos.</p>
-                    <button class="btn btn-sm btn-primary px-3 py-2" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
-                        <i class="fas fa-plus me-2"></i>Crear Meta
-                    </button>
-                </div>
-            </div>`;
+    if (userGoals.length === 0) {
+        container.innerHTML = `<div class="col-12 text-center py-4 text-muted">No hay metas registradas.</div>`;
+        if (overallBadge) overallBadge.textContent = 'Promedio General: 0.00%';
         return;
-    } else {
-        if (headerNewGoalBtn) headerNewGoalBtn.style.display = '';
-        if (badge) badge.style.display = '';
     }
 
     let html = '';
-    let totalPercentageSum = 0;
+    let totalPercent = 0;
 
-    financialGoals.forEach(goal => {
-        let percentage = goal.target > 0 ? (goal.current / goal.target) * 100 : 0;
-        
-        if (percentage >= 100 && goal.current < goal.target) {
-            percentage = 99.99;
-        }
+    userGoals.forEach(goal => {
+        let percent = goal.target > 0 ? (goal.current / goal.target) * 100 : 0;
+        if (percent > 100) percent = 100;
+        totalPercent += percent;
 
-        totalPercentageSum += percentage;
-
-        let percentageStr = percentage.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        let currentStr = goal.current.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        let targetStr = goal.target.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-        let textColorClass = '';
-        let bgColorClass = '';
-        if (percentage <= 25.00) {
-            textColorClass = 'grad-text-red';
-            bgColorClass = 'grad-bg-red';
-        } else if (percentage <= 50.00) {
-            textColorClass = 'grad-text-orange';
-            bgColorClass = 'grad-bg-orange';
-        } else if (percentage <= 75.00) {
-            textColorClass = 'grad-text-lgreen';
-            bgColorClass = 'grad-bg-lgreen';
-        } else {
-            textColorClass = 'grad-text-green';
-            bgColorClass = 'grad-bg-green';
-        }
+        const formattedCurrent = goal.current.toLocaleString('en-US', {minimumFractionDigits: 2});
+        const formattedTarget = goal.target.toLocaleString('en-US', {minimumFractionDigits: 2});
 
         html += `
             <div class="col-md-6 col-xl-4">
-                <div class="glass p-4 h-100 d-flex flex-column justify-content-between position-relative">
+                <div class="glass p-4 h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="d-flex align-items-center">
@@ -663,25 +630,23 @@ function renderGoals() {
                                 </ul>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <h4 class="fw-bold ${textColorClass}">${percentageStr}%</h4>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-medium text-muted">Progreso</span>
+                            <span class="fw-bold text-primary">${percent.toFixed(1)}%</span>
                         </div>
-                        <div class="progress mb-3" style="height: 8px; border-radius: 10px; background: var(--input-bg);">
-                            <div class="progress-bar ${bgColorClass}" style="width: ${percentage > 100 ? 100 : percentage}%; border-radius: 10px;"></div>
+                        <div class="progress mb-2" style="height: 8px; border-radius: 10px; background: var(--input-bg);">
+                            <div class="progress-bar bg-primary" style="width: ${percent}%; border-radius: 10px;"></div>
                         </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center border-secondary" style="border-opacity: 0.1;">
-                        <span class="text-muted small">Alcanzado: <strong class="text-body">$${currentStr}</strong></span>
-                        <span class="text-muted small">Meta: <strong class="text-body">$${targetStr}</strong></span>
+                        <small class="text-muted d-block">$${formattedCurrent} de $${formattedTarget}</small>
                     </div>
                 </div>
             </div>`;
     });
 
     container.innerHTML = html;
-    if (badge) {
-        const overallAvg = financialGoals.length > 0 ? (totalPercentageSum / financialGoals.length) : 0;
-        badge.textContent = `Promedio General: ${overallAvg.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}%`;
+    if (overallBadge) {
+        const avg = totalPercent / userGoals.length;
+        overallBadge.textContent = `Promedio General: ${avg.toFixed(2)}%`;
     }
 }
 
@@ -693,20 +658,19 @@ function saveNewGoal() {
     const desc = document.getElementById('goalDesc').value.trim();
 
     if (!title || isNaN(target) || target <= 0) {
-        showAlertModal('Datos incompletos', 'Por favor ingresa un título válido y un monto objetivo mayor a cero.');
+        showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto objetivo válido.');
         return;
     }
 
-    const newGoal = {
+    userGoals.push({
         id: Date.now(),
         title,
         target,
         current,
         icon,
         desc
-    };
+    });
 
-    financialGoals.push(newGoal);
     renderGoals();
 
     document.getElementById('goalTitle').value = '';
@@ -721,11 +685,11 @@ function saveNewGoal() {
 
 let currentEditingGoalId = null;
 
-function openEditGoalModal(id) {
-    const goal = financialGoals.find(g => g.id === id);
+function openEditGoalModal(goalId) {
+    const goal = userGoals.find(g => g.id === goalId);
     if (!goal) return;
 
-    currentEditingGoalId = id;
+    currentEditingGoalId = goalId;
     document.getElementById('editGoalTitle').value = goal.title;
     document.getElementById('editGoalTarget').value = goal.target;
     document.getElementById('editGoalCurrent').value = goal.current;
@@ -737,7 +701,7 @@ function openEditGoalModal(id) {
 }
 
 function saveEditedGoal() {
-    const goal = financialGoals.find(g => g.id === currentEditingGoalId);
+    const goal = userGoals.find(g => g.id === currentEditingGoalId);
     if (!goal) return;
 
     goal.title = document.getElementById('editGoalTitle').value.trim();
@@ -753,178 +717,168 @@ function saveEditedGoal() {
     if (modalInstance) modalInstance.hide();
 }
 
-function confirmDeleteGoal(id) {
-    showConfirmModal('¿Eliminar meta?', 'Esta acción eliminará la meta financiera permanentemente.', () => {
-        financialGoals = financialGoals.filter(g => g.id !== id);
+function confirmDeleteGoal(goalId) {
+    showConfirmModal('¿Eliminar Meta?', '¿Estás seguro de eliminar esta meta financiera?', () => {
+        userGoals = userGoals.filter(g => g.id !== goalId);
         renderGoals();
     });
 }
 
 
 // ==========================================
-// 5. MÓDULO DE PRESUPUESTOS (MAESTRO-DETALLE)
+// 5. MÓDULO DE PRESUPUESTO (BUDGETS)
 // ==========================================
 
-let budgetData = {
-    "Septiembre": [
-        { id: 101, type: 'Gasto Fijo', title: 'Luz Eléctrica', amount: 85.50, affectsBalance: true, icon: 'fas fa-bolt', desc: 'Consumo EDE' },
-        { id: 102, type: 'Reserva', title: 'Fondo de Emergencia', amount: 200.00, affectsBalance: true, icon: 'fas fa-shield-alt', desc: 'Ahorro mensual' }
-    ],
-    "Octubre": [
-        { id: 201, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago mensual' }
-    ],
-    "Noviembre": [],
-    "Diciembre": []
-};
+let masterBudgets = [
+    {
+        id: 1,
+        periodName: 'Septiembre 2026',
+        items: [
+            { id: 201, type: 'Gasto Fijo', title: 'Luz Eléctrica', amount: 85.50, affectsBalance: true, icon: 'fas fa-bolt', desc: 'Servicio eléctrico mensual' },
+            { id: 202, type: 'Reserva', title: 'Fondo de Emergencia', amount: 300.00, affectsBalance: false, icon: 'fas fa-shield-alt', desc: 'Ahorro preventivo' }
+        ]
+    },
+    {
+        id: 2,
+        periodName: 'Agosto 2026',
+        items: [
+            { id: 203, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago de apartamento' }
+        ]
+    }
+];
 
-let activeBudgetMonth = "Septiembre";
+let activeBudgetPeriodId = null;
 
 function initMasterBudget() {
-    renderMasterMonths();
-    renderBudgetDetail();
+    if (masterBudgets.length > 0 && !activeBudgetPeriodId) {
+        activeBudgetPeriodId = masterBudgets[0].id;
+    }
+    renderMasterBudgetList();
+    renderBudgetDetails();
 }
 
-function renderMasterMonths() {
-    const listContainer = document.getElementById('master-month-list');
-    if (!listContainer) return;
+function renderMasterBudgetList() {
+    const container = document.getElementById('master-month-list');
+    if (!container) return;
 
-    let html = '';
-    const months = Object.keys(budgetData);
-
-    if (months.length === 0) {
-        listContainer.innerHTML = `<p class="text-muted small text-center my-3">No hay períodos creados. Haz clic en "Nuevo Período" para comenzar.</p>`;
+    if (masterBudgets.length === 0) {
+        container.innerHTML = `<p class="text-muted small text-center py-3">No hay períodos creados.</p>`;
         return;
     }
 
-    months.forEach(month => {
-        const isActive = (month === activeBudgetMonth);
-        const textClass = isActive ? 'text-white' : 'text-body';
+    let html = '';
+    masterBudgets.forEach(period => {
+        const isActive = period.id === activeBudgetPeriodId;
+        const activeClass = isActive ? 'btn-primary shadow-sm' : 'btn-outline-secondary border-0';
 
         html += `
-            <div class="d-flex align-items-center justify-content-between rounded month-item-row ${isActive ? 'bg-primary text-white shadow-sm' : 'glass'}">
-                <div class="d-flex align-items-center p-2 flex-grow-1" style="cursor: pointer;" onclick="selectBudgetMonth('${month}')">
-                    <i class="fas fa-calendar-alt me-2 ${isActive ? 'text-white' : 'text-primary'}"></i>
-                    <span class="fw-medium ${textClass}">${month}</span>
-                </div>
+            <div class="d-flex align-items-center gap-1">
+                <button class="btn ${activeClass} w-100 text-start py-2 px-3 fw-medium" style="border-radius: 10px;" onclick="selectBudgetPeriod(${period.id})">
+                    <i class="fas fa-calendar-alt me-2"></i>${period.periodName}
+                </button>
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-link ${isActive ? 'text-white' : 'text-muted'} px-2 py-1 me-1" data-bs-toggle="dropdown" data-bs-boundary="window"><i class="fas fa-ellipsis-v"></i></button>
+                    <button class="btn btn-sm btn-link text-muted px-2" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
                     <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-                        <li><button class="dropdown-item py-2" onclick="openEditPeriodModal('${month}')"><i class="fas fa-edit me-2 text-primary"></i>Renombrar</button></li>
-                        <li><button class="dropdown-item py-2 text-danger" onclick="confirmDeletePeriod('${month}')"><i class="fas fa-trash-alt me-2"></i>Eliminar</button></li>
+                        <li><button class="dropdown-item py-2" onclick="openEditBudgetPeriodModal(${period.id})"><i class="fas fa-edit me-2 text-primary"></i>Editar Período</button></li>
+                        <li><button class="dropdown-item py-2 text-danger" onclick="confirmDeleteBudgetPeriod(${period.id})"><i class="fas fa-trash-alt me-2"></i>Eliminar Período</button></li>
                     </ul>
                 </div>
             </div>`;
     });
-
-    listContainer.innerHTML = html;
+    container.innerHTML = html;
 }
 
-function selectBudgetMonth(month) {
-    activeBudgetMonth = month;
-    renderMasterMonths();
-    renderBudgetDetail();
+function selectBudgetPeriod(periodId) {
+    activeBudgetPeriodId = periodId;
+    renderMasterBudgetList();
+    renderBudgetDetails();
 }
 
-function renderBudgetDetail() {
+function renderBudgetDetails() {
     const titleEl = document.getElementById('detail-month-title');
     const tableBody = document.getElementById('budget-table-body');
     const cardsContainer = document.getElementById('budget-cards-container');
     const totalFixedEl = document.getElementById('totalFixedExpenses');
     const totalReservesEl = document.getElementById('totalReserves');
     const totalAffectingEl = document.getElementById('totalAffectingBalance');
-    const addNewItemBtn = document.getElementById('addNewItemBtn');
 
-    const months = Object.keys(budgetData);
+    const period = masterBudgets.find(p => p.id === activeBudgetPeriodId);
 
-    if (months.length === 0 || !activeBudgetMonth || !budgetData[activeBudgetMonth]) {
-        if (titleEl) titleEl.textContent = `Detalles: Sin período seleccionado`;
-        if (totalFixedEl) totalFixedEl.textContent = `$0.00`;
-        if (totalReservesEl) totalReservesEl.textContent = `$0.00`;
-        if (totalAffectingEl) totalAffectingEl.textContent = `$0.00`;
-        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">Crea un período nuevo para comenzar.</td></tr>`;
-        if (cardsContainer) cardsContainer.innerHTML = `<div class="col-12 text-center py-4 text-muted">Crea un período nuevo para comenzar.</div>`;
-        if (addNewItemBtn) addNewItemBtn.style.display = 'none';
+    if (!period) {
+        if (titleEl) titleEl.textContent = 'Seleccione un Período';
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">Ningún período seleccionado.</td></tr>`;
+        if (cardsContainer) cardsContainer.innerHTML = `<div class="col-12 text-center py-4 text-muted">Ningún período seleccionado.</div>`;
+        if (totalFixedEl) totalFixedEl.textContent = '$0.00';
+        if (totalReservesEl) totalReservesEl.textContent = '$0.00';
+        if (totalAffectingEl) totalAffectingEl.textContent = '$0.00';
         return;
     }
 
-    if (addNewItemBtn) addNewItemBtn.style.display = 'inline-block';
-    if (titleEl) titleEl.textContent = `Detalles: ${activeBudgetMonth}`;
-
-    const items = budgetData[activeBudgetMonth] || [];
+    if (titleEl) titleEl.textContent = `Período: ${period.periodName}`;
 
     let totalFixed = 0;
     let totalReserves = 0;
     let totalAffecting = 0;
 
-    items.forEach(item => {
-        if (item.type === 'Gasto Fijo') totalFixed += item.amount;
-        if (item.type === 'Reserva') totalReserves += item.amount;
-        if (item.affectsBalance) totalAffecting += item.amount;
+    period.items.forEach(item => {
+        if (item.type === 'Gasto Fijo') {
+            totalFixed += item.amount;
+        } else if (item.type === 'Reserva') {
+            totalReserves += item.amount;
+        }
+        if (item.affectsBalance) {
+            totalAffecting += item.amount;
+        }
     });
 
     if (totalFixedEl) totalFixedEl.textContent = `$${totalFixed.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
     if (totalReservesEl) totalReservesEl.textContent = `$${totalReserves.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
     if (totalAffectingEl) totalAffectingEl.textContent = `$${totalAffecting.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
-    if (items.length === 0) {
-        if (tableBody) {
-            tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No hay registros para este período.</td></tr>`;
-        }
-        if (cardsContainer) {
-            cardsContainer.innerHTML = `<div class="col-12 text-center py-4 text-muted">No hay registros para este período.</div>`;
-        }
+    if (period.items.length === 0) {
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No hay registros en este período.</td></tr>`;
+        if (cardsContainer) cardsContainer.innerHTML = `<div class="col-12 text-center py-4 text-muted">No hay registros en este período.</div>`;
         return;
     }
 
     let tableHtml = '';
     let cardsHtml = '';
 
-    items.forEach(item => {
-        const typeBadge = item.type === 'Gasto Fijo' 
-            ? '<span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1 rounded text-nowrap">Gasto Fijo</span>' 
-            : '<span class="badge bg-info bg-opacity-10 text-info px-2 py-1 rounded text-nowrap">Reserva</span>';
-
+    period.items.forEach(item => {
+        const isFixed = item.type === 'Gasto Fijo';
+        const typeBadge = isFixed 
+            ? '<span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">Gasto Fijo</span>' 
+            : '<span class="badge bg-info bg-opacity-10 text-info px-2 py-1">Reserva</span>';
+        
         const affectsBadge = item.affectsBalance 
-            ? '<span class="text-success fw-bold text-nowrap"><i class="fas fa-check-circle me-1"></i> Sí</span>' 
-            : '<span class="text-muted text-nowrap"><i class="fas fa-times-circle me-1"></i> No</span>';
+            ? '<span class="text-success small fw-medium"><i class="fas fa-check-circle me-1"></i>Sí</span>' 
+            : '<span class="text-muted small fw-medium"><i class="fas fa-times-circle me-1"></i>No</span>';
 
         tableHtml += `
             <tr>
                 <td class="py-3 text-nowrap">${typeBadge}</td>
-                <td class="py-3 text-nowrap">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3"><i class="${item.icon}"></i></div>
-                        <div>
-                            <span class="fw-bold d-block">${item.title}</span>
-                            <small class="text-muted">${item.desc || ''}</small>
-                        </div>
-                    </div>
-                </td>
+                <td class="py-3 fw-medium text-nowrap"><i class="${item.icon} me-2 text-primary"></i>${item.title}</td>
                 <td class="py-3 text-nowrap">${affectsBadge}</td>
                 <td class="py-3 fw-bold text-nowrap">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                 <td class="py-3 text-end text-nowrap">
-                    <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditBudgetItem(${item.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditBudgetItemModal(${item.id})"><i class="fas fa-edit"></i></button>
                     <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`;
 
         cardsHtml += `
             <div class="col-12">
-                <div class="glass p-3 rounded d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 fs-5"><i class="${item.icon}"></i></div>
-                        <div>
-                            <div class="mb-1">${typeBadge}</div>
-                            <h6 class="fw-bold mb-0">${item.title}</h6>
-                            <small class="text-muted d-block">${item.desc || 'Sin descripción'}</small>
-                            <span class="small text-muted mt-1 d-block">Afecta Balance: ${item.affectsBalance ? 'Sí' : 'No'}</span>
-                        </div>
+                <div class="glass p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="mb-1">${typeBadge}</div>
+                        <h6 class="fw-bold mb-1"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
+                        <small class="text-muted d-block">Afecta Balance: ${item.affectsBalance ? 'Sí' : 'No'}</small>
                     </div>
                     <div class="text-end">
-                        <h5 class="fw-bold text-body mb-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
+                        <h5 class="fw-bold mb-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
                         <div>
-                            <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditBudgetItem(${item.id})"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
+                            <button class="btn btn-sm btn-outline-primary p-1 px-2" onclick="openEditBudgetItemModal(${item.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger p-1 px-2" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </div>
                 </div>
@@ -936,8 +890,9 @@ function renderBudgetDetail() {
 }
 
 function saveBudgetItem() {
-    if (!activeBudgetMonth || !budgetData[activeBudgetMonth]) {
-        showAlertModal('Sin período', 'Por favor selecciona o crea un período maestro antes de agregar registros.');
+    const period = masterBudgets.find(p => p.id === activeBudgetPeriodId);
+    if (!period) {
+        showAlertModal('Error', 'Selecciona un período de presupuesto válido.');
         return;
     }
 
@@ -949,7 +904,7 @@ function saveBudgetItem() {
     const desc = document.getElementById('budgetDesc').value.trim();
 
     if (!title || isNaN(amount) || amount <= 0) {
-        showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto válido mayor a cero.');
+        showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto válido.');
         return;
     }
 
@@ -958,18 +913,17 @@ function saveBudgetItem() {
         type,
         title,
         amount,
-        icon,
         affectsBalance,
+        icon,
         desc
     };
 
-    budgetData[activeBudgetMonth].push(newItem);
-    renderBudgetDetail();
+    period.items.push(newItem);
+    renderBudgetDetails();
 
     document.getElementById('budgetTitle').value = '';
     document.getElementById('budgetAmount').value = '';
     document.getElementById('budgetDesc').value = '';
-    document.getElementById('budgetAffectsBalance').checked = true;
 
     const modalEl = document.getElementById('addBudgetItemModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -978,226 +932,161 @@ function saveBudgetItem() {
 
 let currentEditingBudgetItemId = null;
 
-function openEditBudgetItem(id) {
-    let foundItem = null;
-    let foundMonth = null;
+function openEditBudgetItemModal(itemId) {
+    let targetItem = null;
+    let targetPeriod = null;
 
-    for (const [month, items] of Object.entries(budgetData)) {
-        const item = items.find(i => i.id === id);
-        if (item) {
-            foundItem = item;
-            foundMonth = month;
-            break;
+    masterBudgets.forEach(p => {
+        const found = p.items.find(i => i.id === itemId);
+        if (found) {
+            targetItem = found;
+            targetPeriod = p;
         }
-    }
+    });
 
-    if (!foundItem) return;
+    if (!targetItem || !targetPeriod) return;
 
-    currentEditingBudgetItemId = id;
+    currentEditingBudgetItemId = itemId;
 
-    const editMonthSelect = document.getElementById('editBudgetMonth');
-    if (editMonthSelect) {
-        let optionsHtml = '';
-        Object.keys(budgetData).forEach(m => {
-            optionsHtml += `<option value="${m}" ${m === foundMonth ? 'selected' : ''}>${m}</option>`;
+    // Llenar select de períodos en modal de edición
+    const selectMonth = document.getElementById('editBudgetMonth');
+    if (selectMonth) {
+        let opts = '';
+        masterBudgets.forEach(p => {
+            opts += `<option value="${p.id}" ${p.id === targetPeriod.id ? 'selected' : ''}>${p.periodName}</option>`;
         });
-        editMonthSelect.innerHTML = optionsHtml;
+        selectMonth.innerHTML = opts;
     }
 
-    document.getElementById('editBudgetType').value = foundItem.type;
-    document.getElementById('editBudgetTitle').value = foundItem.title;
-    document.getElementById('editBudgetAmount').value = foundItem.amount;
-    document.getElementById('editBudgetIcon').value = foundItem.icon;
-    document.getElementById('editBudgetAffectsBalance').checked = foundItem.affectsBalance;
-    document.getElementById('editBudgetDesc').value = foundItem.desc || '';
+    document.getElementById('editBudgetType').value = targetItem.type;
+    document.getElementById('editBudgetTitle').value = targetItem.title;
+    document.getElementById('editBudgetAmount').value = targetItem.amount;
+    document.getElementById('editBudgetIcon').value = targetItem.icon;
+    document.getElementById('editBudgetAffectsBalance').checked = targetItem.affectsBalance;
+    document.getElementById('editBudgetDesc').value = targetItem.desc || '';
 
     const modal = new bootstrap.Modal(document.getElementById('editBudgetItemModal'));
     modal.show();
 }
 
 function saveEditedBudgetItem() {
-    let sourceMonth = null;
-    let itemIndex = -1;
-    let itemObj = null;
+    let targetItem = null;
+    let oldPeriod = null;
 
-    for (const [month, items] of Object.entries(budgetData)) {
-        const index = items.findIndex(i => i.id === currentEditingBudgetItemId);
-        if (index !== -1) {
-            sourceMonth = month;
-            itemIndex = index;
-            itemObj = items[index];
-            break;
+    masterBudgets.forEach(p => {
+        const found = p.items.find(i => i.id === currentEditingBudgetItemId);
+        if (found) {
+            targetItem = found;
+            oldPeriod = p;
         }
+    });
+
+    if (!targetItem || !oldPeriod) return;
+
+    const newPeriodId = parseInt(document.getElementById('editBudgetMonth').value);
+    const newPeriod = masterBudgets.find(p => p.id === newPeriodId);
+    if (!newPeriod) return;
+
+    targetItem.type = document.getElementById('editBudgetType').value;
+    targetItem.title = document.getElementById('editBudgetTitle').value.trim();
+    targetItem.amount = parseFloat(document.getElementById('editBudgetAmount').value);
+    targetItem.icon = document.getElementById('editBudgetIcon').value;
+    targetItem.affectsBalance = document.getElementById('editBudgetAffectsBalance').checked;
+    targetItem.desc = document.getElementById('editBudgetDesc').value.trim();
+
+    if (oldPeriod.id !== newPeriod.id) {
+        oldPeriod.items = oldPeriod.items.filter(i => i.id !== currentEditingBudgetItemId);
+        newPeriod.items.push(targetItem);
     }
 
-    if (!itemObj) return;
-
-    const targetMonth = document.getElementById('editBudgetMonth').value;
-
-    itemObj.type = document.getElementById('editBudgetType').value;
-    itemObj.title = document.getElementById('editBudgetTitle').value.trim();
-    itemObj.amount = parseFloat(document.getElementById('editBudgetAmount').value);
-    itemObj.icon = document.getElementById('editBudgetIcon').value;
-    itemObj.affectsBalance = document.getElementById('editBudgetAffectsBalance').checked;
-    itemObj.desc = document.getElementById('editBudgetDesc').value.trim();
-
-    if (sourceMonth !== targetMonth) {
-        budgetData[sourceMonth].splice(itemIndex, 1);
-        if (!budgetData[targetMonth]) budgetData[targetMonth] = [];
-        budgetData[targetMonth].push(itemObj);
-        activeBudgetMonth = targetMonth;
-    }
-
-    renderMasterMonths();
-    renderBudgetDetail();
+    renderBudgetDetails();
 
     const modalEl = document.getElementById('editBudgetItemModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
     if (modalInstance) modalInstance.hide();
 }
 
-function confirmDeleteBudgetItem(id) {
-    showConfirmModal('¿Eliminar registro?', 'Esta acción eliminará el ítem de presupuesto permanentemente.', () => {
-        for (const [month, items] of Object.entries(budgetData)) {
-            const index = items.findIndex(i => i.id === id);
-            if (index !== -1) {
-                items.splice(index, 1);
-                break;
-            }
-        }
-        renderBudgetDetail();
+function confirmDeleteBudgetItem(itemId) {
+    showConfirmModal('¿Eliminar Gasto/Reserva?', 'Esta acción eliminará el registro de este presupuesto.', () => {
+        masterBudgets.forEach(p => {
+            p.items = p.items.filter(i => i.id !== itemId);
+        });
+        renderBudgetDetails();
     });
 }
 
 function addNewBudgetPeriodModal() {
     const input = document.getElementById('newPeriodNameInput');
     if (input) input.value = '';
-
     const modal = new bootstrap.Modal(document.getElementById('addBudgetPeriodModal'));
     modal.show();
 }
 
 function saveNewBudgetPeriod() {
     const input = document.getElementById('newPeriodNameInput');
-    const periodName = input ? input.value.trim() : '';
+    const name = input ? input.value.trim() : '';
 
-    if (!periodName) {
-        showAlertModal('Campo vacío', 'Por favor ingresa un nombre para el período.');
+    if (!name) {
+        showAlertModal('Nombre requerido', 'Por favor ingresa un nombre para el período.');
         return;
     }
 
-    if (budgetData[periodName]) {
-        showAlertModal('Período existente', 'Ya existe un período con ese nombre.');
-        return;
-    }
+    const newPeriod = {
+        id: Date.now(),
+        periodName: name,
+        items: []
+    };
 
-    budgetData[periodName] = [];
-    activeBudgetMonth = periodName;
-    renderMasterMonths();
-    renderBudgetDetail();
+    masterBudgets.push(newPeriod);
+    activeBudgetPeriodId = newPeriod.id;
+    renderMasterBudgetList();
+    renderBudgetDetails();
 
     const modalEl = document.getElementById('addBudgetPeriodModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
     if (modalInstance) modalInstance.hide();
 }
 
-let currentEditingPeriodName = null;
+let currentEditingPeriodId = null;
 
-function openEditPeriodModal(month) {
-    currentEditingPeriodName = month;
+function openEditBudgetPeriodModal(periodId) {
+    const period = masterBudgets.find(p => p.id === periodId);
+    if (!period) return;
+
+    currentEditingPeriodId = periodId;
     const input = document.getElementById('editPeriodNameInput');
-    if (input) input.value = month;
+    if (input) input.value = period.periodName;
 
     const modal = new bootstrap.Modal(document.getElementById('editBudgetPeriodModal'));
     modal.show();
 }
 
 function saveEditedBudgetPeriod() {
+    const period = masterBudgets.find(p => p.id === currentEditingPeriodId);
+    if (!period) return;
+
     const input = document.getElementById('editPeriodNameInput');
-    const newName = input ? input.value.trim() : '';
-
-    if (!newName || newName === currentEditingPeriodName) {
-        const modalEl = document.getElementById('editBudgetPeriodModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) modalInstance.hide();
+    const name = input ? input.value.trim() : '';
+    if (!name) {
+        showAlertModal('Nombre requerido', 'Ingresa un nombre válido.');
         return;
     }
 
-    if (budgetData[newName]) {
-        showAlertModal('Nombre en uso', 'Ya existe otro período con ese nombre.');
-        return;
-    }
-
-    const newBudgetData = {};
-    for (const [m, items] of Object.entries(budgetData)) {
-        if (m === currentEditingPeriodName) {
-            newBudgetData[newName] = items;
-        } else {
-            newBudgetData[m] = items;
-        }
-    }
-
-    budgetData = newBudgetData;
-    if (activeBudgetMonth === currentEditingPeriodName) {
-        activeBudgetMonth = newName;
-    }
-
-    renderMasterMonths();
-    renderBudgetDetail();
+    period.periodName = name;
+    renderMasterBudgetList();
+    renderBudgetDetails();
 
     const modalEl = document.getElementById('editBudgetPeriodModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
     if (modalInstance) modalInstance.hide();
 }
 
-function confirmDeletePeriod(month) {
-    showConfirmModal('¿Eliminar período?', `¿Estás seguro de eliminar todo el período "${month}" y sus registros?`, () => {
-        delete budgetData[month];
-        const remainingMonths = Object.keys(budgetData);
-        if (remainingMonths.length > 0) {
-            activeBudgetMonth = remainingMonths[0];
-        } else {
-            activeBudgetMonth = null;
+function confirmDeleteBudgetPeriod(periodId) {
+    showConfirmModal('¿Eliminar Período?', 'Se eliminará el período junto con todos sus registros.', () => {
+        masterBudgets = masterBudgets.filter(p => p.id !== periodId);
+        if (activeBudgetPeriodId === periodId) {
+            activeBudgetPeriodId = masterBudgets.length > 0 ? masterBudgets[0].id : null;
         }
-        renderMasterMonths();
-        renderBudgetDetail();
+        initMasterBudget();
     });
-}
-
-
-// ==========================================
-// 6. MODALES AUXILIARES DE ALERTA Y CONFIRMACIÓN
-// ==========================================
-
-function showAlertModal(title, text) {
-    const titleEl = document.getElementById('alertModalTitle');
-    const textEl = document.getElementById('alertModalText');
-    if (titleEl) titleEl.textContent = title;
-    if (textEl) textEl.textContent = text;
-
-    const modal = new bootstrap.Modal(document.getElementById('actionAlertModal'));
-    modal.show();
-}
-
-function showConfirmModal(title, text, onConfirmCallback) {
-    const titleEl = document.getElementById('confirmModalTitle');
-    const textEl = document.getElementById('confirmModalText');
-    const confirmBtn = document.getElementById('confirmModalBtn');
-
-    if (titleEl) titleEl.textContent = title;
-    if (textEl) textEl.textContent = text;
-
-    const newBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-
-    newBtn.addEventListener('click', () => {
-        const modalEl = document.getElementById('actionConfirmModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) modalInstance.hide();
-
-        if (onConfirmCallback) onConfirmCallback();
-    });
-
-    const modal = new bootstrap.Modal(document.getElementById('actionConfirmModal'));
-    modal.show();
 }

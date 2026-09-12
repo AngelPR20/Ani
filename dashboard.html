@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para Exportar a Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="styles.css">
 
@@ -82,9 +84,6 @@
                         <h2 class="fw-bold mb-1">Visión General</h2>
                         <p class="text-muted mb-0">Revisa tu estado financiero actualizado.</p>
                     </div>
-                    <button class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                        <i class="fas fa-plus me-2"></i>Nueva Transacción
-                    </button>
                 </div>
 
                 <div class="row g-4 mb-4">
@@ -207,7 +206,7 @@
                         <button class="btn btn-sm btn-outline-secondary px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="printWalletMovements()" title="Imprimir" data-bs-toggle="tooltip">
                             <i class="fas fa-print"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-success px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="exportWalletMovementsExcel()" title="Exportar" data-bs-toggle="tooltip">
+                        <button class="btn btn-sm btn-outline-success px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="exportWalletMovementsExcel()" title="Exportar a Excel" data-bs-toggle="tooltip">
                             <i class="fas fa-file-excel"></i>
                         </button>
                     </div>
@@ -239,9 +238,10 @@
                             <thead>
                                 <tr style="border-bottom: 2px solid var(--glass-border);">
                                     <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
-                                    <th class="bg-transparent text-muted small py-3 text-nowrap">CONCEPTO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">CATEGORÍA</th>
                                     <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
                                     <th class="bg-transparent text-muted small py-3 text-nowrap">FECHA Y HORA</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap text-center">DETALLES</th>
                                     <th class="bg-transparent text-muted small py-3 text-end text-nowrap">ACCIONES</th>
                                 </tr>
                             </thead>
@@ -510,7 +510,7 @@
       </div>
     </div>
 
-    <!-- Modal Nuevo Registro (Transacción) Actualizado con Fecha/Hora y Operativo -->
+    <!-- Modal Nuevo Registro (Transacción) Actualizado (Sin walletSelect, fecha/hora separadas, categoría y descripción opcional) -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
@@ -520,12 +520,6 @@
           </div>
           <div class="modal-body">
             <div class="row g-3">
-                <div class="col-12">
-                    <label class="form-label text-muted small">Seleccionar Cartera</label>
-                    <select id="txWalletSelect" class="form-select glass-input">
-                        <!-- Se llena dinámicamente -->
-                    </select>
-                </div>
                 <div class="col-6">
                     <label class="form-label text-muted small">Tipo</label>
                     <select id="txType" class="form-select glass-input">
@@ -537,13 +531,21 @@
                     <label class="form-label text-muted small">Monto ($)</label>
                     <input type="number" id="txAmount" class="form-control glass-input" placeholder="0.00">
                 </div>
-                <div class="col-12">
-                    <label class="form-label text-muted small">Fecha y Hora</label>
-                    <input type="datetime-local" id="txDateTime" class="form-control glass-input">
+                <div class="col-6">
+                    <label class="form-label text-muted small">Fecha</label>
+                    <input type="date" id="txDate" class="form-control glass-input">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Hora</label>
+                    <input type="time" id="txTime" class="form-control glass-input">
                 </div>
                 <div class="col-12">
-                    <label class="form-label text-muted small">Concepto / Descripción</label>
-                    <input type="text" id="txDesc" class="form-control glass-input" placeholder="Ej. Supermercado, Pago de cliente...">
+                    <label class="form-label text-muted small">Categoría (Concepto)</label>
+                    <input type="text" id="txCategory" class="form-control glass-input" placeholder="Ej. Supermercado, Salario...">
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción (Opcional)</label>
+                    <textarea id="txDesc" class="form-control glass-input" rows="2" placeholder="Notas adicionales del movimiento..."></textarea>
                 </div>
             </div>
           </div>
@@ -576,13 +578,21 @@
                     <label class="form-label text-muted small">Monto ($)</label>
                     <input type="number" id="editTxAmount" class="form-control glass-input">
                 </div>
-                <div class="col-12">
-                    <label class="form-label text-muted small">Fecha y Hora</label>
-                    <input type="datetime-local" id="editTxDateTime" class="form-control glass-input">
+                <div class="col-6">
+                    <label class="form-label text-muted small">Fecha</label>
+                    <input type="date" id="editTxDate" class="form-control glass-input">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Hora</label>
+                    <input type="time" id="editTxTime" class="form-control glass-input">
                 </div>
                 <div class="col-12">
-                    <label class="form-label text-muted small">Concepto / Descripción</label>
-                    <input type="text" id="editTxDesc" class="form-control glass-input">
+                    <label class="form-label text-muted small">Categoría (Concepto)</label>
+                    <input type="text" id="editTxCategory" class="form-control glass-input">
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción (Opcional)</label>
+                    <textarea id="editTxDesc" class="form-control glass-input" rows="2"></textarea>
                 </div>
             </div>
           </div>
