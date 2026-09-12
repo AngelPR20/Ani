@@ -42,7 +42,7 @@ function logout() {
 
 
 // ==========================================
-// 2. INICIALIZACIÓN DE GRÁFICOS (CHART.JS)
+// 2. INICIALIZACIÓN DE GRÁFICOS Y TOOLTIPS
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -52,9 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
         darkModeSwitch.checked = (localStorage.getItem('finanzaspro_theme') === 'dark');
     }
 
-    // Inicializar datos simulados de presupuestos y metas al cargar
+    // Inicializar tooltips de Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Inicializar datos de módulos al cargar
     initMasterBudget();
     renderGoals();
+    renderWallets();
 
     // Gráfico de Barras (Ingresos vs Gastos Anuales)
     const barCtx = document.getElementById('barChart');
@@ -123,7 +130,450 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ==========================================
-// 3. MÓDULO DE METAS FINANCIERAS
+// 3. MÓDULO DE CARTERAS (WALLETS)
+// ==========================================
+
+let userWallets = [
+    { 
+        id: 1, 
+        title: 'Banco Popular', 
+        balance: 1500.00, 
+        icon: 'fas fa-university', 
+        affectsBalance: true, 
+        desc: 'Cuenta de ahorros principal',
+        movements: [
+            { id: 1001, type: 'Ingreso', desc: 'Depósito de nómina', date: '2026-09-01 10:30', amount: 1500.00 }
+        ]
+    },
+    { 
+        id: 2, 
+        title: 'Fondo de Inversión', 
+        balance: 3200.00, 
+        icon: 'fas fa-piggy-bank', 
+        affectsBalance: false, 
+        desc: 'Ahorro a largo plazo',
+        movements: [
+            { id: 1002, type: 'Ingreso', desc: 'Rendimiento mensual', date: '2026-09-05 14:00', amount: 200.00 }
+        ]
+    },
+    { 
+        id: 3, 
+        title: 'Efectivo', 
+        balance: 250.00, 
+        icon: 'fas fa-wallet', 
+        affectsBalance: true, 
+        desc: 'Dinero en billetera',
+        movements: [
+            { id: 1003, type: 'Gasto', desc: 'Compra de almuerzo', date: '2026-09-10 12:15', amount: 25.00 }
+        ]
+    }
+];
+
+function renderWallets() {
+    const container = document.getElementById('wallets-container');
+    const headerNewWalletBtn = document.getElementById('headerNewWalletBtn');
+    const txWalletSelect = document.getElementById('txWalletSelect');
+    
+    if (!container) return;
+
+    // Actualizar selector de carteras en el modal de transacciones
+    if (txWalletSelect) {
+        let optionsHtml = '';
+        userWallets.forEach(w => {
+            optionsHtml += `<option value="${w.id}">${w.title} (Balance: $${w.balance.toLocaleString('en-US', {minimumFractionDigits: 2})})</option>`;
+        });
+        txWalletSelect.innerHTML = optionsHtml;
+    }
+
+    if (userWallets.length === 0) {
+        if (headerNewWalletBtn) headerNewWalletBtn.style.display = 'none';
+        container.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="p-4 d-inline-block" style="border-radius: 16px;">
+                    <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                    <h5 class="fw-bold">No tienes carteras registradas</h5>
+                    <p class="text-muted small mb-3">Crea tu primera cuenta para comenzar a organizar tu dinero.</p>
+                    <button class="btn btn-sm btn-primary px-3 py-2" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addWalletModal">
+                        <i class="fas fa-plus me-2"></i>Nueva Cartera
+                    </button>
+                </div>
+            </div>`;
+        return;
+    } else {
+        if (headerNewWalletBtn) headerNewWalletBtn.style.display = '';
+    }
+
+    let html = '';
+
+    userWallets.forEach(wallet => {
+        const formattedBalance = wallet.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const badgeAffects = wallet.affectsBalance 
+            ? `<span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-check-circle me-1"></i>Afecta Balance</span>`
+            : `<span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1"><i class="fas fa-times-circle me-1"></i>No Afecta Balance</span>`;
+
+        html += `
+            <div class="col-md-6 col-xl-4">
+                <div class="glass p-4 h-100 d-flex flex-column justify-content-between position-relative">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 fs-4">
+                                    <i class="${wallet.icon}"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                        <h5 class="fw-bold mb-0">${wallet.title}</h5>
+                                        ${badgeAffects}
+                                    </div>
+                                    <small class="text-muted d-block" style="min-height: 20px;">${wallet.desc || 'Sin descripción'}</small>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-link text-muted px-2 py-1" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                    <li><button class="dropdown-item py-2" onclick="openEditWalletModal(${wallet.id})"><i class="fas fa-edit me-2 text-primary"></i>Editar</button></li>
+                                    <li><button class="dropdown-item py-2 text-danger" onclick="confirmDeleteWallet(${wallet.id})"><i class="fas fa-trash-alt me-2"></i>Eliminar</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-2 border-top border-secondary d-flex justify-content-between align-items-center" style="border-opacity: 0.1;">
+                            <div>
+                                <span class="text-muted small d-block mb-1">Balance Actual</span>
+                                <h3 class="fw-bold mb-0">$${formattedBalance}</h3>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary px-3 py-2" style="border-radius: 8px;" onclick="openWalletMovementsPage(${wallet.id})">
+                                <i class="fas fa-list-alt me-1"></i> Ver Movimientos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    });
+
+    container.innerHTML = html;
+}
+
+let activeWalletForMovements = null;
+
+function openWalletMovementsPage(walletId) {
+    const wallet = userWallets.find(w => w.id === walletId);
+    if (!wallet) return;
+
+    activeWalletForMovements = wallet;
+
+    const titleEl = document.getElementById('pageWalletMovementsTitle');
+    const subtitleEl = document.getElementById('pageWalletMovementsSubtitle');
+    if (titleEl) titleEl.textContent = `Movimientos de: ${wallet.title}`;
+    if (subtitleEl) subtitleEl.textContent = wallet.desc || 'Gestión y control de transacciones de la cartera.';
+
+    // Inicializar fechas de filtro amplias (por defecto últimos 30 días o histórico)
+    const inputFrom = document.getElementById('filterDateFrom');
+    const inputTo = document.getElementById('filterDateTo');
+
+    if (inputFrom) inputFrom.value = '';
+    if (inputTo) inputTo.value = '';
+
+    renderWalletMovementsTable();
+    navigate('wallet-movements-view');
+}
+
+function filterWalletMovements() {
+    renderWalletMovementsTable();
+}
+
+function printWalletMovements() {
+    if (!activeWalletForMovements) return;
+    window.print();
+}
+
+function exportWalletMovementsExcel() {
+    if (!activeWalletForMovements) return;
+    showAlertModal('Exportar a Excel', `Generando archivo Excel (.xlsx) con los movimientos de la cartera: ${activeWalletForMovements.title}.`);
+}
+
+function renderWalletMovementsTable() {
+    const tbody = document.getElementById('page-wallet-movements-table-body');
+    if (!tbody || !activeWalletForMovements) return;
+
+    const inputFrom = document.getElementById('filterDateFrom');
+    const inputTo = document.getElementById('filterDateTo');
+
+    const fromDateVal = inputFrom ? inputFrom.value : '';
+    const toDateVal = inputTo ? inputTo.value : '';
+
+    let movements = activeWalletForMovements.movements || [];
+
+    if (fromDateVal && toDateVal) {
+        movements = movements.filter(m => {
+            const mDateStr = m.date.split(' ')[0];
+            return mDateStr >= fromDateVal && mDateStr <= toDateVal;
+        });
+    } else if (fromDateVal) {
+        movements = movements.filter(m => {
+            const mDateStr = m.date.split(' ')[0];
+            return mDateStr >= fromDateVal;
+        });
+    } else if (toDateVal) {
+        movements = movements.filter(m => {
+            const mDateStr = m.date.split(' ')[0];
+            return mDateStr <= toDateVal;
+        });
+    }
+
+    if (movements.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No se encontraron movimientos con los filtros seleccionados.</td></tr>`;
+        return;
+    }
+
+    let html = '';
+    movements.forEach(mov => {
+        const isIncome = mov.type === 'Ingreso';
+        const typeIcon = isIncome 
+            ? '<div class="rounded-circle bg-success bg-opacity-10 text-success p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="fas fa-arrow-down fs-6"></i></div>' 
+            : '<div class="rounded-circle bg-danger bg-opacity-10 text-danger p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="fas fa-arrow-up fs-6"></i></div>';
+        const amountColor = isIncome ? 'text-success' : 'text-danger';
+        const amountPrefix = isIncome ? '+' : '-';
+
+        html += `
+            <tr>
+                <td class="py-3 text-nowrap">${typeIcon} <span class="ms-2 fw-medium">${mov.type}</span></td>
+                <td class="py-3 fw-medium text-nowrap">${mov.desc}</td>
+                <td class="py-3 fw-bold ${amountColor} text-nowrap">${amountPrefix}$${mov.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                <td class="py-3 text-muted small text-nowrap">${mov.date}</td>
+                <td class="py-3 text-end text-nowrap">
+                    <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditTransactionModal(${mov.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteTransaction(${mov.id})"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>`;
+    });
+    tbody.innerHTML = html;
+}
+
+// Registrar Transacción (Funcionamiento Completo y Actualización de Cartera)
+function saveNewTransaction() {
+    const walletId = parseInt(document.getElementById('txWalletSelect').value);
+    const type = document.getElementById('txType').value;
+    const amount = parseFloat(document.getElementById('txAmount').value);
+    const dateTimeInput = document.getElementById('txDateTime').value;
+    const desc = document.getElementById('txDesc').value.trim();
+
+    const wallet = userWallets.find(w => w.id === walletId);
+    if (!wallet) {
+        showAlertModal('Error', 'Debe seleccionar una cartera válida.');
+        return;
+    }
+
+    if (isNaN(amount) || amount <= 0) {
+        showAlertModal('Monto inválido', 'Por favor ingresa un monto mayor a cero.');
+        return;
+    }
+
+    if (!desc) {
+        showAlertModal('Concepto requerido', 'Por favor ingresa una descripción o concepto para la transacción.');
+        return;
+    }
+
+    // Formatear fecha y hora
+    let formattedDate = '';
+    if (dateTimeInput) {
+        formattedDate = dateTimeInput.replace('T', ' ');
+    } else {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+
+    const newMov = {
+        id: Date.now(),
+        type,
+        desc,
+        date: formattedDate,
+        amount
+    };
+
+    if (!wallet.movements) wallet.movements = [];
+    wallet.movements.push(newMov);
+
+    // Alterar balance de la cartera
+    if (type === 'Ingreso') {
+        wallet.balance += amount;
+    } else {
+        wallet.balance -= amount;
+    }
+
+    renderWallets();
+    if (activeWalletForMovements && activeWalletForMovements.id === wallet.id) {
+        renderWalletMovementsTable();
+    }
+
+    // Limpiar campos del modal
+    document.getElementById('txAmount').value = '';
+    document.getElementById('txDesc').value = '';
+    document.getElementById('txDateTime').value = '';
+
+    const modalEl = document.getElementById('addTransactionModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+}
+
+let currentEditingTransactionId = null;
+
+function openEditTransactionModal(movId) {
+    if (!activeWalletForMovements) return;
+    const mov = activeWalletForMovements.movements.find(m => m.id === movId);
+    if (!mov) return;
+
+    currentEditingTransactionId = movId;
+    document.getElementById('editTxType').value = mov.type;
+    document.getElementById('editTxAmount').value = mov.amount;
+    document.getElementById('editTxDesc').value = mov.desc;
+    document.getElementById('editTxDateTime').value = mov.date.replace(' ', 'T');
+
+    const modal = new bootstrap.Modal(document.getElementById('editTransactionModal'));
+    modal.show();
+}
+
+function saveEditedTransaction() {
+    if (!activeWalletForMovements) return;
+    const mov = activeWalletForMovements.movements.find(m => m.id === currentEditingTransactionId);
+    if (!mov) return;
+
+    const newType = document.getElementById('editTxType').value;
+    const newAmount = parseFloat(document.getElementById('editTxAmount').value);
+    const newDesc = document.getElementById('editTxDesc').value.trim();
+    const newDateTime = document.getElementById('editTxDateTime').value.replace('T', ' ');
+
+    if (isNaN(newAmount) || newAmount <= 0) {
+        showAlertModal('Monto inválido', 'Ingrese un monto válido.');
+        return;
+    }
+
+    // Revertir efecto anterior en balance
+    if (mov.type === 'Ingreso') {
+        activeWalletForMovements.balance -= mov.amount;
+    } else {
+        activeWalletForMovements.balance += mov.amount;
+    }
+
+    // Aplicar nuevo efecto en balance
+    if (newType === 'Ingreso') {
+        activeWalletForMovements.balance += newAmount;
+    } else {
+        activeWalletForMovements.balance -= newAmount;
+    }
+
+    mov.type = newType;
+    mov.amount = newAmount;
+    mov.desc = newDesc;
+    mov.date = newDateTime || mov.date;
+
+    renderWallets();
+    renderWalletMovementsTable();
+
+    const modalEl = document.getElementById('editTransactionModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+}
+
+function confirmDeleteTransaction(movId) {
+    showConfirmModal('¿Eliminar Movimiento?', 'Esta acción eliminará el movimiento y ajustará el balance de la cartera.', () => {
+        if (!activeWalletForMovements) return;
+        const index = activeWalletForMovements.movements.findIndex(m => m.id === movId);
+        if (index !== -1) {
+            const mov = activeWalletForMovements.movements[index];
+            if (mov.type === 'Ingreso') {
+                activeWalletForMovements.balance -= mov.amount;
+            } else {
+                activeWalletForMovements.balance += mov.amount;
+            }
+            activeWalletForMovements.movements.splice(index, 1);
+            renderWallets();
+            renderWalletMovementsTable();
+        }
+    });
+}
+
+function saveNewWallet() {
+    const title = document.getElementById('walletTitle').value.trim();
+    const balance = parseFloat(document.getElementById('walletBalance').value) || 0;
+    const icon = document.getElementById('walletIcon').value;
+    const affectsBalance = document.getElementById('walletAffectsBalance').checked;
+    const desc = document.getElementById('walletDesc').value.trim();
+
+    if (!title) {
+        showAlertModal('Datos incompletos', 'Por favor ingresa un título para la cartera.');
+        return;
+    }
+
+    const newWallet = {
+        id: Date.now(),
+        title,
+        balance,
+        icon,
+        affectsBalance,
+        desc,
+        movements: balance > 0 ? [{ id: Date.now(), type: 'Ingreso', desc: 'Balance inicial', date: '2026-09-12 12:23', amount: balance }] : []
+    };
+
+    userWallets.push(newWallet);
+    renderWallets();
+
+    document.getElementById('walletTitle').value = '';
+    document.getElementById('walletBalance').value = '0';
+    document.getElementById('walletDesc').value = '';
+    document.getElementById('walletAffectsBalance').checked = true;
+
+    const modalEl = document.getElementById('addWalletModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+}
+
+let currentEditingWalletId = null;
+
+function openEditWalletModal(id) {
+    const wallet = userWallets.find(w => w.id === id);
+    if (!wallet) return;
+
+    currentEditingWalletId = id;
+    document.getElementById('editWalletTitle').value = wallet.title;
+    document.getElementById('editWalletIcon').value = wallet.icon;
+    document.getElementById('editWalletAffectsBalance').checked = wallet.affectsBalance;
+    document.getElementById('editWalletDesc').value = wallet.desc || '';
+
+    const modal = new bootstrap.Modal(document.getElementById('editWalletModal'));
+    modal.show();
+}
+
+function saveEditedWallet() {
+    const wallet = userWallets.find(w => w.id === currentEditingWalletId);
+    if (!wallet) return;
+
+    wallet.title = document.getElementById('editWalletTitle').value.trim();
+    wallet.icon = document.getElementById('editWalletIcon').value;
+    wallet.affectsBalance = document.getElementById('editWalletAffectsBalance').checked;
+    wallet.desc = document.getElementById('editWalletDesc').value.trim();
+
+    renderWallets();
+
+    const modalEl = document.getElementById('editWalletModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+}
+
+function confirmDeleteWallet(id) {
+    showConfirmModal('¿Eliminar Cartera?', 'Esta acción eliminará la cartera permanentemente.', () => {
+        userWallets = userWallets.filter(w => w.id !== id);
+        renderWallets();
+    });
+}
+
+
+// ==========================================
+// 4. MÓDULO DE METAS FINANCIERAS
 // ==========================================
 
 let financialGoals = [
@@ -139,7 +589,6 @@ function renderGoals() {
     if (!container) return;
 
     if (financialGoals.length === 0) {
-        // Ocultar botón y badge cuando no hay metas
         if (headerNewGoalBtn) headerNewGoalBtn.style.display = 'none';
         if (badge) badge.style.display = 'none';
 
@@ -156,7 +605,6 @@ function renderGoals() {
             </div>`;
         return;
     } else {
-        // Mostrar botón y badge si hay metas
         if (headerNewGoalBtn) headerNewGoalBtn.style.display = '';
         if (badge) badge.style.display = '';
     }
@@ -167,7 +615,6 @@ function renderGoals() {
     financialGoals.forEach(goal => {
         let percentage = goal.target > 0 ? (goal.current / goal.target) * 100 : 0;
         
-        // Evitar redondear a 100% si lo alcanzado es menor a la meta
         if (percentage >= 100 && goal.current < goal.target) {
             percentage = 99.99;
         }
@@ -178,7 +625,6 @@ function renderGoals() {
         let currentStr = goal.current.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         let targetStr = goal.target.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // Lógica de gradientes por porcentaje (respetando los intervalos con decimales)
         let textColorClass = '';
         let bgColorClass = '';
         if (percentage <= 25.00) {
@@ -263,7 +709,6 @@ function saveNewGoal() {
     financialGoals.push(newGoal);
     renderGoals();
 
-    // Limpiar formulario y cerrar modal
     document.getElementById('goalTitle').value = '';
     document.getElementById('goalTarget').value = '';
     document.getElementById('goalCurrent').value = '0';
@@ -317,7 +762,7 @@ function confirmDeleteGoal(id) {
 
 
 // ==========================================
-// 4. MÓDULO DE PRESUPUESTOS (MAESTRO-DETALLE)
+// 5. MÓDULO DE PRESUPUESTOS (MAESTRO-DETALLE)
 // ==========================================
 
 let budgetData = {
@@ -355,7 +800,6 @@ function renderMasterMonths() {
         const isActive = (month === activeBudgetMonth);
         const textClass = isActive ? 'text-white' : 'text-body';
 
-        // data-bs-boundary="window" asegura que el menú sobrepase el contenedor con desbordamiento
         html += `
             <div class="d-flex align-items-center justify-content-between rounded month-item-row ${isActive ? 'bg-primary text-white shadow-sm' : 'glass'}">
                 <div class="d-flex align-items-center p-2 flex-grow-1" style="cursor: pointer;" onclick="selectBudgetMonth('${month}')">
@@ -437,18 +881,17 @@ function renderBudgetDetail() {
 
     items.forEach(item => {
         const typeBadge = item.type === 'Gasto Fijo' 
-            ? '<span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1 rounded">Gasto Fijo</span>' 
-            : '<span class="badge bg-info bg-opacity-10 text-info px-2 py-1 rounded">Reserva</span>';
+            ? '<span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1 rounded text-nowrap">Gasto Fijo</span>' 
+            : '<span class="badge bg-info bg-opacity-10 text-info px-2 py-1 rounded text-nowrap">Reserva</span>';
 
         const affectsBadge = item.affectsBalance 
-            ? '<span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> Sí</span>' 
-            : '<span class="text-muted"><i class="fas fa-times-circle me-1"></i> No</span>';
+            ? '<span class="text-success fw-bold text-nowrap"><i class="fas fa-check-circle me-1"></i> Sí</span>' 
+            : '<span class="text-muted text-nowrap"><i class="fas fa-times-circle me-1"></i> No</span>';
 
-        // Vista Tabla (Escritorio)
         tableHtml += `
             <tr>
-                <td class="py-3">${typeBadge}</td>
-                <td class="py-3">
+                <td class="py-3 text-nowrap">${typeBadge}</td>
+                <td class="py-3 text-nowrap">
                     <div class="d-flex align-items-center">
                         <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3"><i class="${item.icon}"></i></div>
                         <div>
@@ -457,15 +900,14 @@ function renderBudgetDetail() {
                         </div>
                     </div>
                 </td>
-                <td class="py-3">${affectsBadge}</td>
-                <td class="py-3 fw-bold">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                <td class="py-3 text-end">
+                <td class="py-3 text-nowrap">${affectsBadge}</td>
+                <td class="py-3 fw-bold text-nowrap">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                <td class="py-3 text-end text-nowrap">
                     <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditBudgetItem(${item.id})"><i class="fas fa-edit"></i></button>
                     <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`;
 
-        // Vista Tarjetas (Móvil)
         cardsHtml += `
             <div class="col-12">
                 <div class="glass p-3 rounded d-flex justify-content-between align-items-center">
@@ -524,7 +966,6 @@ function saveBudgetItem() {
     budgetData[activeBudgetMonth].push(newItem);
     renderBudgetDetail();
 
-    // Limpiar formulario y cerrar modal
     document.getElementById('budgetTitle').value = '';
     document.getElementById('budgetAmount').value = '';
     document.getElementById('budgetDesc').value = '';
@@ -554,7 +995,6 @@ function openEditBudgetItem(id) {
 
     currentEditingBudgetItemId = id;
 
-    // Poblar selector de meses en el modal de edición
     const editMonthSelect = document.getElementById('editBudgetMonth');
     if (editMonthSelect) {
         let optionsHtml = '';
@@ -601,7 +1041,6 @@ function saveEditedBudgetItem() {
     itemObj.affectsBalance = document.getElementById('editBudgetAffectsBalance').checked;
     itemObj.desc = document.getElementById('editBudgetDesc').value.trim();
 
-    // Si cambió de mes, moverlo en la estructura maestro-detalle
     if (sourceMonth !== targetMonth) {
         budgetData[sourceMonth].splice(itemIndex, 1);
         if (!budgetData[targetMonth]) budgetData[targetMonth] = [];
@@ -689,7 +1128,6 @@ function saveEditedBudgetPeriod() {
         return;
     }
 
-    // Reasignar claves manteniendo el orden
     const newBudgetData = {};
     for (const [m, items] of Object.entries(budgetData)) {
         if (m === currentEditingPeriodName) {
@@ -728,7 +1166,7 @@ function confirmDeletePeriod(month) {
 
 
 // ==========================================
-// 5. MODALES AUXILIARES DE ALERTA Y CONFIRMACIÓN
+// 6. MODALES AUXILIARES DE ALERTA Y CONFIRMACIÓN
 // ==========================================
 
 function showAlertModal(title, text) {
@@ -749,7 +1187,6 @@ function showConfirmModal(title, text, onConfirmCallback) {
     if (titleEl) titleEl.textContent = title;
     if (textEl) textEl.textContent = text;
 
-    // Clonar el botón para limpiar eventos anteriores
     const newBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
 

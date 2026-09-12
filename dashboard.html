@@ -54,7 +54,7 @@
 
         <div class="sidebar-content">
             <a class="nav-item-custom active-link" onclick="navigate('dashboard', this)" data-tooltip="Dashboard"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
-            <a class="nav-item-custom" onclick="navigate('mantenimientos', this)" data-tooltip="Mantenimientos"><i class="fas fa-folder-open"></i> <span>Mantenimientos</span></a>
+            <a class="nav-item-custom" onclick="navigate('carteras', this)" data-tooltip="Carteras"><i class="fas fa-wallet"></i> <span>Carteras</span></a>
             <a class="nav-item-custom" onclick="navigate('metas', this)" data-tooltip="Metas"><i class="fas fa-bullseye"></i> <span>Metas</span></a>
             <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-file-invoice-dollar"></i> <span>Presupuestos</span></a>
         </div>
@@ -166,6 +166,93 @@
                 </div>
             </div>
 
+            <!-- GESTIÓN DE CARTERAS -->
+            <div id="carteras" class="app-view">
+                <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
+                    <div>
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                            <h2 class="fw-bold mb-0">Carteras</h2>
+                        </div>
+                        <p class="text-muted mb-0">Gestiona tus cuentas bancarias, alcancías y wallets virtuales.</p>
+                    </div>
+                    <button id="headerNewWalletBtn" class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px; display: none;" data-bs-toggle="modal" data-bs-target="#addWalletModal">
+                        <i class="fas fa-plus me-2"></i>Nueva Cartera
+                    </button>
+                </div>
+
+                <div class="row g-4" id="wallets-container">
+                    <!-- Las carteras se inyectarán aquí mediante JavaScript -->
+                </div>
+            </div>
+
+            <!-- VISTA DE MOVIMIENTOS DE CARTERA (NUEVA PÁGINA) -->
+            <div id="wallet-movements-view" class="app-view">
+                <!-- Botón Volver de primero arriba -->
+                <div class="mb-3">
+                    <button class="btn btn-outline-secondary btn-sm px-3 py-2" style="border-radius: 10px;" onclick="navigate('carteras', document.querySelector('.sidebar-content .nav-item-custom:nth-child(2)'))">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a Carteras
+                    </button>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1" id="pageWalletMovementsTitle">Movimientos de Cartera</h4>
+                        <p class="text-muted mb-0" id="pageWalletMovementsSubtitle">Filtrando registros de la cuenta.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                            <i class="fas fa-plus me-2"></i>Nueva Transacción
+                        </button>
+                        <!-- Botones Separados: Imprimir y Exportar en Excel con Tooltips -->
+                        <button class="btn btn-sm btn-outline-secondary px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="printWalletMovements()" title="Imprimir" data-bs-toggle="tooltip">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="exportWalletMovementsExcel()" title="Exportar" data-bs-toggle="tooltip">
+                            <i class="fas fa-file-excel"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros por Rango de Fecha -->
+                <div class="glass p-4 mb-4">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">Desde</label>
+                            <input type="date" id="filterDateFrom" class="form-control glass-input">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">Hasta</label>
+                            <input type="date" id="filterDateTo" class="form-control glass-input">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100 py-2" style="border-radius: 8px;" onclick="filterWalletMovements()">
+                                <i class="fas fa-search me-2"></i>Filtrar Movimientos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Movimientos -->
+                <div class="glass p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--glass-border);">
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">CONCEPTO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">FECHA Y HORA</th>
+                                    <th class="bg-transparent text-muted small py-3 text-end text-nowrap">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="page-wallet-movements-table-body">
+                                <!-- Inyectado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- GESTIÓN DE METAS -->
             <div id="metas" class="app-view">
                 <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
@@ -185,7 +272,7 @@
                 </div>
             </div>
 
-            <!-- PRESUPUESTOS Y RESERVAS (Estructura Maestro-Detalle) -->
+            <!-- PRESUPUESTOS Y RESERVAS -->
             <div id="presupuesto" class="app-view">
                 <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
                     <div>
@@ -204,7 +291,6 @@
                     <div class="col-lg-4 col-xl-3">
                         <div class="glass p-3 h-100">
                             <h5 class="fw-bold mb-4">Períodos</h5>
-                            <!-- Se aplicó overflow-y para el scroll, overflow-x oculto y min-height para asegurar espacio para el dropdown -->
                             <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px; padding-right: 4px; overflow-y: auto; overflow-x: hidden;">
                                 <!-- Inyectado por JS -->
                             </div>
@@ -216,7 +302,6 @@
                         <div class="glass p-4 h-100" id="detail-view-container">
                             <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4 pb-3 border-bottom border-secondary" style="border-opacity: 0.2;">
                                 <h4 class="fw-bold mb-0 text-primary" id="detail-month-title">Detalles</h4>
-                                <!-- Botón "Nuevo Registro" ubicado en la cabecera del detalle -->
                                 <button class="btn btn-sm btn-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
                                     <i class="fas fa-plus me-2"></i>Nuevo Registro
                                 </button>
@@ -256,14 +341,14 @@
                             <!-- Vista de Tabla (Escritorio) -->
                             <div class="d-none d-lg-block">
                                 <div class="table-responsive">
-                                    <table class="table table-hover align-middle mb-0" style="color: var(--bs-body-color);">
+                                    <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
                                         <thead>
                                             <tr style="border-bottom: 2px solid var(--glass-border);">
-                                                <th class="bg-transparent text-muted small py-3">TIPO</th>
-                                                <th class="bg-transparent text-muted small py-3">CONCEPTO</th>
-                                                <th class="bg-transparent text-muted small py-3">AFECTA BALANCE</th>
-                                                <th class="bg-transparent text-muted small py-3">MONTO</th>
-                                                <th class="bg-transparent text-muted small py-3 text-end">ACCIONES</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">CONCEPTO</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">AFECTA BALANCE</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
+                                                <th class="bg-transparent text-muted small py-3 text-end text-nowrap">ACCIONES</th>
                                             </tr>
                                         </thead>
                                         <tbody id="budget-table-body">
@@ -325,12 +410,107 @@
 
             <!-- Vistas adicionales -->
             <div id="detalles" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Reportes y Detalles</h2><p class="text-muted mt-2">Módulo de impresión y exportación a Excel.</p></div></div>
-            <div id="mantenimientos" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Mantenimientos</h2><p class="text-muted mt-2">Gestión de Bancos, Wallets y Categorías.</p></div></div>
 
         </div>
     </div>
 
-    <!-- Modal Nuevo Registro (Transacción) -->
+    <!-- Modal Nueva Cartera -->
+    <div class="modal fade" id="addWalletModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Registrar Nueva Cartera</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label text-muted small">Título de la Cartera</label>
+                    <input type="text" id="walletTitle" class="form-control glass-input" placeholder="Ej. Banco Popular, Efectivo, Wallet Crypto...">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Balance Inicial ($)</label>
+                    <input type="number" id="walletBalance" class="form-control glass-input" placeholder="0.00" value="0">
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Ícono</label>
+                    <select id="walletIcon" class="form-select glass-input">
+                        <option value="fas fa-university">🏦 Cuenta Bancaria</option>
+                        <option value="fas fa-piggy-bank">🐖 Alcancía</option>
+                        <option value="fas fa-wallet">💳 Billetera / Efectivo</option>
+                        <option value="fab fa-bitcoin">🪙 Criptomonedas</option>
+                        <option value="fas fa-money-check-alt">🧾 Cheques</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-switch p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="walletAffectsBalance" checked style="cursor: pointer;">
+                        <label class="form-check-label fw-medium ms-2" for="walletAffectsBalance" style="cursor: pointer;">
+                            Afecta el balance general
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción (Opcional)</label>
+                    <textarea id="walletDesc" class="form-control glass-input" rows="2" placeholder="Detalles de la cuenta..."></textarea>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewWallet()">Guardar Cartera</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Cartera -->
+    <div class="modal fade" id="editWalletModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Editar Cartera</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label text-muted small">Título de la Cartera</label>
+                    <input type="text" id="editWalletTitle" class="form-control glass-input">
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Ícono</label>
+                    <select id="editWalletIcon" class="form-select glass-input">
+                        <option value="fas fa-university">🏦 Cuenta Bancaria</option>
+                        <option value="fas fa-piggy-bank">🐖 Alcancía</option>
+                        <option value="fas fa-wallet">💳 Billetera / Efectivo</option>
+                        <option value="fab fa-bitcoin">🪙 Criptomonedas</option>
+                        <option value="fas fa-money-check-alt">🧾 Cheques</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-switch p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="editWalletAffectsBalance" style="cursor: pointer;">
+                        <label class="form-check-label fw-medium ms-2" for="editWalletAffectsBalance" style="cursor: pointer;">
+                            Afecta el balance general
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Descripción</label>
+                    <textarea id="editWalletDesc" class="form-control glass-input" rows="2"></textarea>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedWallet()">Actualizar Cartera</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Nuevo Registro (Transacción) Actualizado con Fecha/Hora y Operativo -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
@@ -340,27 +520,75 @@
           </div>
           <div class="modal-body">
             <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label text-muted small">Seleccionar Cartera</label>
+                    <select id="txWalletSelect" class="form-select glass-input">
+                        <!-- Se llena dinámicamente -->
+                    </select>
+                </div>
                 <div class="col-6">
                     <label class="form-label text-muted small">Tipo</label>
-                    <select class="form-select glass-input"><option>Gasto</option><option>Ingreso</option></select>
+                    <select id="txType" class="form-select glass-input">
+                        <option value="Gasto">Gasto</option>
+                        <option value="Ingreso">Ingreso</option>
+                    </select>
                 </div>
                 <div class="col-6">
                     <label class="form-label text-muted small">Monto ($)</label>
-                    <input type="number" class="form-control glass-input" placeholder="0.00">
+                    <input type="number" id="txAmount" class="form-control glass-input" placeholder="0.00">
                 </div>
                 <div class="col-12">
-                    <label class="form-label text-muted small">Categoría</label>
-                    <select class="form-select glass-input"><option>Alimentación</option><option>Servicios Básicos</option><option>Salario</option></select>
+                    <label class="form-label text-muted small">Fecha y Hora</label>
+                    <input type="datetime-local" id="txDateTime" class="form-control glass-input">
                 </div>
                 <div class="col-12">
-                    <label class="form-label text-muted small">Descripción (Opcional)</label>
-                    <textarea class="form-control glass-input" rows="2" placeholder="Detalles de la transacción..."></textarea>
+                    <label class="form-label text-muted small">Concepto / Descripción</label>
+                    <input type="text" id="txDesc" class="form-control glass-input" placeholder="Ej. Supermercado, Pago de cliente...">
                 </div>
             </div>
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;">Guardar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewTransaction()">Guardar Transacción</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Transacción -->
+    <div class="modal fade" id="editTransactionModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Editar Transacción</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-6">
+                    <label class="form-label text-muted small">Tipo</label>
+                    <select id="editTxType" class="form-select glass-input">
+                        <option value="Gasto">Gasto</option>
+                        <option value="Ingreso">Ingreso</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label text-muted small">Monto ($)</label>
+                    <input type="number" id="editTxAmount" class="form-control glass-input">
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Fecha y Hora</label>
+                    <input type="datetime-local" id="editTxDateTime" class="form-control glass-input">
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small">Concepto / Descripción</label>
+                    <input type="text" id="editTxDesc" class="form-control glass-input">
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedTransaction()">Actualizar</button>
           </div>
         </div>
       </div>
@@ -580,7 +808,7 @@
       </div>
     </div>
 
-    <!-- Modal Nuevo Período (Estética unificada) -->
+    <!-- Modal Nuevo Período -->
     <div class="modal fade" id="addBudgetPeriodModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content glass p-3 border-0" style="background: var(--body-bg);">
@@ -602,7 +830,7 @@
       </div>
     </div>
 
-    <!-- Modal Editar Período (Encabezado) -->
+    <!-- Modal Editar Período -->
     <div class="modal fade" id="editBudgetPeriodModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content glass p-3 border-0" style="background: var(--body-bg);">
