@@ -211,11 +211,11 @@ function renderWallets() {
                                     <i class="${wallet.icon}"></i>
                                 </div>
                                 <div>
-                                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <div class="d-flex align-items-center gap-1 flex-wrap mb-1">
                                         <h5 class="fw-bold mb-0">${wallet.title}</h5>
-                                        ${badgeAffects}
+                                        <small class="text-muted d-block" style="min-height: 20px;">${wallet.desc || 'Sin descripción'}</small>
                                     </div>
-                                    <small class="text-muted d-block" style="min-height: 20px;">${wallet.desc || 'Sin descripción'}</small>
+                                    ${badgeAffects}
                                 </div>
                             </div>
                             <div class="dropdown">
@@ -575,6 +575,80 @@ function showConfirmModal(title, text, callback) {
 
     const modal = new bootstrap.Modal(document.getElementById('actionConfirmModal'));
     modal.show();
+}
+
+function saveNewWallet() {
+    const title = document.getElementById('walletTitle').value.trim();
+    const balance = parseFloat(document.getElementById('walletBalance').value) || 0;
+    const icon = document.getElementById('walletIcon').value;
+    const affectsBalance = document.getElementById('walletAffectsBalance').checked;
+    const desc = document.getElementById('walletDesc').value.trim();
+
+    if (!title) {
+        showAlertModal('Datos incompletos', 'Por favor ingresa un título para la cartera.');
+        return;
+    }
+
+    const newWallet = {
+        id: Date.now(),
+        title,
+        balance,
+        icon,
+        affectsBalance,
+        desc,
+        movements: balance > 0 ? [{ id: Date.now(), type: 'Ingreso', desc: 'Balance inicial', date: '2026-09-12 12:23', amount: balance }] : []
+    };
+
+    userWallets.push(newWallet);
+    renderWallets();
+
+    document.getElementById('walletTitle').value = '';
+    document.getElementById('walletBalance').value = '0';
+    document.getElementById('walletDesc').value = '';
+    document.getElementById('walletAffectsBalance').checked = true;
+
+    const modalEl = document.getElementById('addWalletModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+}
+
+let currentEditingWalletId = null;
+
+function openEditWalletModal(id) {
+    const wallet = userWallets.find(w => w.id === id);
+    if (!wallet) return;
+
+    currentEditingWalletId = id;
+    document.getElementById('editWalletTitle').value = wallet.title;
+    document.getElementById('editWalletIcon').value = wallet.icon;
+    document.getElementById('editWalletAffectsBalance').checked = wallet.affectsBalance;
+    document.getElementById('editWalletDesc').value = wallet.desc || '';
+
+    const modal = new bootstrap.Modal(document.getElementById('editWalletModal'));
+    modal.show();
+}
+
+function saveEditedWallet() {
+    const wallet = userWallets.find(w => w.id === currentEditingWalletId);
+    if (!wallet) return;
+
+    wallet.title = document.getElementById('editWalletTitle').value.trim();
+    wallet.icon = document.getElementById('editWalletIcon').value;
+    wallet.affectsBalance = document.getElementById('editWalletAffectsBalance').checked;
+    wallet.desc = document.getElementById('editWalletDesc').value.trim();
+
+    renderWallets();
+
+    const modalEl = document.getElementById('editWalletModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+}
+
+function confirmDeleteWallet(id) {
+    showConfirmModal('¿Eliminar Cartera?', 'Esta acción eliminará la cartera permanentemente.', () => {
+        userWallets = userWallets.filter(w => w.id !== id);
+        renderWallets();
+    });
 }
 
 // ==========================================

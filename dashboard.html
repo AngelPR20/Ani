@@ -289,9 +289,9 @@
                 <div class="row g-4">
                     <!-- PANEL MAESTRO (Lista de Meses con Altura Máxima y Scroll) -->
                     <div class="col-lg-4 col-xl-3">
-                        <div class="glass p-3 h-100">
+                        <div class="glass p-3 overflow-auto">
                             <h5 class="fw-bold mb-4">Períodos</h5>
-                            <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px; padding-right: 4px; overflow-y: auto; overflow-x: hidden;">
+                            <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px; padding-right: 4px; /*overflow-y: auto; overflow-x: hidden;*/">
                                 <!-- Inyectado por JS -->
                             </div>
                         </div>
@@ -308,32 +308,28 @@
                             </div>
 
                             <!-- Resumen Financiero Superior -->
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
-                                        <div class="bg-danger bg-opacity-10 text-danger rounded p-3 me-3 fs-4"><i class="fas fa-file-invoice-dollar"></i></div>
-                                        <div>
-                                            <small class="text-muted d-block">Gastos Fijos</small>
-                                            <h5 class="fw-bold mb-0 text-danger" id="totalFixedExpenses">$0.00</h5>
-                                        </div>
+                            <div class="d-flex justify-content-around flex-wrap g-3 gap-2 mb-4">
+                                <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border); min-width:245px;">
+                                    <div class="bg-danger bg-opacity-10 text-danger rounded p-3 me-3 fs-4"><i class="fas fa-file-invoice-dollar"></i></div>
+                                    <div>
+                                        <small class="text-muted d-block">Gastos Fijos</small>
+                                        <h5 class="fw-bold mb-0 text-danger" id="totalFixedExpenses">$0.00</h5>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
-                                        <div class="bg-info bg-opacity-10 text-info rounded p-3 me-3 fs-4"><i class="fas fa-piggy-bank"></i></div>
-                                        <div>
-                                            <small class="text-muted d-block">Reservas</small>
-                                            <h5 class="fw-bold mb-0 text-info" id="totalReserves">$0.00</h5>
-                                        </div>
+
+                                <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border); min-width:245px;">
+                                    <div class="bg-info bg-opacity-10 text-info rounded p-3 me-3 fs-4"><i class="fas fa-piggy-bank"></i></div>
+                                    <div>
+                                        <small class="text-muted d-block">Reservas</small>
+                                        <h5 class="fw-bold mb-0 text-info" id="totalReserves">$0.00</h5>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
-                                        <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 fs-4"><i class="fas fa-balance-scale"></i></div>
-                                        <div>
-                                            <small class="text-muted d-block">Afecta Balance</small>
-                                            <h5 class="fw-bold mb-0 text-primary" id="totalAffectingBalance">$0.00</h5>
-                                        </div>
+
+                                <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border); min-width:245px;">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 fs-4"><i class="fas fa-balance-scale"></i></div>
+                                    <div>
+                                        <small class="text-muted d-block">Afecta Balance</small>
+                                        <h5 class="fw-bold mb-0 text-primary" id="totalAffectingBalance">$0.00</h5>
                                     </div>
                                 </div>
                             </div>
@@ -430,7 +426,7 @@
                 </div>
                 <div class="col-6">
                     <label class="form-label text-muted small">Balance Inicial ($)</label>
-                    <input type="number" id="walletBalance" class="form-control glass-input" placeholder="0.00" value="0">
+                    <input type="number" id="walletBalance" class="form-control glass-input" placeholder="0.00" value="">
                 </div>
                 <div class="col-6">
                     <label class="form-label text-muted small">Ícono</label>
@@ -624,7 +620,7 @@
                 </div>
                 <div class="col-6">
                     <label class="form-label text-muted small">Monto inicial alcanzado ($)</label>
-                    <input type="number" id="goalCurrent" class="form-control glass-input" placeholder="0.00" value="0">
+                    <input type="number" id="goalCurrent" class="form-control glass-input" placeholder="0.00" value="">
                 </div>
                 <div class="col-12">
                     <label class="form-label text-muted small">Ícono</label>
