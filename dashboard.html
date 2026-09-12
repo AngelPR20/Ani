@@ -58,7 +58,7 @@
             <a class="nav-item-custom active-link" onclick="navigate('dashboard', this)" data-tooltip="Dashboard"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
             <a class="nav-item-custom" onclick="navigate('carteras', this)" data-tooltip="Carteras"><i class="fas fa-wallet"></i> <span>Carteras</span></a>
             <a class="nav-item-custom" onclick="navigate('metas', this)" data-tooltip="Metas"><i class="fas fa-bullseye"></i> <span>Metas</span></a>
-            <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-file-invoice-dollar"></i> <span>Presupuestos</span></a>
+            <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-chart-pie"></i> <span>Presupuestos</span></a>
         </div>
 
         <div class="mt-2 border-top border-secondary pt-2" style="border-opacity: 0.2;">
@@ -186,11 +186,17 @@
 
             <!-- VISTA DE MOVIMIENTOS DE CARTERA (NUEVA PÁGINA) -->
             <div id="wallet-movements-view" class="app-view">
-                <!-- Botón Volver de primero arriba -->
-                <div class="mb-3">
+                <!-- Botón Volver de primero arriba (No visible en impresión) -->
+                <div class="mb-3 d-print-none">
                     <button class="btn btn-outline-secondary btn-sm px-3 py-2" style="border-radius: 10px;" onclick="navigate('carteras', document.querySelector('.sidebar-content .nav-item-custom:nth-child(2)'))">
                         <i class="fas fa-arrow-left me-2"></i>Volver a Carteras
                     </button>
+                </div>
+
+                <!-- Cabecera de reporte (Visible solo en impresión) -->
+                <div class="print-only-header text-center mb-4 pb-3" style="display: none; border-bottom: 2px solid #000;">
+                    <h2 class="fw-bold mb-1"><i class="fas fa-wallet text-dark me-2"></i> FinanzasPro</h2>
+                    <p class="mb-0">Informe Oficial de Movimientos de Cartera</p>
                 </div>
 
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
@@ -198,12 +204,12 @@
                         <h4 class="fw-bold mb-1" id="pageWalletMovementsTitle">Movimientos de Cartera</h4>
                         <p class="text-muted mb-0" id="pageWalletMovementsSubtitle">Filtrando registros de la cuenta.</p>
                     </div>
-                    <div class="d-flex gap-2">
+                    <!-- Acciones ocultables por JS si no hay data -->
+                    <div class="d-flex gap-2 d-print-none" id="walletMovementsActions">
                         <button class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
                             <i class="fas fa-plus me-2"></i>Nueva Transacción
                         </button>
-                        <!-- Botones Separados: Imprimir y Exportar en Excel con Tooltips -->
-                        <button class="btn btn-sm btn-outline-secondary px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="printWalletMovements()" title="Imprimir" data-bs-toggle="tooltip">
+                        <button class="btn btn-sm btn-outline-warning px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="printWalletMovements()" title="Imprimir" data-bs-toggle="tooltip">
                             <i class="fas fa-print"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-success px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="exportWalletMovementsExcel()" title="Exportar a Excel" data-bs-toggle="tooltip">
@@ -213,26 +219,26 @@
                 </div>
 
                 <!-- Filtros por Rango de Fecha -->
-                <div class="glass p-4 mb-4">
+                <div class="glass p-4 mb-4 d-print-none" id="walletMovementsFilters">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-4">
                             <label class="form-label text-muted small">Desde</label>
-                            <input type="date" id="filterDateFrom" class="form-control glass-input">
+                            <input type="date" id="filterDateFrom" class="form-control form-control-sm glass-input">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small">Hasta</label>
-                            <input type="date" id="filterDateTo" class="form-control glass-input">
+                            <input type="date" id="filterDateTo" class="form-control form-control-sm glass-input">
                         </div>
                         <div class="col-md-4">
-                            <button class="btn btn-primary w-100 py-2" style="border-radius: 8px;" onclick="filterWalletMovements()">
-                                <i class="fas fa-search me-2"></i>Filtrar Movimientos
+                            <button class="btn form-control-sm btn-secondary w-100 py-2" style="border-radius: 8px;" onclick="filterWalletMovements()">
+                                <i class="fas fa-search me-2"></i>Filtrar
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tabla de Movimientos -->
-                <div class="glass p-4">
+                <div class="glass p-4" id="walletTableContainer">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
                             <thead>
@@ -241,8 +247,8 @@
                                     <th class="bg-transparent text-muted small py-3 text-nowrap">CATEGORÍA</th>
                                     <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
                                     <th class="bg-transparent text-muted small py-3 text-nowrap">FECHA Y HORA</th>
-                                    <th class="bg-transparent text-muted small py-3 text-nowrap text-center">DETALLES</th>
-                                    <th class="bg-transparent text-muted small py-3 text-end text-nowrap">ACCIONES</th>
+                                    <th class="bg-transparent text-muted small py-3 text-center print-hide">DETALLES</th>
+                                    <th class="bg-transparent text-muted small py-3 text-end text-nowrap print-hide">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody id="page-wallet-movements-table-body">
@@ -262,7 +268,7 @@
                         </div>
                         <p class="text-muted mb-0">Gestiona y monitorea tus objetivos de ahorro y ganancias.</p>
                     </div>
-                    <button id="headerNewGoalBtn" class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                    <button id="headerNewGoalBtn" class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px; display: none;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
                         <i class="fas fa-plus me-2"></i>Nueva Meta
                     </button>
                 </div>
@@ -280,29 +286,29 @@
                         <p class="text-muted mb-0">Selecciona un período para gestionar sus registros.</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" onclick="addNewBudgetPeriodModal()">
-                            <i class="fas fa-calendar-plus me-2"></i>Nuevo Período
+                        <button class="btn btn-sm btn-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" onclick="addNewBudgetPeriodModal()">
+                            <i class="fas fa-calendar-plus me-2"></i>Crear Período
                         </button>
                     </div>
                 </div>
 
                 <div class="row g-4">
-                    <!-- PANEL MAESTRO (Lista de Meses con Altura Máxima y Scroll) -->
+                    <!-- PANEL MAESTRO -->
                     <div class="col-lg-4 col-xl-3">
                         <div class="glass p-3 overflow-auto">
                             <h5 class="fw-bold mb-4">Períodos</h5>
-                            <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px; padding-right: 4px; /*overflow-y: auto; overflow-x: hidden;*/">
+                            <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px;">
                                 <!-- Inyectado por JS -->
                             </div>
                         </div>
                     </div>
 
-                    <!-- PANEL DETALLE (Registros del Mes) -->
+                    <!-- PANEL DETALLE -->
                     <div class="col-lg-8 col-xl-9">
                         <div class="glass p-4 h-100" id="detail-view-container">
                             <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4 pb-3 border-bottom border-secondary" style="border-opacity: 0.2;">
-                                <h4 class="fw-bold mb-0 text-primary" id="detail-month-title">Detalles</h4>
-                                <button class="btn btn-sm btn-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
+                                <h4 class="fw-bold mb-0 text-info" id="detail-month-title">Detalles</h4>
+                                <button class="btn btn-sm btn-outline-success px-2 py-2 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
                                     <i class="fas fa-plus me-2"></i>Nuevo Registro
                                 </button>
                             </div>
@@ -454,7 +460,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewWallet()">Guardar Cartera</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewWallet()">Guardar</button>
           </div>
         </div>
       </div>
@@ -500,13 +506,13 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedWallet()">Actualizar Cartera</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedWallet()">Editar</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal Nuevo Registro (Transacción) Actualizado (Sin walletSelect, fecha/hora separadas, categoría y descripción opcional) -->
+    <!-- Modal Nuevo Registro (Transacción) -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
@@ -547,7 +553,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewTransaction()">Guardar Transacción</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewTransaction()">Guardar</button>
           </div>
         </div>
       </div>
@@ -594,7 +600,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedTransaction()">Actualizar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedTransaction()">Editar</button>
           </div>
         </div>
       </div>
@@ -641,7 +647,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewGoal()">Guardar Meta</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewGoal()">Guardar</button>
           </div>
         </div>
       </div>
@@ -688,7 +694,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedGoal()">Actualizar Meta</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedGoal()">Editar</button>
           </div>
         </div>
       </div>
@@ -745,7 +751,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveBudgetItem()">Guardar Item</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveBudgetItem()">Guardar</button>
           </div>
         </div>
       </div>
@@ -761,14 +767,15 @@
           </div>
           <div class="modal-body">
             <div class="row g-3">
-                <div class="col-6">
+                <div class="col-12">
                     <label class="form-label text-muted small">Tipo</label>
                     <select id="editBudgetType" class="form-select glass-input">
                         <option value="Gasto Fijo">Gasto Fijo</option>
                         <option value="Reserva">Reserva de Efectivo</option>
                     </select>
                 </div>
-                <div class="col-6">
+                <!-- Oculto para no permitir cambiar el mes ya que es un periodo especifico -->
+                <div class="col-6 d-none">
                     <label class="form-label text-muted small">Mes / Período</label>
                     <select id="editBudgetMonth" class="form-select glass-input">
                         <!-- Dinámico -->
@@ -808,7 +815,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedBudgetItem()">Actualizar Item</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedBudgetItem()">Editar</button>
           </div>
         </div>
       </div>

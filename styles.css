@@ -454,3 +454,99 @@ a:hover { text-decoration: underline; opacity: 0.8; }
     -webkit-text-fill-color: transparent;
 }
 .grad-bg-green { background: linear-gradient(90deg, #22c55e, #16a34a) !important; }
+
+/* COLORES Y GRADIENTES PARA METAS */
+.bg-gradient-danger {
+    background: linear-gradient(90deg, #dc3545 0%, #ff6b6b 100%) !important;
+}
+.bg-gradient-warning {
+    background: linear-gradient(90deg, #fd7e14 0%, #ffc107 100%) !important;
+}
+.bg-gradient-success-light {
+    background: linear-gradient(90deg, #6bc87a 0%, #95d5b2 100%) !important;
+}
+.bg-gradient-success-dark {
+    background: linear-gradient(90deg, #198754 0%, #2d6a4f 100%) !important;
+}
+.text-success-light { color: #6bc87a !important; }
+.text-success-dark { color: #198754 !important; }
+
+/* DISEÑO ELEGANTE DE IMPRESIÓN (INFORME CARTERAS) */
+@media print {
+    /* Reset de fondos a blanco puro y textos a negro/gris oscuro */
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Ocultar elementos de UI y navegación */
+    #sidebar, #mobile-header, .sidebar-collapse-btn,
+    .d-print-none, .print-hide, .modal {
+        display: none !important;
+    }
+
+    /* Ocultar todas las vistas menos la de impresión */
+    #main-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .app-view:not(#wallet-movements-view) {
+        display: none !important;
+    }
+    #wallet-movements-view {
+        display: block !important;
+        position: relative !important;
+        width: 100% !important;
+        background: transparent !important;
+    }
+
+    /* Mostrar cabecera de informe */
+    .print-only-header {
+        display: block !important;
+    }
+
+    /* Eliminar diseño Glassmorphism para impresión */
+    .glass {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        padding: 0 !important;
+    }
+
+    /* Tablas elegantes en papel */
+    table.table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+    table.table thead th {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+        border-top: 1px solid #000 !important;
+        border-bottom: 2px solid #000 !important;
+        padding: 12px 8px !important;
+        font-weight: bold !important;
+    }
+    table.table tbody td {
+        border-bottom: 1px solid #dee2e6 !important;
+        padding: 10px 8px !important;
+        color: #333 !important;
+    }
+
+    /* Forzar visibilidad de colores que queramos mantener */
+    .text-success { color: #198754 !important; }
+    .text-danger { color: #dc3545 !important; }
+    
+    /* Eliminar backgrounds de iconos */
+    .rounded-circle.bg-opacity-10 {
+        background-color: transparent !important;
+        border: 1px solid #ccc !important;
+    }
+    
+    @page {
+        margin: 1.5cm;
+        size: auto;
+    }
+}
