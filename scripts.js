@@ -978,7 +978,7 @@ function renderBudgetDetails() {
         const hasDesc = item.desc && item.desc.trim() !== '';
         const descIconHtml = hasDesc 
             ? `<button type="button" class="btn btn-sm btn-link text-info p-0 shadow-none" data-bs-toggle="tooltip" data-bs-placement="top" title="${item.desc}"><i class="fas fa-info-circle fs-5"></i></button>`
-            : `<span class="text-muted small">-</span>`;
+            : `<span class="text-muted small mt-1">-</span>`;
 
         const affectsBadge = item.affectsBalance 
             ? '<span class="text-success small fw-medium"><i class="fas fa-check-circle me-1"></i>Sí</span>' 
@@ -999,12 +999,19 @@ function renderBudgetDetails() {
 
         cardsHtml += `
             <div class="col-12">
-                <div class="glass p-3 d-flex justify-content-between align-items-center">
+                <div class="glass p-3 d-flex justify-content-between align-items-center shadow-none border-0 border-top border-bottom rounded-0">
+                    
+                
                     <div>
-                        <div class="mb-1">${typeBadge}</div>
-                        <h6 class="fw-bold mb-1"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
+                        <div class="d-flex gap-3">
+                            <div class="mb-2">${typeBadge}</div>
+                            ${descIconHtml}
+                        </div>
+                        <h6 class="fw-bold my-2"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
                         <small class="text-muted d-block">Afecta Balance: ${item.affectsBalance ? 'Sí' : 'No'}</small>
                     </div>
+                    
+
                     <div class="text-end">
                         <h5 class="fw-bold mb-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
                         <div>
