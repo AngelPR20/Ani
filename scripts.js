@@ -210,8 +210,8 @@ function renderWallets() {
                                     <i class="${wallet.icon}"></i>
                                 </div>
                                 <div>
-                                    <div class="d-flex align-items-center gap-1 flex-wrap mb-1">
-                                        <h5 class="fw-bold mb-0">${wallet.title}</h5>
+                                    <div class="d-flex align-items-center gap-1 flex-wrap mb-1 me-2">
+                                        <h6 class="fw-bold mb-0">${wallet.title}</h6>
                                     </div>
                                     ${badgeAffects}
                                 </div>
@@ -227,13 +227,13 @@ function renderWallets() {
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-2 pb-4 border-bottom border-secondary d-flex justify-content-between align-items-center" style="border-opacity: 0.1;">
+                        <div class="mb-1 pb-2 border-secondary d-flex justify-content-between align-items-center" style="border-opacity: 0.1;">
                             <div>
-                                <span class="text-muted small d-block mb-1">Balance Actual</span>
+                                <span class="text-muted text-small small d-block mb-1">Balance Actual</span>
                                 <h5 class="fw-bold mb-0 ${balanceColorClass}">$${formattedBalance}</h5>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-primary px-2 py-1 mt-2" style="border-radius: 8px;" onclick="openWalletMovementsPage(${wallet.id})">
+                        <button class="btn btn-sm btn-outline-secondary px-2 py-1 mt-1" style="border-radius: 8px;" onclick="openWalletMovementsPage(${wallet.id})">
                             <i class="fas fa-list-alt me-1"></i> Ver Movimientos
                         </button>
                     </div>
@@ -310,7 +310,7 @@ function exportWalletMovementsExcel() {
     const dataToExport = movements.map(m => ({
         'Tipo': m.type,
         'Categoría (Concepto)': m.category || 'General',
-        'Monto ($)': m.amount,
+        'Monto': m.amount,
         'Fecha y Hora': m.date,
         'Descripción': m.desc || ''
     }));
@@ -404,8 +404,8 @@ function renderWalletMovementsTable() {
                 <td class="py-3 text-muted small text-nowrap">${mov.date}</td>
                 <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
                 <td class="py-3 text-end text-nowrap print-hide">
-                    <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditTransactionModal(${mov.id})"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteTransaction(${mov.id})"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn btn-sm btn-outline-primary p-1 px-2" onclick="openEditTransactionModal(${mov.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger p-1 px-2" onclick="confirmDeleteTransaction(${mov.id})"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`;
     });
@@ -737,9 +737,7 @@ function renderGoals() {
                                 <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 fs-4">
                                     <i class="${goal.icon}"></i>
                                 </div>
-                                <div>
-                                    <h5 class="fw-bold mb-0">${goal.title}</h5>
-                                </div>
+                                <h5 class="fw-bold mb-0 me-2">${goal.title}</h5>
                             </div>
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-exclamation-circle text-muted me-2" style="cursor:help;" data-bs-toggle="tooltip" data-bs-placement="top" title="${goal.desc || 'Sin descripción provista'}"></i>
@@ -752,13 +750,13 @@ function renderGoals() {
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-end align-items-center mb-2">
+                        <div class="d-flex align-items-center mb-2">
                             <h4 class="fw-bold mb-0 ${colorClass}">${percent.toFixed(1)}%</h4>
                         </div>
                         <div class="progress mb-2" style="height: 8px; border-radius: 10px; background: var(--input-bg);">
                             <div class="progress-bar ${gradientClass}" style="width: ${percent}%; border-radius: 10px;"></div>
                         </div>
-                        <small class="text-muted d-block">$${formattedCurrent} - $${formattedTarget}</small>
+                        <small class="text-muted d-block">$${formattedCurrent} / $${formattedTarget}</small>
                     </div>
                 </div>
             </div>`;
@@ -977,6 +975,11 @@ function renderBudgetDetails() {
             ? '<span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">Gasto Fijo</span>' 
             : '<span class="badge bg-info bg-opacity-10 text-info px-2 py-1">Reserva</span>';
         
+        const hasDesc = item.desc && item.desc.trim() !== '';
+        const descIconHtml = hasDesc 
+            ? `<button type="button" class="btn btn-sm btn-link text-info p-0 shadow-none" data-bs-toggle="tooltip" data-bs-placement="top" title="${item.desc}"><i class="fas fa-info-circle fs-5"></i></button>`
+            : `<span class="text-muted small">-</span>`;
+
         const affectsBadge = item.affectsBalance 
             ? '<span class="text-success small fw-medium"><i class="fas fa-check-circle me-1"></i>Sí</span>' 
             : '<span class="text-muted small fw-medium"><i class="fas fa-times-circle me-1"></i>No</span>';
@@ -985,11 +988,12 @@ function renderBudgetDetails() {
             <tr>
                 <td class="py-3 text-nowrap">${typeBadge}</td>
                 <td class="py-3 fw-medium text-nowrap"><i class="${item.icon} me-2 text-primary"></i>${item.title}</td>
-                <td class="py-3 text-nowrap">${affectsBadge}</td>
+                <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
+                <td class="py-3 text-nowrap text-center">${affectsBadge}</td>
                 <td class="py-3 fw-bold text-nowrap">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                 <td class="py-3 text-end text-nowrap">
-                    <button class="btn btn-sm btn-link text-primary p-1" onclick="openEditBudgetItemModal(${item.id})"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-link text-danger p-1" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn btn-sm btn-outline-primary p-1 px-2" onclick="openEditBudgetItemModal(${item.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger p-1 px-2" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`;
 
