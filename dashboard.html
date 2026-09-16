@@ -59,9 +59,16 @@
             <a class="nav-item-custom" onclick="navigate('carteras', this)" data-tooltip="Carteras"><i class="fas fa-wallet"></i> <span>Carteras</span></a>
             <a class="nav-item-custom" onclick="navigate('metas', this)" data-tooltip="Metas"><i class="fas fa-bullseye"></i> <span>Metas</span></a>
             <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-chart-pie"></i> <span>Presupuestos</span></a>
+            <a class="nav-item-custom" onclick="navigate('mantenimientos', this)" data-tooltip="Mantenimientos"><i class="fas fa-tools"></i> <span>Mantenimientos</span></a>
         </div>
 
         <div class="mt-2 border-top border-secondary pt-2 others-sidebar-content" style="border-opacity: 0.2;">
+            <a class="nav-item-custom position-relative" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones">
+                <i class="fas fa-bell bell-ring" style="color:#cfcf20b0"></i> <span>Notificaciones</span>
+                <span class="position-absolute top-50 end-0 translate-middle-y p-1 bg-danger border border-light rounded-circle me-2">
+                    <span class="visually-hidden">Nuevas alertas</span>
+                </span>
+            </a>
             <a class="nav-item-custom" onclick="navigate('configuracion', this)" data-tooltip="Configuración"><i class="fas fa-cog"></i> <span>Configuración</span></a>
             <a class="nav-item-custom text-danger mt-1" onclick="logout()" data-tooltip="Cerrar Sesión"><i class="fas fa-sign-out-alt text-danger"></i> <span>Cerrar Sesión</span></a>
         </div>
@@ -72,9 +79,17 @@
             
             <div id="mobile-header">
                 <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i> FinanzasPro</h5>
-                <button class="btn btn-outline-danger border-0 d-flex align-items-center justify-content-center p-2" onclick="logout()" style="border-radius: 8px; width: 40px; height: 40px;">
-                    <i class="fas fa-sign-out-alt fs-5"></i>
-                </button>
+                <div class="d-flex g-2">
+                    <button class="bell-ring btn btn-outline-warning border-0 d-flex align-items-center justify-content-center p-2" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones" sonclick="showAlertModal('Notificaciones', 'No tienes nuevas notificaciones por el momento.')" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Notificaciones">
+                        <i class="fas fa-bell fs-5"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary border-0 d-flex align-items-center justify-content-center p-2" onclick="navigate('configuracion', document.querySelector('.others-sidebar-content .nav-item-custom:first-child'))" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Configuración">
+                        <i class="fas fa-cog fs-5"></i>
+                    </button>
+                    <button class="btn btn-outline-danger border-0 d-flex align-items-center justify-content-center p-2" onclick="logout()" style="border-radius: 8px; width: 40px; height: 40px;">
+                        <i class="fas fa-sign-out-alt fs-5"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- DASHBOARD ADMIN -->
@@ -372,6 +387,92 @@
                                 <div class="row gg-3" id="budget-cards-container">
                                     <!-- Inyectado mediante JavaScript -->
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MANTENIMIENTOS (NUEVA PÁGINA) -->
+            <div id="mantenimientos" class="app-view">
+                <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Mantenimientos</h2>
+                        <p class="text-muted mb-0">Administra los parámetros base del sistema.</p>
+                    </div>
+                </div>
+                
+                <div class="glass p-4">
+                    <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3 border-secondary" style="border-opacity: 0.2;" id="mant-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-medium px-4 border rounded-pill" data-bs-toggle="pill" data-bs-target="#mant-cats" type="button" role="tab"><i class="fas fa-tags me-2"></i>Categorías</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-medium px-4 border rounded-pill" data-bs-toggle="pill" data-bs-target="#mant-icons" type="button" role="tab"><i class="fas fa-icons me-2"></i>Iconos</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-medium px-4 border rounded-pill" data-bs-toggle="pill" data-bs-target="#mant-users" type="button" role="tab"><i class="fas fa-users me-2"></i>Usuarios</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Usuarios -->
+                        <div class="tab-pane fade" id="mant-users">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5>Listado de Usuarios</h5>
+                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openAddUserModal()"><i class="fas fa-plus me-1"></i>Nuevo Usuario</button>
+                            </div>
+
+                            <div class="glass p-4" id="walletTableContainer">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
+                                        <thead>
+                                            <tr style="border-bottom: 2px solid var(--glass-border);">
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap"></th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">NOMBRE</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">EMAIL</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">ROL</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-mant-users">
+                                            <!-- Inyectado por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Iconos -->
+                        <div class="tab-pane fade" id="mant-icons">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5>Listado de Iconos</h5>
+                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#iconModal" onclick="openAddIconModal()"><i class="fas fa-plus me-1"></i>Nuevo Icono</button>
+                            </div>
+                            <div class="row g-2" id="grid-mant-icons">
+                                <!-- JS Dinámico -->
+                            </div>
+                        </div>
+
+                        <!-- Categorías -->
+                        <div class="tab-pane fade" id="mant-cats">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5>Listado de Categorías</h5>
+                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;"><i class="fas fa-plus me-1"></i>Nueva Categoría</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>DESCRIPCIÓN</th>
+                                            <th class="text-end"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-mant-cats">
+                                        <!-- JS Dinámico -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -871,6 +972,125 @@
         </div>
       </div>
     </div>
+
+    
+    <!-- MODAL DE NOTIFICACIONES -->
+    <div class="modal fade" id="notificationsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-bell text-warning me-2"></i> Notificaciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="notificationsList">
+                    <!-- Dinámico vía JS -->
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal" style="border-radius: 10px;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales de Mantenimiento: USUARIOS -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="userModalTitle">Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="userId">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small">URL del Avatar (Opcional)</label>
+                            <input type="text" id="userAvatar" class="form-control glass-input" placeholder="https://ejemplo.com/avatar.jpg">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Nombre Completo</label>
+                            <input type="text" id="userName" class="form-control glass-input">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Email</label>
+                            <input type="email" id="userEmail" class="form-control glass-input">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Rol</label>
+                            <select id="userRole" class="form-select glass-input">
+                                <option value="Admin">Admin</option>
+                                <option value="Editor">Editor</option>
+                                <option value="Viewer">Viewer</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveUser()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales de Mantenimiento: ICONOS -->
+    <div class="modal fade" id="iconModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="iconModalTitle">Ícono</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="iconId">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Clase FontAwesome (Ej: fas fa-car)</label>
+                            <input type="text" id="iconClass" class="form-control glass-input">
+                        </div>
+                        <div class="col-12 d-none">
+                            <label class="form-label text-muted small">Descripción</label>
+                            <input type="text" id="iconDesc" class="form-control glass-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveIcon()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales de Mantenimiento: CATEGORÍAS -->
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="categoryModalTitle">Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="categoryId">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Descripción</label>
+                            <input type="text" id="categoryDesc" class="form-control glass-input">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Ícono Asociado</label>
+                            <select id="categoryIconId" class="form-select glass-input"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveCategory()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal Elegante de Confirmación -->
     <div class="modal fade" id="actionConfirmModal" tabindex="-1">

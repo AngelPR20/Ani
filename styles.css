@@ -182,6 +182,17 @@ a:hover { text-decoration: underline; opacity: 0.8; }
 }
 
 #mobile-header { display: none; }
+/* Animación Notificaciones */
+@keyframes ring {
+    0% { transform: rotate(0); }
+    10% { transform: rotate(15deg); }
+    20% { transform: rotate(-10deg); }
+    30% { transform: rotate(5deg); }
+    40% { transform: rotate(-5deg); }
+    50% { transform: rotate(0); }
+    100% { transform: rotate(0); }
+}
+.bell-ring { animation: ring 2.5s infinite; color: #cfcf20b0; }
 
 /* -------------------------------------------------------------
    DISPOSITIVOS MÓVILES (ESTILO FLUTTER BOTTOM NAVIGATION BAR)
@@ -236,7 +247,7 @@ a:hover { text-decoration: underline; opacity: 0.8; }
         display: contents;
     }
 
-    #sidebar a[onclick="logout()"] {
+    #sidebar a[onclick="logout()"], #sidebar a[onclick="navigate('configuracion', this)"], #sidebar a[data-bs-toggle="modal"] {
         display: none !important;
     }
 

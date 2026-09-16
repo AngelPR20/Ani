@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMasterBudget();
     renderGoals();
     renderWallets();
+    initMaintenances();
 
     // Gráfico de Barras (Ingresos vs Gastos Anuales)
     const barCtx = document.getElementById('barChart');
@@ -1209,5 +1210,251 @@ function confirmDeleteBudgetPeriod(periodId) {
             activeBudgetPeriodId = masterBudgets.length > 0 ? masterBudgets[0].id : null;
         }
         initMasterBudget();
+    });
+}
+
+// ==========================================
+// 2. MANTENIMIENTOS (USUARIOS, ICONOS, CATEGORÍAS)
+// ==========================================
+
+// let sysUsers = [
+//     { id: 1, avatar: 'fas fa-user-tie', name: 'Admin User', email: 'admin@finanzaspro.com', role: 'Administrador' }
+// ];
+let sysUsers = [
+    { id: 1, avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', name: 'Admin Principal', email: 'admin@finanzaspro.com', role: 'Admin' },
+    { id: 2, avatar: '', name: 'Juan Perez', email: 'juan@moca.com', role: 'Editor' } // Perfil de ejemplo.
+];
+
+let sysIcons = [
+    { id: 1, val: 'fas fa-university', text: '🏦 Cuenta Bancaria' },
+    { id: 2, val: 'fas fa-piggy-bank', text: '🐖 Alcancía' },
+    { id: 3, val: 'fas fa-wallet', text: '💳 Billetera / Efectivo' },
+    { id: 4, val: 'fab fa-bitcoin', text: '🪙 Criptomonedas' },
+    { id: 5, val: 'fas fa-money-check-alt', text: '🧾 Cheques' },
+    { id: 6, val: 'fas fa-briefcase', text: '💼 Maletín (Trabajo/Salario)' },
+    { id: 7, val: 'fas fa-gift', text: '🎁 Regalo (Bonos)' },
+    { id: 8, val: 'fas fa-globe-americas', text: '🌎 Mundo (Remesas)' },
+    { id: 9, val: 'fas fa-car', text: '🚗 Auto' },
+    { id: 10, val: 'fas fa-home', text: '🏠 Casa' },
+    { id: 11, val: 'fas fa-bolt', text: '⚡ Luz Eléctrica' },
+    { id: 12, val: 'fas fa-shopping-basket', text: '🛒 Compras / Mercado' },
+    { id: 13, val: 'fas fa-shield-alt', text: '🛡️ Fondo de Emergencia' },
+    { id: 14, val: 'fas fa-wifi', text: '📶 Internet / Servicios' }
+];
+
+let sysCategories = [
+    { id: 1, desc: 'Luz Eléctrica', iconId: 'fas fa-bolt' },
+    { id: 2, desc: 'Supermercado', iconId: 'fas fa-shopping-basket' },
+    { id: 3, desc: 'Nómina / Salario', iconId: 'fas fa-briefcase' },
+    { id: 4, desc: 'Inversión', iconId: 'fas fa-piggy-bank' },
+    { id: 5, desc: 'Vivienda', iconId: 'fas fa-home' },
+    { id: 6, desc: 'General', iconId: 'fas fa-wallet' }
+];
+
+let notificacionesData = [
+    { id: 1, icon: 'fas fa-motorcycle text-primary', title: 'Recordatorio', text: 'Recuerda revisar el nivel de aceite 20W-50 de tu motocicleta Tauro Fénix 105 para mantenerla en óptimas condiciones locales.', time: 'Hace 2 horas' },
+    { id: 2, icon: 'fas fa-map-marker-alt text-info', title: 'Seguridad', text: 'Nuevo inicio de sesión detectado en Moca, Provincia Espaillat.', time: 'Hace 5 horas' },
+    { id: 3, icon: 'fas fa-chart-line text-success', title: 'Meta alcanzada', text: '¡Felicidades! Has superado el 50% de tu meta de ahorro.', time: 'Ayer' }
+];
+
+function initMaintenances() {
+    renderMantUsers();
+    renderMantIcons();
+    renderMantCategories();
+    renderNotifications();
+    populateSelects();
+}
+
+function renderMantUsers() {
+    const tbody = document.getElementById('table-mant-users');
+    // const avatarImg = u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`;
+    if (!tbody) return;
+    tbody.innerHTML = sysUsers.map(u => `
+        <tr>
+            <td>${u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`}
+            
+            </td>
+            <td class="fw-medium">${u.name}</td>
+            <td class="text-muted">${u.email}</td>
+            <td><span class="badge bg-secondary bg-opacity-10 text-secondary">${u.role}</span></td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary p-1 px-2" onclick="editUser(${u.id})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline-danger p-1 px-2" onclick="deleteUser(${u.id})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderMantIcons() {
+    const grid = document.getElementById('grid-mant-icons');
+    if (!grid) return;
+    grid.innerHTML = sysIcons.map(icon => `
+        <div class="col-4 col-ssm-4 col-md-2 col-lg-2">
+            <div class="p-3 border rounded text-center position-relative" style="border-color: var(--glass-border) !important; background: var(--input-bg);">
+                <i class="${icon.val} fs-3 text-primary my-3"></i>
+            
+                <div class="dropdown position-absolute top-0 end-0 m-2">
+                    <button class="btn btn-sm btn-link text-muted px-2 py-1" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                        <li><button class="dropdown-item py-2" onclick="editIcon(${icon.id})"><i class="fas fa-edit me-2 text-primary"></i>Editar</button></li>
+                        <li><button class="dropdown-item py-2 text-danger" onclick="deleteIcon(${icon.id})"><i class="fas fa-trash-alt me-2"></i>Eliminar</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderMantCategories() {
+    const tbody = document.getElementById('table-mant-cats');
+    if (!tbody) return;
+    tbody.innerHTML = sysCategories.map(cat => `
+        <tr>
+            <td><i class="${cat.iconId} text-primary fs-5"></i></td>
+            <td class="fw-medium">${cat.desc}</td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary p-1 px-2"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline-danger p-1 px-2"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+
+// --- RENDER NOTIFICACIONES ---
+function renderNotifications() {
+    const list = document.getElementById('notificationsList');
+    if (!list) return;
+
+    if (notificacionesData.length === 0) {
+        list.innerHTML = `<p class="text-muted text-center py-4">No tienes notificaciones nuevas.</p>`;
+        return;
+    }
+
+    let html = '';
+    notificacionesData.forEach(n => {
+        html += `
+            <div class="d-flex align-items-start p-3 mb-2 rounded border" style="background: var(--input-bg);">
+                <div class="fs-4 me-3">${n.icon.includes('<') ? n.icon : `<i class="${n.icon}"></i>`}</div>
+                <div>
+                    <h6 class="fw-bold mb-1">${n.title}</h6>
+                    <p class="text-muted small mb-1">${n.text}</p>
+                    <small class="text-primary fw-medium" style="font-size: 0.75rem;">${n.time}</small>
+                </div>
+            </div>`;
+    });
+    list.innerHTML = html;
+}
+
+function populateSelects() {
+    // Selects de iconos
+    const iconOptions = sysIcons.map(icon => `<option value="${icon.val}">${icon.text}</option>`).join('');
+    ['walletIcon', 'editWalletIcon', 'goalIcon', 'editGoalIcon'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = iconOptions;
+    });
+
+    // Selects de categorías
+    const catOptions = sysCategories.map(cat => `<option value="${cat.id}">${cat.desc}</option>`).join('');
+    ['txCategorySelect', 'editTxCategorySelect', 'budgetCategory', 'editBudgetCategory'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = catOptions;
+    });
+}
+
+
+// USUARIOS
+function openAddUserModal() {
+    document.getElementById('userId').value = '';
+    document.getElementById('userAvatar').value = '';
+    document.getElementById('userName').value = '';
+    document.getElementById('userEmail').value = '';
+    document.getElementById('userRole').value = 'Viewer';
+    document.getElementById('userModalTitle').textContent = 'Nuevo Usuario';
+}
+
+function editUser(id) {
+    const u = sysUsers.find(x => x.id === id);
+    if (!u) return;
+    document.getElementById('userId').value = u.id;
+    document.getElementById('userAvatar').value = u.avatar;
+    document.getElementById('userName').value = u.name;
+    document.getElementById('userEmail').value = u.email;
+    document.getElementById('userRole').value = u.role;
+    document.getElementById('userModalTitle').textContent = 'Editar Usuario';
+    new bootstrap.Modal(document.getElementById('userModal')).show();
+}
+
+function saveUser() {
+    const id = document.getElementById('userId').value;
+    const data = {
+        avatar: document.getElementById('userAvatar').value.trim(),
+        name: document.getElementById('userName').value.trim(),
+        email: document.getElementById('userEmail').value.trim(),
+        role: document.getElementById('userRole').value
+    };
+    if(!data.name || !data.email) { showAlertModal('Error', 'Nombre y Email son requeridos.'); return; }
+
+    if (id) {
+        const idx = sysUsers.findIndex(x => x.id == id);
+        sysUsers[idx] = { ...sysUsers[idx], ...data };
+    } else {
+        sysUsers.push({ id: Date.now(), ...data });
+    }
+    renderMantUsers();
+    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+}
+
+function deleteUser(id) {
+    showConfirmModal('¿Eliminar Usuario?', 'El usuario será removido del sistema.', () => {
+        sysUsers = sysUsers.filter(x => x.id !== id);
+        renderMantUsers();
+    });
+}
+
+// ICONOS
+function openAddIconModal() {
+    document.getElementById('iconId').value = '';
+    document.getElementById('iconClass').value = '';
+    document.getElementById('iconDesc').value = '';
+    document.getElementById('iconModalTitle').textContent = 'Nuevo Ícono';
+}
+
+function editIcon(id) {
+    const i = sysIcons.find(x => x.id === id);
+    if (!i) return;
+    document.getElementById('iconId').value = i.id;
+    document.getElementById('iconClass').value = i.val;
+    document.getElementById('iconDesc').value = i.text;
+    document.getElementById('iconModalTitle').textContent = 'Editar Ícono';
+    new bootstrap.Modal(document.getElementById('iconModal')).show();
+}
+
+function saveIcon() {
+    const id = document.getElementById('iconId').value;
+    const classVal = document.getElementById('iconClass').value.trim();
+    const desc = document.getElementById('iconDesc').value.trim();
+    if(!classVal || !desc) { showAlertModal('Error', 'Todos los campos son obligatorios.'); return; }
+
+    if (id) {
+        const idx = sysIcons.findIndex(x => x.id == id);
+        sysIcons[idx] = { ...sysIcons[idx], val: classVal, text: desc };
+    } else {
+        console.log(sysIcons);
+        sysIcons.push({ id: sysIcons.length+2, val: classVal, text: desc });
+        console.log(Math.max(...sysIcons.map(x => x.id)));
+        console.log(sysIcons);
+
+    }
+    renderMantIcons();
+    populateSelects(); // Actualizar listados
+    bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
+}
+
+function deleteIcon(id) {
+    showConfirmModal('¿Eliminar Ícono?', 'Asegúrate de que no esté en uso.', () => {
+        sysIcons = sysIcons.filter(x => x.id !== id);
+        renderMantIcons();
+        populateSelects();
     });
 }
