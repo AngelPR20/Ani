@@ -12,7 +12,7 @@ function navigate(viewId, element) {
     }
 
     if (element) {
-        document.querySelectorAll('.sidebar-content .nav-item-custom').forEach(nav => {
+        document.querySelectorAll('.sidebar-content .nav-item-custom, .others-sidebar-content .nav-item-custom').forEach(nav => {
             nav.classList.remove('active-link');
         });
         element.classList.add('active-link');
