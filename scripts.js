@@ -978,12 +978,16 @@ function renderBudgetDetails() {
         
         const hasDesc = item.desc && item.desc.trim() !== '';
         const descIconHtml = hasDesc 
-            ? `<button type="button" class="btn btn-sm btn-link text-info p-0 shadow-none" data-bs-toggle="tooltip" data-bs-placement="top" title="${item.desc}"><i class="fas fa-info-circle fs-5"></i></button>`
+            ? `<button type="button" class="btn btn-sm btn-link text-info p-0 shadow-none" data-bs-toggle="tooltip" data-bs-placement="top" title="${item.desc}"><i class="fas fa-info-circle fs-6"></i></button>`
             : `<span class="text-muted small mt-1">-</span>`;
 
         const affectsBadge = item.affectsBalance 
             ? '<span class="text-success small fw-medium"><i class="fas fa-check-circle me-1"></i>Sí</span>' 
             : '<span class="text-muted small fw-medium"><i class="fas fa-times-circle me-1"></i>No</span>';
+
+        const affectsBadgeCards = item.affectsBalance 
+            ? '<span class="text-success small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: Sí"><i class="fas fa-check-circle me-1 fs-6"></i></span>' 
+            : '<span class="text-muted small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: No"><i class="fas fa-times-circle me-1 fs-6"></i></span>';
 
         tableHtml += `
             <tr>
@@ -1000,21 +1004,19 @@ function renderBudgetDetails() {
 
         cardsHtml += `
             <div class="col-12">
-                <div class="glass p-3 d-flex justify-content-between align-items-center shadow-none border-0 border-top border-bottom rounded-0">
+                <div class="glass px-3 py-2 d-flex justify-content-between align-items-center shadow-none border-0 border-top border-bottom rounded-0">
                     
                 
                     <div>
-                        <div class="d-flex gap-3">
+                        <div class="d-flex align-items-center gap-2">
                             <div class="mb-2">${typeBadge}</div>
+                            ${affectsBadgeCards}
                             ${descIconHtml}
                         </div>
                         <h6 class="fw-bold my-2"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
-                        <small class="text-muted d-block">Afecta Balance: ${item.affectsBalance ? 'Sí' : 'No'}</small>
-                    </div>
-                    
-
-                    <div class="text-end">
                         <h5 class="fw-bold mb-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
+                    </div>
+                    <div class="text-end">
                         <div>
                             <button class="btn btn-sm btn-outline-primary p-1 px-2" onclick="openEditBudgetItemModal(${item.id})"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-sm btn-outline-danger p-1 px-2" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
@@ -1430,7 +1432,6 @@ function deleteUser(id) {
 function openAddIconModal() {
     document.getElementById('iconId').value = '';
     document.getElementById('iconClass').value = '';
-    document.getElementById('iconDesc').value = '';
     document.getElementById('iconModalTitle').textContent = 'Nuevo Ícono';
 }
 
@@ -1439,7 +1440,6 @@ function editIcon(id) {
     if (!i) return;
     document.getElementById('iconId').value = i.id;
     document.getElementById('iconClass').value = i.val;
-    document.getElementById('iconDesc').value = i.text;
     document.getElementById('iconModalTitle').textContent = 'Editar Ícono';
     new bootstrap.Modal(document.getElementById('iconModal')).show();
 }
@@ -1447,15 +1447,14 @@ function editIcon(id) {
 function saveIcon() {
     const id = document.getElementById('iconId').value;
     const classVal = document.getElementById('iconClass').value.trim();
-    const desc = document.getElementById('iconDesc').value.trim();
-    if(!classVal || !desc) { showAlertModal('Error', 'Todos los campos son obligatorios.'); return; }
+    if(!classVal) { showAlertModal('Error', 'Todos los campos son obligatorios.'); return; }
 
     if (id) {
         const idx = sysIcons.findIndex(x => x.id == id);
-        sysIcons[idx] = { ...sysIcons[idx], val: classVal, text: desc };
+        sysIcons[idx] = { ...sysIcons[idx], val: classVal };
     } else {
         console.log(sysIcons);
-        sysIcons.push({ id: sysIcons.length+2, val: classVal, text: desc });
+        sysIcons.push({ id: sysIcons.length+2, val: classVal });
         console.log(Math.max(...sysIcons.map(x => x.id)));
         console.log(sysIcons);
 
