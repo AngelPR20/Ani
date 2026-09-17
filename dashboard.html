@@ -458,9 +458,12 @@
                         <div class="tab-pane fade" id="mant-cats">
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Listado de Categorías</h5>
-                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;"><i class="fas fa-plus me-1"></i>Nueva Categoría</button>
+                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="openAddCategoryModal()"><i class="fas fa-plus me-1"></i>Nueva Categoría</button>
                             </div>
-                            <div class="table-responsive">
+                            <div class="row g-2" id="table-mant-cats">
+                                <!-- JS Dinámico -->
+                            </div>
+                            <!-- <div class="table-responsive">
                                 <table class="table table-hover align-middle">
                                     <thead>
                                         <tr>
@@ -470,10 +473,10 @@
                                         </tr>
                                     </thead>
                                     <tbody id="table-mant-cats">
-                                        <!-- JS Dinámico -->
+                                        
                                     </tbody>
                                 </table>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -1079,7 +1082,15 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted small">Ícono Asociado</label>
-                            <select id="categoryIconId" class="form-select glass-input"></select>
+                            <select id="categoryIconId" class="form-select glass-input">
+                                <option value="fas fa-briefcase">💼 Maletín (Trabajo/Salario)</option>
+                                <option value="fas fa-gift">🎁 Regalo (Bonos)</option>
+                                <option value="fas fa-globe-americas">🌎 Mundo (Remesas)</option>
+                                <option value="fas fa-car">🚗 Auto</option>
+                                <option value="fas fa-home">🏠 Casa</option>
+                                <option value="fas fa-piggy-bank">🐖 Alcancía</option>
+                            </select>
+
                         </div>
                     </div>
                 </div>

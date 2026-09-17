@@ -1217,9 +1217,6 @@ function confirmDeleteBudgetPeriod(periodId) {
 // 2. MANTENIMIENTOS (USUARIOS, ICONOS, CATEGORÍAS)
 // ==========================================
 
-// let sysUsers = [
-//     { id: 1, avatar: 'fas fa-user-tie', name: 'Admin User', email: 'admin@finanzaspro.com', role: 'Administrador' }
-// ];
 let sysUsers = [
     { id: 1, avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', name: 'Admin Principal', email: 'admin@finanzaspro.com', role: 'Admin' },
     { id: 2, avatar: '', name: 'Juan Perez', email: 'juan@moca.com', role: 'Editor' } // Perfil de ejemplo.
@@ -1308,16 +1305,33 @@ function renderMantIcons() {
 function renderMantCategories() {
     const tbody = document.getElementById('table-mant-cats');
     if (!tbody) return;
-    tbody.innerHTML = sysCategories.map(cat => `
-        <tr>
-            <td><i class="${cat.iconId} text-primary fs-5"></i></td>
-            <td class="fw-medium">${cat.desc}</td>
-            <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary p-1 px-2"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-outline-danger p-1 px-2"><i class="fas fa-trash-alt"></i></button>
-            </td>
-        </tr>
-    `).join('');
+
+    let html = '';
+
+    sysCategories.map(cat => 
+        html += `
+            <div class="col-md-4 col-xl-3">
+                <div class="p-2 border rounded text-center position-relative" style="border-color: var(--glass-border) !important; background: var(--input-bg);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded px-2 me-2 fss-4">
+                                <i class="${cat.iconId}"></i>
+                            </div>
+                            <h6 class="fw-medium mb-0 me-2">${cat.desc}</h6>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-link text-muted px-2 py-1" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                <li><button class="dropdown-item py-2" onclick="editCategory(${cat.id})"><i class="fas fa-edit me-2 text-primary"></i>Editar</button></li>
+                                <li><button class="dropdown-item py-2 text-danger" onclick="deleteCategory(${cat.id})"><i class="fas fa-trash-alt me-2"></i>Eliminar</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+    );
+
+    tbody.innerHTML = html;
 }
 
 
@@ -1455,6 +1469,53 @@ function deleteIcon(id) {
     showConfirmModal('¿Eliminar Ícono?', 'Asegúrate de que no esté en uso.', () => {
         sysIcons = sysIcons.filter(x => x.id !== id);
         renderMantIcons();
+        populateSelects();
+    });
+}
+
+// --- CATEGORÍAS CRUD ---
+
+function openAddCategoryModal() {
+    document.getElementById('categoryId').value = '';
+    document.getElementById('categoryDesc').value = '';
+    document.getElementById('categoryModalTitle').textContent = 'Nueva Categoría';
+}
+
+function editCategory(id) {
+    const c = sysCategories.find(x => x.id === id);
+    if (!c) return;
+
+    document.getElementById('categoryId').value = c.id;
+    document.getElementById('categoryDesc').value = c.desc;
+    document.getElementById('categoryIconId').value = sysIcons.find(i=>i.val == c.iconId)?.val || ''; // Mapping back for UI
+    document.getElementById('categoryModalTitle').textContent = 'Editar Categoría';
+    new bootstrap.Modal(document.getElementById('categoryModal')).show();
+}
+
+function saveCategory() {
+    const id = document.getElementById('categoryId').value;
+    const desc = document.getElementById('categoryDesc').value.trim();
+    const iconClass = document.getElementById('categoryIconId').value;
+    
+    if(!desc) { showAlertModal('Error', 'La descripción es obligatoria.'); return; }
+    const icon = sysIcons.find(i => i.val === iconClass);
+    const iconId = icon ? icon.id : 1;
+
+    if (id) {
+        const idx = sysCategories.findIndex(x => x.id == id);
+        sysCategories[idx] = { ...sysCategories[idx], desc, iconId: icon.val };
+    } else {
+        sysCategories.push({ id: 99, desc, iconId: icon.val });
+    }
+    renderMantCategories();
+    populateSelects(); // Actualiza listados en transacciones/presupuestos
+    bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+}
+
+function deleteCategory(id) {
+    showConfirmModal('¿Eliminar Categoría?', 'Asegúrate de que no esté en uso.', () => {
+        sysCategories = sysCategories.filter(x => x.id !== id);
+        renderMantCategories();
         populateSelects();
     });
 }
