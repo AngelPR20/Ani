@@ -1266,12 +1266,12 @@ function renderMantUsers() {
     const tbody = document.getElementById('table-mant-users');
     // const avatarImg = u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`;
     if (!tbody) return;
+    // <td>${u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`}
+    // </td>
     tbody.innerHTML = sysUsers.map(u => `
         <tr>
-            <td>${u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`}
             
-            </td>
-            <td class="fw-medium">${u.name}</td>
+            <td class="fw-medium d-flex align-items-center">${u.avatar ? `<img src="${u.avatar}" class="rounded-circle border me-3" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`} ${u.name}</td>
             <td class="text-muted">${u.email}</td>
             <td><span class="badge bg-secondary bg-opacity-10 text-secondary">${u.role}</span></td>
             <td class="text-end">
