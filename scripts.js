@@ -143,7 +143,8 @@ let userWallets = [
         affectsBalance: true, 
         desc: 'Cuenta de ahorros principal',
         movements: [
-            { id: 1001, type: 'Ingreso', category: 'Nómina', desc: 'Depósito de nómina mensual', date: '2026-09-01 10:30', amount: 1500.00 }
+            { id: 1001, type: 'Ingreso', category: 1, desc: 'Depósito de nómina mensual', date: '2026-09-01 10:30', amount: 1500.00 },
+            { id: 1003, type: 'Gasto', category: 4, desc: 'Retiro de nómina mensual', date: '2026-09-01 10:30', amount: 500.00 }
         ]
     },
     { 
@@ -154,7 +155,7 @@ let userWallets = [
         affectsBalance: false, 
         desc: 'Ahorro a largo plazo',
         movements: [
-            { id: 1002, type: 'Ingreso', category: 'Inversión', desc: 'Rendimiento mensual de acciones', date: '2026-09-05 14:00', amount: 200.00 }
+            { id: 1002, type: 'Ingreso', category: 2, desc: 'Rendimiento mensual de acciones', date: '2026-09-05 14:00', amount: 200.00 }
         ]
     },
     { 
@@ -391,7 +392,20 @@ function renderWalletMovementsTable() {
             : '<div class="rounded-circle bg-danger bg-opacity-10 text-danger p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="fas fa-arrow-up fs-6"></i></div>';
         const amountColor = isIncome ? 'text-success' : 'text-danger';
         const amountPrefix = isIncome ? '+' : '-';
-        
+
+        // LÓGICA ELEGANTE PARA LA CATEGORÍA:
+        const catObj = sysCategories.find(c => c.id == mov.category);
+        const catIconClass = catObj ? catObj.iconId : 'fas fa-tag';
+        const catDesc = catObj ? catObj.desc : 'General';
+
+        const categoryHtml = `
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-secondary bg-opacity-10 rounded d-flex justify-content-center align-items-center text-secondary" style="width: 28px; height: 28px;">
+                    <i class="${catIconClass}"></i>
+                </div>
+                <span>${catDesc}</span>
+            </div>`;
+        // <td class="py-3 fw-medium text-nowrap">${mov.category || 'General'}</td>
         const hasDesc = mov.desc && mov.desc.trim() !== '';
         const descIconHtml = hasDesc 
             ? `<button type="button" class="btn btn-sm btn-link text-info p-0 shadow-none" data-bs-toggle="tooltip" data-bs-placement="top" title="${mov.desc}"><i class="fas fa-info-circle fs-5"></i></button>`
@@ -400,7 +414,9 @@ function renderWalletMovementsTable() {
         html += `
             <tr>
                 <td class="py-3 text-nowrap">${typeIcon} <span class="ms-2 fw-medium">${mov.type}</span></td>
-                <td class="py-3 fw-medium text-nowrap">${mov.category || 'General'}</td>
+                
+                <td class="py-3 fw-medium text-nowrap">${categoryHtml}</td>
+
                 <td class="py-3 fw-bold ${amountColor} text-nowrap">${amountPrefix}$${mov.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                 <td class="py-3 text-muted small text-nowrap">${mov.date}</td>
                 <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
@@ -454,6 +470,7 @@ function saveNewTransaction() {
     };
 
     if (!activeWalletForMovements.movements) activeWalletForMovements.movements = [];
+    console.log(newMov);
     activeWalletForMovements.movements.push(newMov);
 
     if (type === 'Ingreso') {
@@ -482,12 +499,15 @@ function openEditTransactionModal(movId) {
     if (!activeWalletForMovements) return;
     const mov = activeWalletForMovements.movements.find(m => m.id === movId);
     if (!mov) return;
+    const catObj = sysCategories.find(c => c.id == mov.category);
+    console.log(catObj);
 
     currentEditingTransactionId = movId;
     document.getElementById('editTxType').value = mov.type;
     document.getElementById('editTxAmount').value = mov.amount;
     document.getElementById('editTxCategory').value = mov.category || '';
     document.getElementById('editTxDesc').value = mov.desc || '';
+    document.getElementById('btn-editTxCategory').innerHTML = `<span><i class="${catObj.iconId} me-2 text-primary"></i>${catObj.desc}</span> <i class="fas fa-chevron-down"></i>`;
     
     const parts = mov.date.split(' ');
     document.getElementById('editTxDate').value = parts[0] || '';
@@ -635,6 +655,7 @@ function openEditWalletModal(id) {
     currentEditingWalletId = id;
     document.getElementById('editWalletTitle').value = wallet.title;
     document.getElementById('editWalletIcon').value = wallet.icon;
+    document.getElementById('btn-editWalletIcon').innerHTML = `<span><i class="${wallet.icon} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
     document.getElementById('editWalletAffectsBalance').checked = wallet.affectsBalance;
     document.getElementById('editWalletDesc').value = wallet.desc || '';
 
@@ -816,6 +837,7 @@ function openEditGoalModal(goalId) {
     document.getElementById('editGoalTarget').value = goal.target;
     document.getElementById('editGoalCurrent').value = goal.current;
     document.getElementById('editGoalIcon').value = goal.icon;
+    document.getElementById('btn-editGoalIcon').innerHTML = `<span><i class="${goal.icon} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
     document.getElementById('editGoalDesc').value = goal.desc || '';
 
     const modal = new bootstrap.Modal(document.getElementById('editGoalModal'));
@@ -1014,7 +1036,7 @@ function renderBudgetDetails() {
                             ${descIconHtml}
                         </div>
                         <h6 class="fw-bold my-2"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
-                        <h5 class="fw-bold mb-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
+                        <h5 class="mb-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
                     </div>
                     <div class="text-end">
                         <div>
@@ -1093,6 +1115,8 @@ function openEditBudgetItemModal(itemId) {
     document.getElementById('editBudgetTitle').value = targetItem.title;
     document.getElementById('editBudgetAmount').value = targetItem.amount;
     document.getElementById('editBudgetIcon').value = targetItem.icon;
+    document.getElementById('btn-editBudgetIcon').innerHTML = `<span><i class="${targetItem.icon} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
+
     document.getElementById('editBudgetAffectsBalance').checked = targetItem.affectsBalance;
     document.getElementById('editBudgetDesc').value = targetItem.desc || '';
 
@@ -1225,20 +1249,20 @@ let sysUsers = [
 ];
 
 let sysIcons = [
-    { id: 1, val: 'fas fa-university', text: '🏦 Cuenta Bancaria' },
-    { id: 2, val: 'fas fa-piggy-bank', text: '🐖 Alcancía' },
-    { id: 3, val: 'fas fa-wallet', text: '💳 Billetera / Efectivo' },
-    { id: 4, val: 'fab fa-bitcoin', text: '🪙 Criptomonedas' },
-    { id: 5, val: 'fas fa-money-check-alt', text: '🧾 Cheques' },
-    { id: 6, val: 'fas fa-briefcase', text: '💼 Maletín (Trabajo/Salario)' },
-    { id: 7, val: 'fas fa-gift', text: '🎁 Regalo (Bonos)' },
-    { id: 8, val: 'fas fa-globe-americas', text: '🌎 Mundo (Remesas)' },
-    { id: 9, val: 'fas fa-car', text: '🚗 Auto' },
-    { id: 10, val: 'fas fa-home', text: '🏠 Casa' },
-    { id: 11, val: 'fas fa-bolt', text: '⚡ Luz Eléctrica' },
-    { id: 12, val: 'fas fa-shopping-basket', text: '🛒 Compras / Mercado' },
-    { id: 13, val: 'fas fa-shield-alt', text: '🛡️ Fondo de Emergencia' },
-    { id: 14, val: 'fas fa-wifi', text: '📶 Internet / Servicios' }
+    { id: 1, val: 'fas fa-university' },
+    { id: 2, val: 'fas fa-piggy-bank' },
+    { id: 3, val: 'fas fa-wallet' },
+    { id: 4, val: 'fab fa-bitcoin' },
+    { id: 5, val: 'fas fa-money-check-alt' },
+    { id: 6, val: 'fas fa-briefcase' },
+    { id: 7, val: 'fas fa-gift' },
+    { id: 8, val: 'fas fa-globe-americas' },
+    { id: 9, val: 'fas fa-car' },
+    { id: 10, val: 'fas fa-home' },
+    { id: 11, val: 'fas fa-bolt' },
+    { id: 12, val: 'fas fa-shopping-basket' },
+    { id: 13, val: 'fas fa-shield-alt' },
+    { id: 14, val: 'fas fa-wifi' }
 ];
 
 let sysCategories = [
@@ -1261,7 +1285,8 @@ function initMaintenances() {
     renderMantIcons();
     renderMantCategories();
     renderNotifications();
-    populateSelects();
+    // populateSelects();
+    initCustomSelects(); // INICIAMOS LOS SELECTORES ELEGANTES
 }
 
 function renderMantUsers() {
@@ -1362,22 +1387,83 @@ function renderNotifications() {
     list.innerHTML = html;
 }
 
-function populateSelects() {
-    // Selects de iconos
-    const iconOptions = sysIcons.map(icon => `<option value="${icon.val}">${icon.text}</option>`).join('');
-    ['walletIcon', 'editWalletIcon', 'goalIcon', 'editGoalIcon'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = iconOptions;
+// function populateSelects() {
+//     // Selects de iconos
+//     const iconOptions = sysIcons.map(icon => `<option value="${icon.val}">${icon.text}</option>`).join('');
+//     ['walletIcon', 'editWalletIcon', 'goalIcon', 'editGoalIcon'].forEach(id => {
+//         const el = document.getElementById(id);
+//         if (el) el.innerHTML = iconOptions;
+//     });
+
+//     // Selects de categorías
+//     const catOptions = sysCategories.map(cat => `<option value="${cat.id}">${cat.desc}</option>`).join('');
+//     ['txCategorySelect', 'editTxCategorySelect', 'budgetCategory', 'editBudgetCategory'].forEach(id => {
+//         const el = document.getElementById(id);
+//         if (el) el.innerHTML = catOptions;
+//     });
+// }
+
+// ==========================================
+// NUEVO: CONTROLADORES PARA SELECTORES VISUALES
+// ==========================================
+
+function initCustomSelects() {
+    // Configurar cuadriculas de Iconos
+    const iconInputs = ['walletIcon', 'editWalletIcon', 'goalIcon', 'editGoalIcon', 'budgetIcon', 'editBudgetIcon', 'categoryIconId'];
+    iconInputs.forEach(id => {
+        const container = document.getElementById(`grid-${id}`);
+        if (!container) return;
+        let html = '';
+        sysIcons.forEach(icon => {
+            html += `<div class="icon-btn bg-primary bg-opacity-10 text-primary" onclick="selectIcon('${id}', '${icon.val}', '${icon.text}')" title="${icon.text}"><i class="${icon.val}"></i></div>`;
+        });
+        container.innerHTML = html;
+        
+        // Cargar selección default inicial
+        const hiddenVal = document.getElementById(id).value;
+        const defaultIcon = sysIcons.find(i => i.val === hiddenVal) || sysIcons[0];
+        if (defaultIcon) selectIcon(id, defaultIcon.val, defaultIcon.text, true);
     });
 
-    // Selects de categorías
-    const catOptions = sysCategories.map(cat => `<option value="${cat.id}">${cat.desc}</option>`).join('');
-    ['txCategorySelect', 'editTxCategorySelect', 'budgetCategory', 'editBudgetCategory'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = catOptions;
+    // Configurar listas de Categorías
+    const categoryInputs = ['txCategory', 'editTxCategory'];
+    categoryInputs.forEach(id => {
+        const container = document.getElementById(`list-${id}`);
+        if (!container) return;
+        let html = '';
+        sysCategories.forEach(cat => {
+            html += `
+            <div class="category-pill" onclick="selectCategory('${id}', '${cat.id}', '${cat.desc}', '${cat.iconId}')">
+                <div class="bg-primary bg-opacity-10 text-primary rounded p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="${cat.iconId}"></i></div>
+                <span class="fw-medium">${cat.desc}</span>
+            </div>`;
+        });
+        container.innerHTML = html;
     });
 }
 
+function selectIcon(inputId, iconVal, iconText, init = false) {
+    document.getElementById(inputId).value = iconVal;
+    // const btnText = iconText.split(' ')[1] || iconText; // Para no mostrar todo muy largo
+    
+    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${iconVal} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
+    
+    if (!init) {
+        const btn = document.getElementById(`btn-${inputId}`);
+        const dropdown = bootstrap.Dropdown.getInstance(btn);
+        if (dropdown) dropdown.hide();
+    }
+}
+function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
+    document.getElementById(inputId).value = catId; 
+    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} text-primary me-2"></i> ${catDesc}</span> <i class="fas fa-chevron-down"></i>`;
+    
+    if (!init) {
+        const btn = document.getElementById(`btn-${inputId}`);
+        const dropdown = bootstrap.Dropdown.getInstance(btn);
+        if (dropdown) dropdown.hide();
+    }
+}
 
 // USUARIOS
 function openAddUserModal() {
