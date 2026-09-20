@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanzasPro - Admin Dashboard</title>
+    <title>FinanzasPro</title>
     <!-- Bootstrap 5.3 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-5.3.0.min.css" rel="stylesheet">
     <!-- Google Fonts (Poppins) -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="css/fonts-google-Poppins-css2.css" rel="stylesheet">
     <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/font-awesome-6.4.0-all.min.css">
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/lib/chart.js"></script>
     <!-- SheetJS para Exportar a Excel -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="js/lib/xlsx-0.18.5.full.min.js"></script>
     <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 
     <style>
         /* Corrección para el apilamiento de modales y su backdrop */
@@ -35,9 +35,9 @@
             max-height: 180px;
             overflow-y: auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
             gap: 5px;
-            padding: 5px 0px 5px 5px;
+            padding: 5px;
         }
         .icon-btn {
             width: 45px;
@@ -97,7 +97,7 @@
 
     <div id="sidebar-backdrop"></div>
     <aside id="sidebar" class="active">
-        <button class="sidebar-collapse-btn" onclick="toggleDesktopSidebar()">
+        <button id="btnToggleSidebar" class="sidebar-collapse-btn">
             <i class="fas fa-chevron-left text-white"></i>
         </button>
 
@@ -109,11 +109,11 @@
         </div>
 
         <div class="sidebar-content">
-            <a class="nav-item-custom active-link" onclick="navigate('dashboard', this)" data-tooltip="Dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
-            <a class="nav-item-custom" onclick="navigate('carteras', this)" data-tooltip="Carteras"><i class="fas fa-wallet"></i> <span>Carteras</span></a>
-            <a class="nav-item-custom" onclick="navigate('metas', this)" data-tooltip="Metas"><i class="fas fa-bullseye"></i> <span>Metas</span></a>
-            <a class="nav-item-custom" onclick="navigate('presupuesto', this)" data-tooltip="Presupuestos"><i class="fas fa-chart-pie"></i> <span>Presupuestos</span></a>
-            <a class="nav-item-custom" onclick="navigate('mantenimientos', this)" data-tooltip="Mantenimientos"><i class="fas fa-tools"></i> <span>Mantenimientos</span></a>
+            <a id="btnDashboard" class="nav-item-custom active-link" data-tooltip="Dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+            <a id="btnWallet" class="nav-item-custom" data-tooltip="Carteras"><i class="fas fa-wallet"></i> <span>Carteras</span></a>
+            <a id="btnGoal" class="nav-item-custom" data-tooltip="Metas"><i class="fas fa-bullseye"></i> <span>Metas</span></a>
+            <a id="btnBudget" class="nav-item-custom" data-tooltip="Presupuestos"><i class="fas fa-chart-pie"></i> <span>Presupuestos</span></a>
+            <a id="btnMaintenance" class="nav-item-custom" data-tooltip="Mantenimientos"><i class="fas fa-tools"></i> <span>Mantenimientos</span></a>
         </div>
 
         <div class="mt-2 border-top border-secondary pt-2 others-sidebar-content" style="border-opacity: 0.2;">
@@ -123,8 +123,8 @@
                     <span class="visually-hidden">Nuevas alertas</span>
                 </span>
             </a>
-            <a class="nav-item-custom" onclick="navigate('configuracion', this)" data-tooltip="Configuración"><i class="fas fa-cog"></i> <span>Configuración</span></a>
-            <a class="nav-item-custom text-danger mt-1" onclick="logout()" data-tooltip="Cerrar Sesión"><i class="fas fa-sign-out-alt text-danger"></i> <span>Cerrar Sesión</span></a>
+            <a id="btnSetting" class="nav-item-custom" data-tooltip="Configuración"><i class="fas fa-cog"></i> <span>Configuración</span></a>
+            <a id="btnLogout" class="nav-item-custom text-danger mt-1" data-tooltip="Cerrar Sesión"><i class="fas fa-sign-out-alt text-danger"></i> <span>Cerrar Sesión</span></a>
         </div>
     </aside>
 
@@ -134,13 +134,13 @@
             <div id="mobile-header">
                 <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i> FinanzasPro</h5>
                 <div class="d-flex g-2">
-                    <button class="bell-ring btn btn-outline-warning border-0 d-flex align-items-center justify-content-center p-2" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones" sonclick="showAlertModal('Notificaciones', 'No tienes nuevas notificaciones por el momento.')" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Notificaciones">
+                    <button id="btnNotificationsMobile" class="bell-ring btn btn-outline-warning border-0 d-flex align-items-center justify-content-center p-2" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Notificaciones">
                         <i class="fas fa-bell fs-5"></i>
                     </button>
-                    <button class="btn btn-outline-secondary border-0 d-flex align-items-center justify-content-center p-2" onclick="navigate('configuracion', document.querySelector('.others-sidebar-content .nav-item-custom:first-child'))" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Configuración">
+                    <button id="btnSettingMobile" class="btn btn-outline-secondary border-0 d-flex align-items-center justify-content-center p-2" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Configuración">
                         <i class="fas fa-cog fs-5"></i>
                     </button>
-                    <button class="btn btn-outline-danger border-0 d-flex align-items-center justify-content-center p-2" onclick="logout()" style="border-radius: 8px; width: 40px; height: 40px;">
+                    <button id="btnLogoutMobile" class="btn btn-outline-danger border-0 d-flex align-items-center justify-content-center p-2" style="border-radius: 8px; width: 40px; height: 40px;">
                         <i class="fas fa-sign-out-alt fs-5"></i>
                     </button>
                 </div>
@@ -228,7 +228,7 @@
                                 </div>
                                 <span class="text-success fw-bold">+$850.00</span>
                             </div>
-                            <button class="btn btn-link text-primary text-decoration-none w-100 p-0 mt-2 fw-medium" onclick="navigate('detalles')">Ver todo el historial <i class="fas fa-arrow-right ms-1"></i></button>
+                            <button class="btn btn-link text-primary text-decoration-none w-100 p-0 mt-2 fw-medium">Ver todo el historial <i class="fas fa-arrow-right ms-1"></i></button>
                         </div>
                     </div>
                 </div>
@@ -257,7 +257,7 @@
             <div id="wallet-movements-view" class="app-view">
                 <!-- Botón Volver de primero arriba (No visible en impresión) -->
                 <div class="mb-3 d-print-none">
-                    <button class="btn btn-outline-secondary btn-sm px-3 py-2" style="border-radius: 10px;" onclick="navigate('carteras', document.querySelector('.sidebar-content .nav-item-custom:nth-child(2)'))">
+                    <button class="btn btn-outline-secondary btn-sm px-3 py-2" style="border-radius: 10px;" id="btnReturnWallets" sonclick="navigate('carteras', document.querySelector('.sidebar-content .nav-item-custom:nth-child(2)'))">
                         <i class="fas fa-arrow-left me-2"></i>Volver a Carteras
                     </button>
                 </div>
@@ -278,10 +278,10 @@
                         <button class="btn btn-sm btn-primary px-3 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
                             <i class="fas fa-plus me-2"></i>Nueva Transacción
                         </button>
-                        <button class="btn btn-sm btn-outline-warning px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="printWalletMovements()" title="Imprimir" data-bs-toggle="tooltip">
+                        <button class="btn btn-sm btn-outline-warning px-3 py-2 shadow-sm" style="border-radius: 12px;" id="btnPrintWalletMovements" title="Imprimir" data-bs-toggle="tooltip">
                             <i class="fas fa-print"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-success px-3 py-2 shadow-sm" style="border-radius: 12px;" onclick="exportWalletMovementsExcel()" title="Exportar a Excel" data-bs-toggle="tooltip">
+                        <button class="btn btn-sm btn-outline-success px-3 py-2 shadow-sm" style="border-radius: 12px;" id="btnExportWalletMovementsExcel" title="Exportar a Excel" data-bs-toggle="tooltip">
                             <i class="fas fa-file-excel"></i>
                         </button>
                     </div>
@@ -299,7 +299,7 @@
                             <input type="date" id="filterDateTo" class="form-control form-control-sm glass-input">
                         </div>
                         <div class="col-md-4">
-                            <button class="btn form-control-sm btn-secondary w-100 py-2" style="border-radius: 8px;" onclick="filterWalletMovements()">
+                            <button class="btn form-control-sm btn-secondary w-100 py-2" style="border-radius: 8px;" id="btnFilterWalletMovements">
                                 <i class="fas fa-search me-2"></i>Filtrar
                             </button>
                         </div>
@@ -355,7 +355,7 @@
                         <p class="text-muted mb-0">Selecciona un período para gestionar sus registros.</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" onclick="addNewBudgetPeriodModal()">
+                        <button class="btn btn-sm btn-primary px-2 py-2 shadow-sm" style="border-radius: 12px;" id="btnAddNewBudgetPeriodModal">
                             <i class="fas fa-calendar-plus me-2"></i>Crear Período
                         </button>
                     </div>
@@ -474,7 +474,7 @@
                         <div class="tab-pane fade" id="mant-users">
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Listado de Usuarios</h5>
-                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openAddUserModal()"><i class="fas fa-plus me-1"></i>Nuevo Usuario</button>
+                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#userModal" id="btnOpenAddUserModal"><i class="fas fa-plus me-1"></i>Nuevo Usuario</button>
                             </div>
 
                             <div class="glass p-2" id="walletTableContainer">
@@ -501,7 +501,7 @@
                         <div class="tab-pane fade" id="mant-icons">
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Listado de Iconos</h5>
-                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#iconModal" onclick="openAddIconModal()"><i class="fas fa-plus me-1"></i>Nuevo Icono</button>
+                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#iconModal" id="btnOpenAddIconModal"><i class="fas fa-plus me-1"></i>Nuevo Icono</button>
                             </div>
                             <div class="row g-2" id="grid-mant-icons">
                                 <!-- JS Dinámico -->
@@ -512,7 +512,7 @@
                         <div class="tab-pane fade" id="mant-cats">
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Listado de Categorías</h5>
-                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="openAddCategoryModal()"><i class="fas fa-plus me-1"></i>Nueva Categoría</button>
+                                <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#categoryModal" id="btnOpenAddCategoryModal"><i class="fas fa-plus me-1"></i>Nueva Categoría</button>
                             </div>
                             <div class="row g-2" id="table-mant-cats">
                                 <!-- JS Dinámico -->
@@ -549,7 +549,7 @@
                                     <small class="text-muted">Ajusta la interfaz para entornos de poca luz</small>
                                 </div>
                                 <div class="form-check form-switch fs-4 mb-0">
-                                    <input class="form-check-input" type="checkbox" id="darkModeSwitch" onchange="toggleTheme()" style="cursor: pointer;">
+                                    <input class="form-check-input" type="checkbox" id="btnDarkModeSwitch" style="cursor: pointer;">
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -643,7 +643,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewWallet()">Guardar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveNewWallet">Guardar</button>
           </div>
         </div>
       </div>
@@ -705,7 +705,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedWallet()">Editar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnEditWallet">Editar</button>
           </div>
         </div>
       </div>
@@ -766,7 +766,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewTransaction()">Guardar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveNewTransaction">Guardar</button>
           </div>
         </div>
       </div>
@@ -828,7 +828,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedTransaction()">Editar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnEditTransaction">Editar</button>
           </div>
         </div>
       </div>
@@ -892,7 +892,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveNewGoal()">Guardar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveNewGoal">Guardar</button>
           </div>
         </div>
       </div>
@@ -955,7 +955,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedGoal()">Editar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnEditGoal">Editar</button>
           </div>
         </div>
       </div>
@@ -1028,7 +1028,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveBudgetItem()">Guardar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveBudgetItem">Guardar</button>
           </div>
         </div>
       </div>
@@ -1107,7 +1107,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveEditedBudgetItem()">Editar</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveEditedBudgetItem">Editar</button>
           </div>
         </div>
       </div>
@@ -1129,7 +1129,7 @@
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
-            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;" onclick="saveNewBudgetPeriod()">Crear Período</button>
+            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;" id="btnSaveNewBudgetPeriod">Crear Período</button>
           </div>
         </div>
       </div>
@@ -1211,7 +1211,7 @@
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveUser()">Guardar</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveUser">Guardar</button>
                 </div>
             </div>
         </div>
@@ -1236,7 +1236,7 @@
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveIcon()">Guardar</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveIcon">Guardar</button>
                 </div>
             </div>
         </div>
@@ -1287,7 +1287,7 @@
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" onclick="saveCategory()">Guardar</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnSaveCategory">Guardar</button>
                 </div>
             </div>
         </div>
@@ -1332,8 +1332,8 @@
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/lib/bootstrap.bundle.min.js"></script>
     <!-- Script personalizado -->
-    <script src="scripts.js"></script>
+    <script type="module" src="js/scripts2.js"></script>
 </body>
 </html>

@@ -247,7 +247,7 @@ a:hover { text-decoration: underline; opacity: 0.8; }
         display: contents;
     }
 
-    #sidebar a[onclick="logout()"], #sidebar a[onclick="navigate('configuracion', this)"], #sidebar a[data-bs-toggle="modal"] {
+    #sidebar a#btnLogout, #sidebar a#btnSetting, #sidebar a[data-bs-toggle="modal"] {
         display: none !important;
     }
 
