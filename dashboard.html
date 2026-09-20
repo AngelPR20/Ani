@@ -36,8 +36,8 @@
             overflow-y: auto;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-            gap: 10px;
-            padding: 12px;
+            gap: 5px;
+            padding: 5px 0px 5px 5px;
         }
         .icon-btn {
             width: 45px;
@@ -1253,11 +1253,11 @@
                 <div class="modal-body">
                     <input type="hidden" id="categoryId">
                     <div class="row g-3">
-                        <div class="col-12">
+                        <div class="col-9">
                             <label class="form-label text-muted small">Descripción</label>
                             <input type="text" id="categoryDesc" class="form-control glass-input">
                         </div>
-                        <div class="col-12">
+                        <!-- <div class="col-12">
                             <label class="form-label text-muted small">Ícono Asociado</label>
                             <select id="categoryIconId" class="form-select glass-input">
                                 <option value="fas fa-briefcase">💼 Maletín (Trabajo/Salario)</option>
@@ -1268,6 +1268,20 @@
                                 <option value="fas fa-piggy-bank">🐖 Alcancía</option>
                             </select>
 
+                        </div> -->
+                        <!-- REEMPLAZO 7: Icono Categoría -->
+                        <div class="col-3">
+                            <label class="form-label text-muted small">Ícono</label>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-categoryIconId">
+                                    <span><i class="fas fa-tag me-2"></i> Seleccionar Ícono</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">
+                                    <div class="icon-grid-container" id="grid-categoryIconId"></div>
+                                </div>
+                                <input type="hidden" id="categoryIconId" value="fas fa-tag">
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1546,7 +1546,7 @@ function saveIcon() {
 
     }
     renderMantIcons();
-    populateSelects(); // Actualizar listados
+    initCustomSelects(); // Actualizar listados
     bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
 }
 
@@ -1554,7 +1554,7 @@ function deleteIcon(id) {
     showConfirmModal('¿Eliminar Ícono?', 'Asegúrate de que no esté en uso.', () => {
         sysIcons = sysIcons.filter(x => x.id !== id);
         renderMantIcons();
-        populateSelects();
+        initCustomSelects();
     });
 }
 
@@ -1573,6 +1573,7 @@ function editCategory(id) {
     document.getElementById('categoryId').value = c.id;
     document.getElementById('categoryDesc').value = c.desc;
     document.getElementById('categoryIconId').value = sysIcons.find(i=>i.val == c.iconId)?.val || ''; // Mapping back for UI
+    document.getElementById('btn-categoryIconId').innerHTML = `<span><i class="${c.iconId} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
     document.getElementById('categoryModalTitle').textContent = 'Editar Categoría';
     new bootstrap.Modal(document.getElementById('categoryModal')).show();
 }
@@ -1593,7 +1594,7 @@ function saveCategory() {
         sysCategories.push({ id: 99, desc, iconId: icon.val });
     }
     renderMantCategories();
-    populateSelects(); // Actualiza listados en transacciones/presupuestos
+    initCustomSelects(); // Actualiza listados en transacciones/presupuestos
     bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
 }
 
@@ -1601,6 +1602,6 @@ function deleteCategory(id) {
     showConfirmModal('¿Eliminar Categoría?', 'Asegúrate de que no esté en uso.', () => {
         sysCategories = sysCategories.filter(x => x.id !== id);
         renderMantCategories();
-        populateSelects();
+        initCustomSelects();
     });
 }
