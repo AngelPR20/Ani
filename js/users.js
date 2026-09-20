@@ -1,4 +1,4 @@
-import * as initial from '/js/initial.js';
+import * as initial from './initial.js';
 
 export function renderMantUsers() {
     const tbody = document.getElementById('table-mant-users');
@@ -20,8 +20,6 @@ export function renderMantUsers() {
             </td>
         </tr>`;
     });
-
-    console.log(initial.sysUsers);
 
     tbody.innerHTML = html;
 

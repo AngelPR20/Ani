@@ -1,4 +1,4 @@
-import * as initial from '/js/initial.js';
+import * as initial from './initial.js';
 
 export function renderMantCategories() {
     const tbody = document.getElementById('table-mant-cats');

@@ -1,5 +1,5 @@
 
-import * as initial from '/js/initial.js';
+import * as initial from './initial.js';
 
 // ==========================================
 // 3. MÓDULO DE CARTERAS (WALLETS)

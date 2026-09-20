@@ -1,11 +1,11 @@
-import * as initial from '/js/initial.js';
-import * as wallets from '/js/wallets.js';
-import * as goals from '/js/goals.js';
-import * as budget from '/js/budget.js';
+import * as initial from './initial.js';
+import * as wallets from './wallets.js';
+import * as goals from './goals.js';
+import * as budget from './budget.js';
 
-import * as users from '/js/users.js';
-import * as categories from '/js/categories.js';
-import * as icons from '/js/icons.js';
+import * as users from './users.js';
+import * as categories from './categories.js';
+import * as icons from './icons.js';
 
 
 // ==========================================

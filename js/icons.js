@@ -1,5 +1,5 @@
 
-import * as initial from '/js/initial.js';
+import * as initial from './initial.js';
 
 export function renderMantIcons() {
     const grid = document.getElementById('grid-mant-icons');
