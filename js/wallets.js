@@ -1,5 +1,5 @@
-
 import * as initial from './initial.js';
+import * as dashboard from './dashboard.js';
 
 // ==========================================
 // 3. MÓDULO DE CARTERAS (WALLETS)
@@ -103,21 +103,14 @@ export function renderWallets() {
 }
 
 let activeWalletForMovements = null;
+let viewingAllWallets = false;
 
-function openWalletMovementsPage(walletId) {
+function toggleNewTransactionButton(show) {
+    const newTxBtn = document.querySelector('#walletMovementsActions button[data-bs-target="#addTransactionModal"]');
+    if (newTxBtn) newTxBtn.style.display = show ? '' : 'none';
+}
 
-    const wallet = initial.userWallets.find(w => w.id == walletId);
-
-    if (!wallet) return;
-
-    activeWalletForMovements = wallet;
-
-    const titleEl = document.getElementById('pageWalletMovementsTitle');
-    const subtitleEl = document.getElementById('pageWalletMovementsSubtitle');
-    if (titleEl) titleEl.textContent = `${wallet.title}`;
-    if (subtitleEl) subtitleEl.textContent = wallet.desc || 'Gestión y control de transacciones de la cartera.';
-
-    // Asignar por defecto los últimos 30 días
+function setDefaultDateRange() {
     const inputFrom = document.getElementById('filterDateFrom');
     const inputTo = document.getElementById('filterDateTo');
 
@@ -129,9 +122,62 @@ function openWalletMovementsPage(walletId) {
 
     if (inputFrom) inputFrom.value = dateFromIso;
     if (inputTo) inputTo.value = dateToIso;
+}
+
+function openWalletMovementsPage(walletId) {
+
+    const wallet = initial.userWallets.find(w => w.id == walletId);
+
+    if (!wallet) return;
+
+    viewingAllWallets = false;
+    activeWalletForMovements = wallet;
+    toggleNewTransactionButton(true);
+
+    const titleEl = document.getElementById('pageWalletMovementsTitle');
+    const subtitleEl = document.getElementById('pageWalletMovementsSubtitle');
+    if (titleEl) titleEl.textContent = `${wallet.title}`;
+    if (subtitleEl) subtitleEl.textContent = wallet.desc || 'Gestión y control de transacciones de la cartera.';
+
+    setDefaultDateRange();
 
     renderWalletMovementsTable();
     initial.navigate('wallet-movements-view');
+}
+
+// Muestra el historial de movimientos de TODAS las carteras, sin filtrar por una en particular.
+export function openAllWalletsMovementsPage() {
+    viewingAllWallets = true;
+    activeWalletForMovements = null;
+    toggleNewTransactionButton(false);
+
+    const titleEl = document.getElementById('pageWalletMovementsTitle');
+    const subtitleEl = document.getElementById('pageWalletMovementsSubtitle');
+    if (titleEl) titleEl.textContent = 'Todas las Carteras';
+    if (subtitleEl) subtitleEl.textContent = 'Historial de movimientos de todas tus cuentas y carteras.';
+
+    setDefaultDateRange();
+
+    renderWalletMovementsTable();
+    initial.navigate('wallet-movements-view');
+}
+
+// Reúne los movimientos de la cartera activa, o de todas si se está en modo "Todas las Carteras"
+function getMovementsSource() {
+    if (viewingAllWallets) {
+        let all = [];
+        initial.userWallets.forEach(w => {
+            (w.movements || []).forEach(m => all.push({ ...m, __walletId: w.id, __walletTitle: w.title }));
+        });
+        return all;
+    }
+    return activeWalletForMovements ? (activeWalletForMovements.movements || []) : [];
+}
+
+// Ubica la cartera dueña de un movimiento por su id (necesario en modo "Todas las Carteras")
+function findWalletForMovement(movId) {
+    if (!viewingAllWallets) return activeWalletForMovements;
+    return initial.userWallets.find(w => (w.movements || []).some(m => m.id == movId));
 }
 
 export function filterWalletMovements() {
@@ -139,20 +185,20 @@ export function filterWalletMovements() {
 }
 
 export function printWalletMovements() {
-    if (!activeWalletForMovements) return;
+    if (!viewingAllWallets && !activeWalletForMovements) return;
     window.print();
 }
 
 // Exportar a Excel
 export function exportWalletMovementsExcel() {
-    if (!activeWalletForMovements) return;
+    if (!viewingAllWallets && !activeWalletForMovements) return;
 
     const inputFrom = document.getElementById('filterDateFrom');
     const inputTo = document.getElementById('filterDateTo');
     const fromDateVal = inputFrom ? inputFrom.value : '';
     const toDateVal = inputTo ? inputTo.value : '';
 
-    let movements = activeWalletForMovements.movements || [];
+    let movements = getMovementsSource();
 
     if (fromDateVal && toDateVal) {
         movements = movements.filter(m => {
@@ -167,6 +213,7 @@ export function exportWalletMovementsExcel() {
     }
 
     const dataToExport = movements.map(m => ({
+        'Cartera': viewingAllWallets ? m.__walletTitle : activeWalletForMovements.title,
         'Tipo': m.type,
         'Categoría (Concepto)': m.category || 'General',
         'Monto': m.amount,
@@ -178,7 +225,7 @@ export function exportWalletMovementsExcel() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Movimientos');
 
-    const safeTitle = activeWalletForMovements.title.replace(/[^a-zA-Z0-9]/g, '_');
+    const safeTitle = viewingAllWallets ? 'Todas_las_Carteras' : activeWalletForMovements.title.replace(/[^a-zA-Z0-9]/g, '_');
     XLSX.writeFile(workbook, `Movimientos_${safeTitle}.xlsx`);
 }
 
@@ -188,25 +235,31 @@ export function renderWalletMovementsTable() {
     const filtersDiv = document.getElementById('walletMovementsFilters');
     const tableContainer = document.getElementById('walletTableContainer');
 
-    if (!tbody || !activeWalletForMovements) return;
+    if (!tbody) return;
+    if (!viewingAllWallets && !activeWalletForMovements) return;
 
-    const hasAnyMovement = activeWalletForMovements.movements && activeWalletForMovements.movements.length > 0;
+    const hasAnyMovement = viewingAllWallets
+        ? initial.userWallets.some(w => w.movements && w.movements.length > 0)
+        : (activeWalletForMovements.movements && activeWalletForMovements.movements.length > 0);
 
-    // Si la cartera nunca ha tenido movimientos en su historia
+    // Si no hay ningún movimiento registrado en el alcance actual (cartera o todas)
     if (!hasAnyMovement) {
         if(actionsDiv) { actionsDiv.classList.remove('d-flex'); actionsDiv.classList.add('d-none'); }
         if(filtersDiv) { filtersDiv.classList.remove('d-block'); filtersDiv.classList.add('d-none'); }
         if(tableContainer) tableContainer.classList.add('shadow-none', 'bg-transparent');
-        
+
+        const emptyActionBtn = viewingAllWallets ? '' : `
+                    <button class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                        <i class="fas fa-plus me-2"></i>Registrar mi primer ingreso
+                    </button>`;
+
         tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="text-center py-5 border-0">
                     <i class="fas fa-money-bill-wave fa-4x text-muted mb-3 opacity-25"></i>
                     <h5 class="fw-bold text-muted mb-2">Aún no hay movimientos</h5>
-                    <p class="text-muted mb-4">Esta cartera está totalmente en blanco.<br>¡Anímate a realizar un ingreso y comienza a gestionar tu dinero!</p>
-                    <button class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                        <i class="fas fa-plus me-2"></i>Registrar mi primer ingreso
-                    </button>
+                    <p class="text-muted mb-4">${viewingAllWallets ? 'Ninguna de tus carteras tiene movimientos registrados todavía.' : 'Esta cartera está totalmente en blanco.<br>¡Anímate a realizar un ingreso y comienza a gestionar tu dinero!'}</p>
+                    ${emptyActionBtn}
                 </td>
             </tr>`;
         return;
@@ -223,7 +276,7 @@ export function renderWalletMovementsTable() {
     const fromDateVal = inputFrom ? inputFrom.value : '';
     const toDateVal = inputTo ? inputTo.value : '';
 
-    let movements = activeWalletForMovements.movements || [];
+    let movements = getMovementsSource();
 
     if (fromDateVal && toDateVal) {
         movements = movements.filter(m => {
@@ -241,6 +294,10 @@ export function renderWalletMovementsTable() {
         return;
     }
 
+    if (viewingAllWallets) {
+        movements = [...movements].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    }
+
     let html = '';
     movements.forEach(mov => {
         const isIncome = mov.type === 'Ingreso';
@@ -255,12 +312,14 @@ export function renderWalletMovementsTable() {
         const catIconClass = catObj ? catObj.iconId : 'fas fa-tag';
         const catDesc = catObj ? catObj.desc : 'General';
 
+        const walletBadgeHtml = viewingAllWallets ? `<small class="text-muted d-block">${mov.__walletTitle}</small>` : '';
+
         const categoryHtml = `
             <div class="d-flex align-items-center gap-2">
                 <div class="bg-secondary bg-opacity-10 rounded d-flex justify-content-center align-items-center text-secondary" style="width: 28px; height: 28px;">
                     <i class="${catIconClass}"></i>
                 </div>
-                <span>${catDesc}</span>
+                <div><span>${catDesc}</span>${walletBadgeHtml}</div>
             </div>`;
         // <td class="py-3 fw-medium text-nowrap">${mov.category || 'General'}</td>
         const hasDesc = mov.desc && mov.desc.trim() !== '';
@@ -299,9 +358,45 @@ export function renderWalletMovementsTable() {
     initial.reinitTooltips();
 }
 
+// Llena el selector de cartera del modal de Nueva Transacción y preselecciona la cartera correspondiente al contexto actual.
+export function prepareAddTransactionModal() {
+    const select = document.getElementById('txWallet');
+    if (!select) return;
+
+    if (initial.userWallets.length === 0) {
+        select.innerHTML = `<option value="">No hay carteras registradas</option>`;
+        return;
+    }
+
+    let html = '';
+    initial.userWallets.forEach(w => {
+        html += `<option value="${w.id}">${w.title}</option>`;
+    });
+    select.innerHTML = html;
+
+    if (activeWalletForMovements) {
+        select.value = activeWalletForMovements.id;
+    } else {
+        select.value = initial.userWallets[0].id;
+    }
+}
+
+// Vincula la preparación automática del selector de cartera cada vez que se abre el modal de Nueva Transacción.
+export function initTransactionModalEvents() {
+    const modalEl = document.getElementById('addTransactionModal');
+    if (!modalEl) return;
+    modalEl.addEventListener('show.bs.modal', () => {
+        prepareAddTransactionModal();
+    });
+}
+
 export function saveNewTransaction() {
-    if (!activeWalletForMovements) {
-        showAlertModal('Error', 'No hay ninguna cartera activa seleccionada.');
+    const walletSelect = document.getElementById('txWallet');
+    const walletId = walletSelect ? walletSelect.value : null;
+    const targetWallet = walletId ? initial.userWallets.find(w => w.id == walletId) : activeWalletForMovements;
+
+    if (!targetWallet) {
+        showAlertModal('Cartera requerida', 'Por favor selecciona la cartera a la cual pertenece esta transacción.');
         return;
     }
 
@@ -337,17 +432,18 @@ export function saveNewTransaction() {
         amount
     };
 
-    if (!activeWalletForMovements.movements) activeWalletForMovements.movements = [];
-    activeWalletForMovements.movements.push(newMov);
+    if (!targetWallet.movements) targetWallet.movements = [];
+    targetWallet.movements.push(newMov);
 
     if (type === 'Ingreso') {
-        activeWalletForMovements.balance += amount;
+        targetWallet.balance += amount;
     } else {
-        activeWalletForMovements.balance -= amount;
+        targetWallet.balance -= amount;
     }
 
     renderWallets();
     renderWalletMovementsTable();
+    dashboard.renderDashboard();
 
     document.getElementById('txAmount').value = '';
     document.getElementById('txCategory').value = '';
@@ -360,15 +456,19 @@ export function saveNewTransaction() {
     if (modalInstance) modalInstance.hide();
 }
 
+
 let currentEditingTransactionId = null;
+let currentEditingTransactionWallet = null;
 
 export function openEditTransactionModal(movId) {
-    if (!activeWalletForMovements) return;
-    const mov = activeWalletForMovements.movements.find(m => m.id == movId);
+    const wallet = findWalletForMovement(movId);
+    if (!wallet) return;
+    const mov = wallet.movements.find(m => m.id == movId);
     if (!mov) return;
     const catObj = initial.sysCategories.find(c => c.id == mov.category);
 
     currentEditingTransactionId = movId;
+    currentEditingTransactionWallet = wallet;
     document.getElementById('editTxType').value = mov.type;
     document.getElementById('editTxAmount').value = mov.amount;
     document.getElementById('editTxCategory').value = mov.category || '';
@@ -384,8 +484,9 @@ export function openEditTransactionModal(movId) {
 }
 
 export function saveEditedTransaction() {
-    if (!activeWalletForMovements) return;
-    const mov = activeWalletForMovements.movements.find(m => m.id == currentEditingTransactionId);
+    const wallet = currentEditingTransactionWallet;
+    if (!wallet) return;
+    const mov = wallet.movements.find(m => m.id == currentEditingTransactionId);
     if (!mov) return;
 
     const newType = document.getElementById('editTxType').value;
@@ -401,15 +502,15 @@ export function saveEditedTransaction() {
     }
 
     if (mov.type === 'Ingreso') {
-        activeWalletForMovements.balance -= mov.amount;
+        wallet.balance -= mov.amount;
     } else {
-        activeWalletForMovements.balance += mov.amount;
+        wallet.balance += mov.amount;
     }
 
     if (newType === 'Ingreso') {
-        activeWalletForMovements.balance += newAmount;
+        wallet.balance += newAmount;
     } else {
-        activeWalletForMovements.balance -= newAmount;
+        wallet.balance -= newAmount;
     }
 
     mov.type = newType;
@@ -422,6 +523,7 @@ export function saveEditedTransaction() {
 
     renderWallets();
     renderWalletMovementsTable();
+    dashboard.renderDashboard();
 
     const modalEl = document.getElementById('editTransactionModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -430,18 +532,20 @@ export function saveEditedTransaction() {
 
 export function confirmDeleteTransaction(movId) {
     initial.showConfirmModal('¿Eliminar Movimiento?', 'Esta acción eliminará el movimiento y ajustará el balance de la cartera.', () => {
-        if (!activeWalletForMovements) return;
-        const index = activeWalletForMovements.movements.findIndex(m => m.id == movId);
+        const wallet = findWalletForMovement(movId);
+        if (!wallet) return;
+        const index = wallet.movements.findIndex(m => m.id == movId);
         if (index !== -1) {
-            const mov = activeWalletForMovements.movements[index];
+            const mov = wallet.movements[index];
             if (mov.type === 'Ingreso') {
-                activeWalletForMovements.balance -= mov.amount;
+                wallet.balance -= mov.amount;
             } else {
-                activeWalletForMovements.balance += mov.amount;
+                wallet.balance += mov.amount;
             }
-            activeWalletForMovements.movements.splice(index, 1);
+            wallet.movements.splice(index, 1);
             renderWallets();
             renderWalletMovementsTable();
+            dashboard.renderDashboard();
         }
     });
 }
@@ -470,6 +574,7 @@ export function saveNewWallet() {
 
     initial.userWallets.push(newWallet);
     renderWallets();
+    dashboard.renderDashboard();
 
     document.getElementById('walletTitle').value = '';
     document.getElementById('walletBalance').value = '0';
@@ -509,6 +614,7 @@ export function saveEditedWallet() {
     wallet.desc = document.getElementById('editWalletDesc').value.trim();
 
     renderWallets();
+    dashboard.renderDashboard();
 
     const modalEl = document.getElementById('editWalletModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -520,5 +626,6 @@ export function confirmDeleteWallet(id) {
 
         initial.setUserWallets(initial.userWallets.filter(w => w.id != id));
         renderWallets();
+        dashboard.renderDashboard();
     });
 }

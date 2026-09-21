@@ -1,5 +1,5 @@
-
 import * as initial from './initial.js';
+import * as dashboard from './dashboard.js';
 
 // ==========================================
 // 5. MÓDULO DE PRESUPUESTO (BUDGETS)
@@ -235,6 +235,7 @@ export function saveBudgetItem() {
 
     period.items.push(newItem);
     renderBudgetDetails();
+    dashboard.renderDashboardSummary();
 
     document.getElementById('budgetTitle').value = '';
     document.getElementById('budgetAmount').value = '';
@@ -300,6 +301,7 @@ export function saveEditedBudgetItem() {
     // El registro mantiene su mes original como se solicitó.
     
     renderBudgetDetails();
+    dashboard.renderDashboardSummary();
 
     const modalEl = document.getElementById('editBudgetItemModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -312,6 +314,7 @@ export function confirmDeleteBudgetItem(itemId) {
             p.items = p.items.filter(i => i.id != itemId);
         });
         renderBudgetDetails();
+        dashboard.renderDashboardSummary();
     });
 }
 
@@ -341,6 +344,7 @@ export function saveNewBudgetPeriod() {
     activeBudgetPeriodId = newPeriod.id;
     renderMasterBudgetList();
     renderBudgetDetails();
+    dashboard.renderDashboardSummary();
 
     const modalEl = document.getElementById('addBudgetPeriodModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -350,7 +354,7 @@ export function saveNewBudgetPeriod() {
 let currentEditingPeriodId = null;
 
 export function openEditBudgetPeriodModal(periodId) {
-    const period = masterBudgets.find(p => p.id === periodId);
+    const period = initial.masterBudgets.find(p => p.id === periodId);
     if (!period) return;
 
     currentEditingPeriodId = periodId;
@@ -362,7 +366,7 @@ export function openEditBudgetPeriodModal(periodId) {
 }
 
 export function saveEditedBudgetPeriod() {
-    const period = masterBudgets.find(p => p.id === currentEditingPeriodId);
+    const period = initial.masterBudgets.find(p => p.id === currentEditingPeriodId);
     if (!period) return;
 
     const input = document.getElementById('editPeriodNameInput');
@@ -375,6 +379,7 @@ export function saveEditedBudgetPeriod() {
     period.periodName = name;
     renderMasterBudgetList();
     renderBudgetDetails();
+    dashboard.renderDashboardSummary();
 
     const modalEl = document.getElementById('editBudgetPeriodModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -388,5 +393,6 @@ export function confirmDeleteBudgetPeriod(periodId) {
             activeBudgetPeriodId = initial.masterBudgets.length > 0 ? initial.masterBudgets[0].id : null;
         }
         initMasterBudget();
+        dashboard.renderDashboardSummary();
     });
 }

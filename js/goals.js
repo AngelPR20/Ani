@@ -1,5 +1,5 @@
-
 import * as initial from './initial.js';
+import * as dashboard from './dashboard.js';
 
 // ==========================================
 // 4. MÓDULO DE METAS (GOALS)
@@ -136,6 +136,7 @@ export function saveNewGoal() {
     });
 
     renderGoals();
+    dashboard.renderDashboard();
 
     document.getElementById('goalTitle').value = '';
     document.getElementById('goalTarget').value = '';
@@ -176,6 +177,7 @@ export function saveEditedGoal() {
     goal.desc = document.getElementById('editGoalDesc').value.trim();
 
     renderGoals();
+    dashboard.renderDashboard();
 
     const modalEl = document.getElementById('editGoalModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -187,5 +189,6 @@ export function confirmDeleteGoal(goalId) {
 
         initial.setUserGoals(initial.userGoals.filter(g => g.id != goalId));
         renderGoals();
+        dashboard.renderDashboard();
     });
 }
