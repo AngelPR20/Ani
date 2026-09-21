@@ -211,7 +211,7 @@ export function renderDashboardMovements() {
             <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-3" style="border-opacity: 0.2;">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle ${bgColor} bg-opacity-10 ${amountColor} p-2 me-3"><i class="${catIconClass}"></i></div>
-                    <div><p class="mb-0 fw-medium">${catDesc}</p><small class="text-muted">${mov.__walletTitle} · ${mov.date}</small></div>
+                    <div><p class="mb-0 fw-medium">${catDesc}</p><small class="text-muted">${mov.__walletTitle}</small></div>
                 </div>
                 <span class="${amountColor} fw-bold">${amountPrefix}$${(mov.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>`;
