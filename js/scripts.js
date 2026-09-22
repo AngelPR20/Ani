@@ -76,6 +76,68 @@ function renderNotifications() {
     list.innerHTML = html;
 }
 
+// Vincula un switch de preferencia a una clave de localStorage: carga su estado guardado
+// y persiste cualquier cambio que el usuario haga.
+function initPreferenceSwitch(elementId, storageKey) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.checked = localStorage.getItem(storageKey) === 'true';
+    el.addEventListener('change', () => {
+        localStorage.setItem(storageKey, el.checked);
+    });
+}
+
+// Configura la carga de foto de perfil (selección manual o arrastrar y soltar) con vista previa circular.
+function initProfilePhotoUpload() {
+    const dropzone = document.getElementById('profileAvatarDropzone');
+    const preview = document.getElementById('profileAvatarPreview');
+    const fileInput = document.getElementById('profileAvatarInput');
+    const changeBtn = document.getElementById('btnChangeProfilePhoto');
+
+    if (!dropzone || !preview || !fileInput) return;
+
+    const loadFile = (file) => {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    if (changeBtn) {
+        changeBtn.addEventListener('click', () => fileInput.click());
+    }
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files && fileInput.files[0]) {
+            loadFile(fileInput.files[0]);
+        }
+    });
+
+    ['dragenter', 'dragover'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('dropzone-active');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('dropzone-active');
+        });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            loadFile(e.dataTransfer.files[0]);
+        }
+    });
+}
+
 // ==========================================
 // 2. INICIALIZACIÓN DE GRÁFICOS Y TOOLTIPS
 // ==========================================
@@ -87,65 +149,16 @@ document.addEventListener('DOMContentLoaded', () => {
         darkModeSwitch.checked = (localStorage.getItem('finanzaspro_theme') === 'dark');
     }
 
-    // Gráfico de Barras (Ingresos vs Gastos Anuales)
-    const barCtx = document.getElementById('barChart');
-    if (barCtx) {
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                datasets: [
-                    {
-                        label: 'Ingresos',
-                        data: [1200, 1900, 1500, 2200, 1800, 2500, 2300, 3000, 2800, 3200, 3100, 3500],
-                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                        borderRadius: 6
-                    },
-                    {
-                        label: 'Gastos',
-                        data: [800, 1200, 950, 1400, 1100, 1600, 1500, 1900, 1700, 2100, 2000, 2300],
-                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
-                        borderRadius: 6
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(200, 200, 200, 0.1)' } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-    }
+    // Inicializar preferencias de notificaciones (Configuración)
+    initPreferenceSwitch('btnPushNotifSwitch', 'finanzaspro_push_notifications');
+    initPreferenceSwitch('btnEmailNotifSwitch', 'finanzaspro_email_notifications');
+    initPreferenceSwitch('btnBudgetRemindersSwitch', 'finanzaspro_budget_reminders');
 
-    // Gráfico de Dona (Distribución Actual)
-    const doughnutCtx = document.getElementById('doughnutChart');
-    if (doughnutCtx) {
-        new Chart(doughnutCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Alimentación', 'Servicios', 'Entretenimiento', 'Ahorros'],
-                datasets: [{
-                    data: [450, 300, 150, 600],
-                    backgroundColor: [
-                        'rgba(13, 110, 253, 0.8)',
-                        'rgba(25, 135, 84, 0.8)',
-                        'rgba(255, 193, 7, 0.8)',
-                        'rgba(13, 202, 240, 0.8)'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
-            }
-        });
-    }
+    // Inicializar carga de foto de perfil (Configuración)
+    initProfilePhotoUpload();
+
+    // Los gráficos de Ingresos vs Gastos y Distribución de Gastos ahora son dinámicos
+    // y se inicializan/actualizan desde dashboard.js (ver dashboard.renderDashboard()).
 
     reinitTooltips();
 

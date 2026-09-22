@@ -354,7 +354,7 @@ export function saveNewBudgetPeriod() {
 let currentEditingPeriodId = null;
 
 export function openEditBudgetPeriodModal(periodId) {
-    const period = initial.masterBudgets.find(p => p.id === periodId);
+    const period = initial.masterBudgets.find(p => p.id == periodId);
     if (!period) return;
 
     currentEditingPeriodId = periodId;

@@ -41,7 +41,7 @@ export function renderWallets() {
 
         html += `
             <div class="col-md-6 col-xl-4">
-                <div class="glass p-4 h-100 d-flex flex-column justify-content-between position-relative">
+                <div class="glass p-4 h-100 d-flex flex-column justify-content-between position-relative wallet-card-clickable" data-id="${wallet.id}" role="button" tabindex="0">
                     <div>
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="d-flex align-items-center">
@@ -72,9 +72,6 @@ export function renderWallets() {
                                 <h5 class="fw-bold mb-0 ${balanceColorClass}">$${formattedBalance}</h5>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary px-2 py-1 mt-1 btnViewMovements" style="border-radius:8px;" data-id=${wallet.id}>
-                            <i class="fas fa-list-alt me-1"></i>Ver Movimientos
-                        </button>
                     </div>
                 </div>
             </div>`;
@@ -83,9 +80,18 @@ export function renderWallets() {
     
     container.innerHTML = html;
 
-    container.querySelectorAll('.btnViewMovements').forEach(btnViewMovements => {
-        btnViewMovements.addEventListener('click', () => {
-            openWalletMovementsPage(btnViewMovements.getAttribute('data-id'));
+    container.querySelectorAll('.wallet-card-clickable').forEach(card => {
+        const goToMovements = () => openWalletMovementsPage(card.getAttribute('data-id'));
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.dropdown')) return;
+            goToMovements();
+        });
+        card.addEventListener('keydown', (e) => {
+            if (e.target.closest('.dropdown')) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                goToMovements();
+            }
         });
     });
     container.querySelectorAll('.btnOpenEditWallet').forEach(btnOpenEditWallet => {
@@ -361,24 +367,38 @@ export function renderWalletMovementsTable() {
 // Llena el selector de cartera del modal de Nueva Transacción y preselecciona la cartera correspondiente al contexto actual.
 export function prepareAddTransactionModal() {
     const select = document.getElementById('txWallet');
-    if (!select) return;
+    const wrapper = document.getElementById('txWalletFieldWrapper');
 
-    if (initial.userWallets.length === 0) {
-        select.innerHTML = `<option value="">No hay carteras registradas</option>`;
-        return;
+    if (select) {
+        if (initial.userWallets.length === 0) {
+            select.innerHTML = `<option value="">No hay carteras registradas</option>`;
+        } else {
+            let html = '';
+            initial.userWallets.forEach(w => {
+                html += `<option value="${w.id}">${w.title}</option>`;
+            });
+            select.innerHTML = html;
+
+            if (activeWalletForMovements) {
+                select.value = activeWalletForMovements.id;
+            } else {
+                select.value = initial.userWallets[0].id;
+            }
+        }
     }
 
-    let html = '';
-    initial.userWallets.forEach(w => {
-        html += `<option value="${w.id}">${w.title}</option>`;
-    });
-    select.innerHTML = html;
-
-    if (activeWalletForMovements) {
-        select.value = activeWalletForMovements.id;
-    } else {
-        select.value = initial.userWallets[0].id;
+    // El selector de cartera solo se muestra cuando NO se está dentro de una cartera específica
+    // (es decir, cuando se abre desde el Dashboard o la vista de Todas las Carteras).
+    if (wrapper) {
+        wrapper.style.display = activeWalletForMovements ? 'none' : '';
     }
+
+    // Fecha y hora por defecto: el momento actual
+    const now = new Date();
+    const dateInput = document.getElementById('txDate');
+    const timeInput = document.getElementById('txTime');
+    if (dateInput) dateInput.value = now.toISOString().split('T')[0];
+    if (timeInput) timeInput.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 // Vincula la preparación automática del selector de cartera cada vez que se abre el modal de Nueva Transacción.
@@ -408,12 +428,12 @@ export function saveNewTransaction() {
     const desc = document.getElementById('txDesc').value.trim();
 
     if (isNaN(amount) || amount <= 0) {
-        showAlertModal('Monto inválido', 'Por favor ingresa un monto mayor a cero.');
+        initial.showAlertModal('Monto inválido', 'Por favor ingresa un monto mayor a cero.');
         return;
     }
 
     if (!category) {
-        showAlertModal('Categoría requerida', 'Por favor ingresa la categoría o concepto principal de la transacción.');
+        initial.showAlertModal('Categoría requerida', 'Por favor ingresa la categoría o concepto principal de la transacción.');
         return;
     }
 

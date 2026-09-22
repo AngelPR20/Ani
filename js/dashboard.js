@@ -63,6 +63,146 @@ function setupScrollFade(listId) {
     requestAnimationFrame(update);
 }
 
+let barChartInstance = null;
+let doughnutChartInstance = null;
+
+const monthLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+// Suma los ingresos y gastos de todas las carteras, agrupados por mes, para el año indicado.
+function computeMonthlyTotals(year) {
+    const incomeByMonth = new Array(12).fill(0);
+    const expenseByMonth = new Array(12).fill(0);
+
+    initial.userWallets.forEach(wallet => {
+        (wallet.movements || []).forEach(mov => {
+            if (!mov.date) return;
+            const parts = mov.date.split(' ')[0].split('-');
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10) - 1;
+            if (y !== year || isNaN(m)) return;
+            if (mov.type === 'Ingreso') {
+                incomeByMonth[m] += mov.amount || 0;
+            } else {
+                expenseByMonth[m] += mov.amount || 0;
+            }
+        });
+    });
+
+    return { incomeByMonth, expenseByMonth };
+}
+
+// Suma los gastos de todas las carteras, agrupados por categoría.
+function computeExpenseByCategory() {
+    const totalsByCat = {};
+    initial.userWallets.forEach(wallet => {
+        (wallet.movements || []).forEach(mov => {
+            if (mov.type !== 'Gasto') return;
+            const catObj = initial.sysCategories.find(c => c.id == mov.category);
+            const label = catObj ? catObj.desc : (mov.category || 'General');
+            totalsByCat[label] = (totalsByCat[label] || 0) + (mov.amount || 0);
+        });
+    });
+    return totalsByCat;
+}
+
+const doughnutPalette = [
+    'rgba(13, 110, 253, 0.8)',
+    'rgba(25, 135, 84, 0.8)',
+    'rgba(255, 193, 7, 0.8)',
+    'rgba(13, 202, 240, 0.8)',
+    'rgba(220, 53, 69, 0.8)',
+    'rgba(111, 66, 193, 0.8)',
+    'rgba(253, 126, 20, 0.8)'
+];
+
+// --- GRÁFICO: INGRESOS VS GASTOS ANUALES ---
+export function renderBarChart() {
+    const ctx = document.getElementById('barChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+
+    const year = new Date().getFullYear();
+    const { incomeByMonth, expenseByMonth } = computeMonthlyTotals(year);
+
+    if (barChartInstance) {
+        barChartInstance.data.datasets[0].data = incomeByMonth;
+        barChartInstance.data.datasets[1].data = expenseByMonth;
+        barChartInstance.update();
+        return;
+    }
+
+    barChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: monthLabels,
+            datasets: [
+                {
+                    label: 'Ingresos',
+                    data: incomeByMonth,
+                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Gastos',
+                    data: expenseByMonth,
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(200, 200, 200, 0.1)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+// --- GRÁFICO: DISTRIBUCIÓN DE GASTOS POR CATEGORÍA ---
+export function renderDoughnutChart() {
+    const ctx = document.getElementById('doughnutChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+
+    const totalsByCat = computeExpenseByCategory();
+    const labels = Object.keys(totalsByCat);
+    const data = Object.values(totalsByCat);
+    let colors = labels.map((_, i) => doughnutPalette[i % doughnutPalette.length]);
+
+    if (labels.length === 0) {
+        labels.push('Sin gastos registrados');
+        data.push(1);
+        colors = ['rgba(148, 163, 184, 0.4)'];
+    }
+
+    if (doughnutChartInstance) {
+        doughnutChartInstance.data.labels = labels;
+        doughnutChartInstance.data.datasets[0].data = data;
+        doughnutChartInstance.data.datasets[0].backgroundColor = colors;
+        doughnutChartInstance.update();
+        return;
+    }
+
+    doughnutChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                data,
+                backgroundColor: colors,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+}
+
 // --- TARJETAS DE RESUMEN SUPERIOR ---
 export function renderDashboardSummary() {
     const now = new Date();
@@ -89,11 +229,13 @@ export function renderDashboardSummary() {
     const available = totalBalance - budgetedMonth;
 
     const elBalance = document.getElementById('dashTotalBalance');
+    const elBudgeted = document.getElementById('dashBudgetedMonth');
     const elIncome = document.getElementById('dashTotalIncome');
     const elExpense = document.getElementById('dashTotalExpense');
     const elAvailable = document.getElementById('dashAvailable');
 
     if (elBalance) elBalance.textContent = formatCurrency(totalBalance);
+    if (elBudgeted) elBudgeted.textContent = formatCurrency(budgetedMonth);
     if (elIncome) elIncome.textContent = formatCurrency(totalIncomeMonth);
     if (elExpense) elExpense.textContent = formatCurrency(totalExpenseMonth);
     if (elAvailable) {
@@ -127,7 +269,7 @@ export function renderDashboardWallets() {
         const formattedBalance = (wallet.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const balanceColorClass = wallet.balance <= 0 ? 'text-danger' : '';
         html += `
-            <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+            <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary text-white rounded p-2 me-3"><i class="${wallet.icon}"></i></div>
                     <p class="mb-0 fw-medium">${wallet.title}</p>
@@ -195,7 +337,7 @@ export function renderDashboardMovements() {
     }
 
     allMovements.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    const recent = allMovements.slice(0, 6);
+    const recent = allMovements.slice(0, 5);
 
     let html = '';
     recent.forEach(mov => {
@@ -210,7 +352,7 @@ export function renderDashboardMovements() {
         html += `
             <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-3" style="border-opacity: 0.2;">
                 <div class="d-flex align-items-center">
-                    <div class="rounded-circle ${bgColor} bg-opacity-10 ${amountColor} p-2 me-3"><i class="${catIconClass}"></i></div>
+                    <div class="rounded ${bgColor} bg-opacity-10 ${amountColor} p-2 me-3 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="${catIconClass}"></i></div>
                     <div><p class="mb-0 fw-medium">${catDesc}</p><small class="text-muted">${mov.__walletTitle}</small></div>
                 </div>
                 <span class="${amountColor} fw-bold">${amountPrefix}$${(mov.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
@@ -227,4 +369,6 @@ export function renderDashboard() {
     renderDashboardWallets();
     renderDashboardGoals();
     renderDashboardMovements();
+    renderBarChart();
+    renderDoughnutChart();
 }

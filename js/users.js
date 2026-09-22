@@ -38,10 +38,9 @@ export function renderMantUsers() {
 // USUARIOS
 export function openAddUserModal() {
     document.getElementById('userId').value = '';
-    document.getElementById('userAvatar').value = '';
     document.getElementById('userName').value = '';
     document.getElementById('userEmail').value = '';
-    document.getElementById('userRole').value = 'Viewer';
+    document.getElementById('userRole').value = '';
     document.getElementById('userModalTitle').textContent = 'Nuevo Usuario';
 }
 
@@ -49,7 +48,6 @@ export function editUser(id) {
     const u = initial.sysUsers.find(x => x.id == id);
     if (!u) return;
     document.getElementById('userId').value = u.id;
-    document.getElementById('userAvatar').value = u.avatar;
     document.getElementById('userName').value = u.name;
     document.getElementById('userEmail').value = u.email;
     document.getElementById('userRole').value = u.role;
@@ -60,12 +58,12 @@ export function editUser(id) {
 export function saveUser() {
     const id = document.getElementById('userId').value;
     const data = {
-        avatar: document.getElementById('userAvatar').value.trim(),
         name: document.getElementById('userName').value.trim(),
         email: document.getElementById('userEmail').value.trim(),
         role: document.getElementById('userRole').value
     };
-    if(!data.name || !data.email) { showAlertModal('Error', 'Nombre y Email son requeridos.'); return; }
+    if(!data.name || !data.email) { initial.showAlertModal('Error', 'Nombre y Email son requeridos.'); return; }
+    if(!data.role) { initial.showAlertModal('Error', 'Debes seleccionar un rol para el usuario.'); return; }
 
     if (id) {
         const idx = initial.sysUsers.findIndex(x => x.id == id);
