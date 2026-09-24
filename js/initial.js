@@ -1,4 +1,3 @@
-
 // ==========================================
 // 1. NAVEGACIÓN Y CONFIGURACIÓN DE INTERFAZ
 // ==========================================
@@ -47,6 +46,7 @@ export let masterBudgets = [
     {
         id: 1,
         periodName: 'Septiembre 2026',
+        monthValue: '2026-09',
         items: [
             { id: 201, type: 'Gasto Fijo', title: 'Luz Eléctrica', amount: 85.50, affectsBalance: true, icon: 'fas fa-bolt', desc: 'Servicio eléctrico mensual' },
             { id: 202, type: 'Reserva', title: 'Fondo de Emergencia', amount: 300.00, affectsBalance: false, icon: 'fas fa-shield-alt', desc: 'Ahorro preventivo' }
@@ -55,6 +55,7 @@ export let masterBudgets = [
     {
         id: 2,
         periodName: 'Agosto 2026',
+        monthValue: '2026-08',
         items: [
             { id: 203, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago de apartamento' }
         ]

@@ -122,7 +122,7 @@ export function saveNewGoal() {
     const desc = document.getElementById('goalDesc').value.trim();
 
     if (!title || isNaN(target) || target <= 0) {
-        showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto objetivo válido.');
+        initial.showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto objetivo válido.');
         return;
     }
 
@@ -170,8 +170,16 @@ export function saveEditedGoal() {
     const goal = initial.userGoals.find(g => g.id == currentEditingGoalId);
     if (!goal) return;
 
-    goal.title = document.getElementById('editGoalTitle').value.trim();
-    goal.target = parseFloat(document.getElementById('editGoalTarget').value);
+    const title = document.getElementById('editGoalTitle').value.trim();
+    const target = parseFloat(document.getElementById('editGoalTarget').value);
+
+    if (!title || isNaN(target) || target <= 0) {
+        initial.showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto objetivo válido.');
+        return;
+    }
+
+    goal.title = title;
+    goal.target = target;
     goal.current = parseFloat(document.getElementById('editGoalCurrent').value) || 0;
     goal.icon = document.getElementById('editGoalIcon').value;
     goal.desc = document.getElementById('editGoalDesc').value.trim();

@@ -101,12 +101,14 @@
             <i class="fas fa-chevron-left text-white"></i>
         </button>
 
-        <div class="sidebar-header d-flex align-items-center mb-3 px-1">
+        <div class="sidebar-header d-flex align-items-center mb-4 px-1">
             <div class="brand-icon bg-primary text-white rounded p-2 me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; min-width: 36px;">
                 <i class="fas fa-wallet fs-6"></i>
             </div>
             <h4 class="brand-text mb-0 fw-bold fs-5">FinanzasPro</h4>
         </div>
+
+        
 
         <div class="sidebar-content">
             <a id="btnDashboard" class="nav-item-custom active-link" data-tooltip="Dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
@@ -117,6 +119,15 @@
         </div>
 
         <div class="mt-2 border-top border-secondary pt-2 others-sidebar-content" style="border-opacity: 0.2;">
+
+            <a class="sidebar-user-info d-flex align-items-center px-1 mb-3 nav-item-custom position-relative" id="sidebarUserInfo" data-tooltip="Usuario" >
+                <img id="sidebarUserAvatar" src="assets/profile-demo.png" alt="Usuario" class="rounded-circle border" style="width: 34px; height: 34px; min-width: 34px; object-fit: cover; margin-right: 0.7rem;">
+                <span class="text-truncate" id="sidebarUserName" style="max-width: 170px;">Angel Perez Rojas</span>
+                <!-- <div class="menu-title overflow-hidden ms-2">
+                    !-- <small class="text-muted text-truncate d-block" style="font-size: 0.7rem;">Sesión activa</small> --
+                </div> -->
+            </a>
+
             <a class="nav-item-custom position-relative" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones">
                 <i class="fas fa-bell bell-ring" style="color:#cfcf20b0"></i> <span>Notificaciones</span>
                 <span class="position-absolute top-50 end-0 translate-middle-y p-1 bg-danger border border-light rounded-circle me-2">
@@ -132,8 +143,11 @@
         <div class="w-100">
             
             <div id="mobile-header">
-                <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i> FinanzasPro</h5>
-                <div class="d-flex g-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i> FinanzasPro</h5>
+                </div>
+                <div class="d-flex align-items-center g-2">
+                    <img id="mobileHeaderUserAvatar" src="assets/profile-demo.png" alt="Usuario" class="rounded-circle border mx-2" style="width: 32px; height: 32px; object-fit: cover;">
                     <button id="btnNotificationsMobile" class="bell-ring btn btn-outline-warning border-0 d-flex align-items-center justify-content-center p-2" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Notificaciones">
                         <i class="fas fa-bell fs-5"></i>
                     </button>
@@ -172,7 +186,7 @@
                         <div class="glass p-3 h-100 d-flex align-items-center">
                             <div class="bg-warning bg-opacity-10 text-warning rounded p-3 me-3 fs-4"><i class="fas fa-file-invoice-dollar"></i></div>
                             <div>
-                                <small class="text-muted d-block">Presupuesto del Mes</small>
+                                <small class="text-muted d-block">Total Presupuestado</small>
                                 <h5 class="fw-bold mb-0 text-warning" id="dashBudgetedMonth">$0.00</h5>
                             </div>
                         </div>
@@ -207,7 +221,7 @@
                     
                 </div>
 
-                <div class="row g-4 mb-4">
+                <div class="row g-3 mb-4">
                     <div class="col-xl-8 col-lg-7">
                         <div class="glass glass-card h-100">
                             <h5 class="fw-bold mb-4">Ingresos vs Gastos Anuales</h5>
@@ -222,7 +236,7 @@
                     </div>
                 </div>
 
-                <div class="row g-4">
+                <div class="row g-3">
                     <div class="col-md-6 col-xl-4">
                         <div class="glass p-4 h-100 d-flex flex-column">
                             <h5 class="fw-bold mb-4">Carteras y Cuentas</h5>
@@ -595,15 +609,7 @@
                                     <input class="form-check-input" type="checkbox" id="btnEmailNotifSwitch" style="cursor: pointer;">
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center p-3 mb-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
-                                <div>
-                                    <p class="mb-0 fw-medium">Recordatorios de Presupuesto</p>
-                                    <small class="text-muted">Avísame cuando esté cerca de superar mi presupuesto mensual</small>
-                                </div>
-                                <div class="form-check form-switch fs-4 mb-0">
-                                    <input class="form-check-input" type="checkbox" id="btnBudgetRemindersSwitch" style="cursor: pointer;">
-                                </div>
-                            </div>
+                            
                             <div class="mb-3">
                                 <label class="form-label fw-medium">Idioma de la aplicación</label>
                                 <select class="form-select glass-input"><option>Español (Latinoamérica)</option><option>English (US)</option></select>
@@ -625,40 +631,47 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-medium">Nombre Completo</label>
-                                <input type="text" class="form-control glass-input" value="AdminUser">
+                                <input type="text" id="profileNameInput" class="form-control glass-input" value="Angel de Jesus Perez Rojas">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-medium">Correo Electrónico</label>
                                 <input type="email" class="form-control glass-input" value="admin@finanzaspro.com">
                             </div>
-                            <button class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 10px;">Guardar Cambios</button>
+                            <button type="button" id="btnSaveProfile" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 10px;">Guardar Cambios</button>
                         </div>
                     </div>
                     <div class="col-12">
                         <div class="glass p-4">
-                            <h5 class="fw-bold mb-4">Acerca de</h5>
-                            <div class="row g-4">
-                                <div class="col-md-4 text-center pb-3 pb-md-0 border-bottom border-md-0 border-end-md" style="border-color: var(--glass-border) !important;">
-                                    <i class="fas fa-wallet text-primary" style="font-size: 3rem;"></i>
-                                    <h4 class="fw-bold mt-2 mb-0">FinanzasPro</h4>
-                                    <p class="text-muted small mb-1">Versión 1.0.0</p>
-                                    <p class="text-muted small mb-0">Tu dinero, bajo control.</p>
+                            <div class="text-center mb-1">
+                                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3" style="width: 72px; height: 72px;">
+                                    <i class="fas fa-wallet fs-2"></i>
                                 </div>
-                                <div class="col-md-4 text-center pb-3 pb-md-0 border-bottom border-md-0 border-end-md" style="border-color: var(--glass-border) !important;">
-                                    <p class="fw-medium mb-2">Síguenos</p>
-                                    <div class="d-flex justify-content-center gap-3 fs-4">
-                                        <a href="https://facebook.com" target="_blank" rel="noopener" class="text-primary" title="Facebook"><i class="fab fa-facebook"></i></a>
-                                        <a href="https://instagram.com" target="_blank" rel="noopener" class="text-primary" title="Instagram"><i class="fab fa-instagram"></i></a>
-                                        <a href="https://twitter.com" target="_blank" rel="noopener" class="text-primary" title="Twitter"><i class="fab fa-twitter"></i></a>
-                                        <a href="https://linkedin.com" target="_blank" rel="noopener" class="text-primary" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                                    </div>
-                                    <p class="text-muted small mt-3 mb-0"><a href="https://www.finanzaspro.com" target="_blank" rel="noopener" class="text-decoration-none"><i class="fas fa-globe me-1"></i>www.finanzaspro.com</a></p>
+                                <h4 class="fw-bold mb-1">FinanzasPro</h4>
+                                <span class="text-primary mb-2 px-3 py-2" style="border-radius: 20px;">Versión 1.0.0</span>
+                                <!-- <p class="text-muted mb-0">Tu dinero, bajo control.</p> -->
+                            </div>
+
+                            <!-- <hr style="border-color: var(--glass-border); opacity: 0.5;"> -->
+
+                            <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 py-2">
+                                <div class="d-flex gap-3 fs-5">
+                                    <a href="https://www.finanzaspro.com" target="_blank" rel="noopener" class="text-decoration-none text-muted d-flex align-items-center gap-2">
+                                        <i class="fas fa-globe text-primary"></i> 
+                                    </a>
+                                    <a href="https://facebook.com" target="_blank" rel="noopener" class="text-primary" title="Facebook"><i class="fab fa-facebook"></i></a>
+                                    <a href="https://instagram.com" target="_blank" rel="noopener" class="text-primary" title="Instagram"><i class="fab fa-instagram"></i></a>
+                                    <a href="https://twitter.com" target="_blank" rel="noopener" class="text-primary" title="Twitter"><i class="fab fa-twitter"></i></a>
+                                    <a href="https://linkedin.com" target="_blank" rel="noopener" class="text-primary" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
                                 </div>
-                                <div class="col-md-4 text-center">
-                                    <p class="fw-medium mb-1">Desarrollado por</p>
-                                    <p class="text-muted small mb-1">FinanzasPro Labs</p>
-                                    <p class="text-muted small mb-0"><i class="fas fa-envelope me-1"></i>soporte@finanzaspro.com</p>
-                                </div>
+                            </div>
+
+                            <!-- <hr style="border-color: var(--glass-border); opacity: 0.5;"> -->
+
+                            <p class="text-muted small text-center mb-0">
+                                <span class="fw-medium" style="color: var(--text-main);">FinanzasPro Labs</span> &middot;
+                                <a href="mailto:soporte@finanzaspro.com" class="text-decoration-none"><i class="fas fa-envelope me-1"></i>soporte@finanzaspro.com</a>
+                            </p>
+                            <div>
                             </div>
                         </div>
                     </div>
@@ -870,64 +883,64 @@
 
     <!-- Modal Editar Transacción -->
     <div class="modal fade" id="editTransactionModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold">Editar Transacción</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="row g-3">
-                <div class="col-6">
-                    <label class="form-label text-muted small">Tipo</label>
-                    <select id="editTxType" class="form-select glass-input">
-                        <option value="Gasto">Gasto</option>
-                        <option value="Ingreso">Ingreso</option>
-                    </select>
-                </div>
-                <div class="col-6">
-                    <label class="form-label text-muted small">Monto</label>
-                    <input type="number" id="editTxAmount" class="form-control glass-input" placeholder="0.00">
-                </div>
-                <div class="col-6">
-                    <label class="form-label text-muted small">Fecha</label>
-                    <input type="date" id="editTxDate" class="form-control glass-input">
-                </div>
-                <div class="col-6">
-                    <label class="form-label text-muted small">Hora</label>
-                    <input type="time" id="editTxTime" class="form-control glass-input">
-                </div>
-                <!-- <div class="col-12">
-                    <label class="form-label text-muted small">Categoría (Concepto)</label>
-                    <input type="text" id="editTxCategory" class="form-control glass-input">
-                </div> -->
-                <!-- REEMPLAZO 9: Editar Categoría -->
-                <div class="col-12">
-                    <label class="form-label text-muted small">Categoría (Concepto)</label>
-                    <div class="dropdown w-100">
-                        <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-editTxCategory">
-                            <span>Seleccionar Categoría...</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">
-                            <div class="category-list-container p-2" id="list-editTxCategory"></div>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Editar Transacción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Tipo</label>
+                        <select id="editTxType" class="form-select glass-input">
+                            <option value="Gasto">Gasto</option>
+                            <option value="Ingreso">Ingreso</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Monto</label>
+                        <input type="number" id="editTxAmount" class="form-control glass-input" placeholder="0.00">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Fecha</label>
+                        <input type="date" id="editTxDate" class="form-control glass-input">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Hora</label>
+                        <input type="time" id="editTxTime" class="form-control glass-input">
+                    </div>
+                    <!-- <div class="col-12">
+                        <label class="form-label text-muted small">Categoría (Concepto)</label>
+                        <input type="text" id="editTxCategory" class="form-control glass-input">
+                    </div> -->
+                    <!-- REEMPLAZO 9: Editar Categoría -->
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Categoría (Concepto)</label>
+                        <div class="dropdown w-100">
+                            <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-editTxCategory">
+                                <span>Seleccionar Categoría...</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">
+                                <div class="category-list-container p-2" id="list-editTxCategory"></div>
+                            </div>
+                            <input type="hidden" id="editTxCategory" value="">
                         </div>
-                        <input type="hidden" id="editTxCategory" value="">
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Descripción (Opcional)</label>
+                        <textarea id="editTxDesc" class="form-control glass-input" rows="2" placeholder="Notas adicionales del movimiento..."></textarea>
                     </div>
                 </div>
-                
-                <div class="col-12">
-                    <label class="form-label text-muted small">Descripción (Opcional)</label>
-                    <textarea id="editTxDesc" class="form-control glass-input" rows="2" placeholder="Notas adicionales del movimiento..."></textarea>
-                </div>
             </div>
-          </div>
-          <div class="modal-footer border-0 pt-0">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
-            <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnEditTransaction">Editar</button>
-          </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4 fw-bold" style="border-radius: 10px;" id="btnEditTransaction">Editar</button>
+            </div>
+            </div>
         </div>
-      </div>
     </div>
 
     <!-- Modal Nueva Meta -->
@@ -1219,8 +1232,8 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-                <label class="form-label text-muted small">Nombre del Período / Mes</label>
-                <input type="text" id="newPeriodNameInput" class="form-control glass-input" placeholder="Ej.  Enero 2027">
+                <label class="form-label text-muted small">Mes y Año del Presupuesto</label>
+                <input type="month" id="newPeriodMonthInput" class="form-control glass-input">
             </div>
           </div>
           <div class="modal-footer border-0 pt-0">
@@ -1241,13 +1254,13 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-                <label class="form-label text-muted small">Nombre del Período / Mes</label>
-                <input type="text" id="editPeriodNameInput" class="form-control glass-input" placeholder="Ej.  Enero 2027">
+                <label class="form-label text-muted small">Mes y Año del Presupuesto</label>
+                <input type="month" id="editPeriodMonthInput" class="form-control glass-input">
             </div>
           </div>
           <div class="modal-footer border-0 pt-0">
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
-            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;" onclick="saveEditedBudgetPeriod()">Guardar</button>
+            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;" id="btnSaveEditedBudgetPeriod">Guardar</button>
           </div>
         </div>
       </div>

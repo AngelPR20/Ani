@@ -88,11 +88,14 @@ function initPreferenceSwitch(elementId, storageKey) {
 }
 
 // Configura la carga de foto de perfil (selección manual o arrastrar y soltar) con vista previa circular.
+// La misma imagen se refleja también en el avatar del sidebar y del mobile-header.
 function initProfilePhotoUpload() {
     const dropzone = document.getElementById('profileAvatarDropzone');
     const preview = document.getElementById('profileAvatarPreview');
     const fileInput = document.getElementById('profileAvatarInput');
     const changeBtn = document.getElementById('btnChangeProfilePhoto');
+    const sidebarAvatar = document.getElementById('sidebarUserAvatar');
+    const mobileHeaderAvatar = document.getElementById('mobileHeaderUserAvatar');
 
     if (!dropzone || !preview || !fileInput) return;
 
@@ -101,6 +104,8 @@ function initProfilePhotoUpload() {
         const reader = new FileReader();
         reader.onload = (e) => {
             preview.src = e.target.result;
+            if (sidebarAvatar) sidebarAvatar.src = e.target.result;
+            if (mobileHeaderAvatar) mobileHeaderAvatar.src = e.target.result;
         };
         reader.readAsDataURL(file);
     };
@@ -138,6 +143,26 @@ function initProfilePhotoUpload() {
     });
 }
 
+// Sincroniza el nombre completo capturado en el Perfil de Usuario con el nombre visible en el sidebar.
+function initProfileNameSync() {
+    const nameInput = document.getElementById('profileNameInput');
+    const saveBtn = document.getElementById('btnSaveProfile');
+    const sidebarName = document.getElementById('sidebarUserName');
+    const sidebarUserInfo = document.getElementById('sidebarUserInfo');
+
+
+    if (!nameInput || !sidebarName) return;
+
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            if (name)
+                sidebarName.textContent = name;
+                sidebarUserInfo.dataset['tooltip'] = name;
+        });
+    }
+}
+
 // ==========================================
 // 2. INICIALIZACIÓN DE GRÁFICOS Y TOOLTIPS
 // ==========================================
@@ -156,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicializar carga de foto de perfil (Configuración)
     initProfilePhotoUpload();
+    initProfileNameSync();
 
     // Los gráficos de Ingresos vs Gastos y Distribución de Gastos ahora son dinámicos
     // y se inicializan/actualizan desde dashboard.js (ver dashboard.renderDashboard()).
@@ -198,6 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnAddNewBudgetPeriodModal = document.getElementById('btnAddNewBudgetPeriodModal');
     const btnSaveNewBudgetPeriod = document.getElementById('btnSaveNewBudgetPeriod');
+    const btnSaveEditedBudgetPeriod = document.getElementById('btnSaveEditedBudgetPeriod');
+
     const btnSaveBudgetItem = document.getElementById('btnSaveBudgetItem');
     const btnSaveEditedBudgetItem = document.getElementById('btnSaveEditedBudgetItem');
     
@@ -286,6 +314,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnAddNewBudgetPeriodModal.addEventListener('click', () => {
         budget.addNewBudgetPeriodModal();
+    });
+    btnSaveEditedBudgetPeriod.addEventListener('click', () => {
+        budget.saveEditedBudgetPeriod();
     });
     btnSaveNewBudgetPeriod.addEventListener('click', () => {
         budget.saveNewBudgetPeriod();

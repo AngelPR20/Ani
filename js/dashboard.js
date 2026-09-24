@@ -23,20 +23,30 @@ function isSameMonth(dateStr, now) {
     return year === now.getFullYear() && (month - 1) === now.getMonth();
 }
 
-// Intenta ubicar el período de presupuesto correspondiente al mes/año actual
-// buscando coincidencia por nombre (Ej: "Septiembre 2026").
+// Ubica el período de presupuesto correspondiente al mes/año actual: usa el valor exacto
+// "YYYY-MM" guardado al crear/editar el período (vía el selector de mes) y, para períodos
+// antiguos que no lo tengan, recurre a la coincidencia por nombre (Ej: "Septiembre 2026").
 function getCurrentMonthBudgetTotal() {
-    const now = new Date();
-    const monthName = spanishMonths[now.getMonth()];
-    const year = String(now.getFullYear());
+    // const now = new Date();
+    // const currentMonthValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    // const monthName = spanishMonths[now.getMonth()];
+    // const year = String(now.getFullYear());
 
-    const period = initial.masterBudgets.find(p => {
-        const name = (p.periodName || '').toLowerCase();
-        return name.includes(monthName) && name.includes(year);
+    // const period = initial.masterBudgets.find(p => {
+    //     if (p.monthValue) return p.monthValue === currentMonthValue;
+    //     const name = (p.periodName || '').toLowerCase();
+    //     return name.includes(monthName) && name.includes(year);
+    // });
+
+
+    // if (!period) return 0;
+    // return period.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+    let totalPresupuestado = 0;
+    initial.masterBudgets.find(p => {
+        totalPresupuestado += p.items.reduce((sum, item) => sum + (item.amount || 0), 0);
     });
 
-    if (!period) return 0;
-    return period.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+    return totalPresupuestado;
 }
 
 // Muestra el difuminado inferior de una lista con scroll solo cuando hay contenido
@@ -352,8 +362,15 @@ export function renderDashboardMovements() {
         html += `
             <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-3" style="border-opacity: 0.2;">
                 <div class="d-flex align-items-center">
-                    <div class="rounded ${bgColor} bg-opacity-10 ${amountColor} p-2 me-3 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="${catIconClass}"></i></div>
-                    <div><p class="mb-0 fw-medium">${catDesc}</p><small class="text-muted">${mov.__walletTitle}</small></div>
+                    <div class="rounded bg-secondary bg-opacity-10 ${amountColor} p-2 me-3 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="${catIconClass}"></i></div>
+                    <div>
+                        <div class="badge ${bgColor} bg-opacity-75">
+                            <p class="mb-0 fw-medium">${catDesc}</p>
+                        </div>
+                        <div>
+                            <small class="text-muted">${mov.__walletTitle}</small>
+                        </div>
+                    </div>
                 </div>
                 <span class="${amountColor} fw-bold">${amountPrefix}$${(mov.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>`;

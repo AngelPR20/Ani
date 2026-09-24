@@ -5,6 +5,33 @@ import * as dashboard from './dashboard.js';
 // 5. MÓDULO DE PRESUPUESTO (BUDGETS)
 // ==========================================
 
+const spanishMonthsCap = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
+// Convierte el valor de un input type="month" (formato "YYYY-MM") en un nombre de período legible, ej. "Enero 2027".
+function monthValueToLabel(monthValue) {
+    if (!monthValue) return '';
+    const [y, m] = monthValue.split('-');
+    const idx = parseInt(m, 10) - 1;
+    const monthName = spanishMonthsCap[idx] || '';
+    return monthName ? `${monthName} ${y}` : '';
+}
+
+// Intenta reconstruir el valor "YYYY-MM" a partir de un nombre de período existente (para períodos antiguos
+// creados antes de usar el selector de mes/año, y así poder precargarlos al editar).
+function labelToMonthValue(label) {
+    if (!label) return null;
+    const match = label.trim().match(/^([A-Za-zÁÉÍÓÚñÑáéíóú]+)\s+(\d{4})$/);
+    if (!match) return null;
+    const monthName = match[1].toLowerCase();
+    const year = match[2];
+    const idx = spanishMonthsCap.findIndex(m => m.toLowerCase() === monthName);
+    if (idx === -1) return null;
+    return `${year}-${String(idx + 1).padStart(2, '0')}`;
+}
+
 let activeBudgetPeriodId = null;
 
 export function initMasterBudget() {
@@ -149,8 +176,8 @@ export function renderBudgetDetails() {
                 <td class="py-3 text-nowrap text-center">${affectsBadge}</td>
                 <td class="py-3 fw-bold text-nowrap">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                 <td class="py-3 text-end text-nowrap">
-                    <button class="btn btn-sm btn-outline-primary p-1 px-2" onclick="openEditBudgetItemModal(${item.id})"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-outline-danger p-1 px-2" onclick="confirmDeleteBudgetItem(${item.id})"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn btn-sm btn-outline-primary p-1 px-2 btnOpenEditBudgetItemModal" data-id=${item.id}><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger p-1 px-2 btnConfirmDeleteBudgetItem" data-id=${item.id}><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`;
 
@@ -207,7 +234,7 @@ export function renderBudgetDetails() {
 export function saveBudgetItem() {
     const period = initial.masterBudgets.find(p => p.id === activeBudgetPeriodId);
     if (!period) {
-        showAlertModal('Error', 'Selecciona un período de presupuesto válido.');
+        initial.showAlertModal('Error', 'Selecciona un período de presupuesto válido.');
         return;
     }
 
@@ -219,7 +246,7 @@ export function saveBudgetItem() {
     const desc = document.getElementById('budgetDesc').value.trim();
 
     if (!title || isNaN(amount) || amount <= 0) {
-        showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto válido.');
+        initial.showAlertModal('Datos incompletos', 'Por favor ingresa un título y un monto válido.');
         return;
     }
 
@@ -319,24 +346,37 @@ export function confirmDeleteBudgetItem(itemId) {
 }
 
 export function addNewBudgetPeriodModal() {
-    const input = document.getElementById('newPeriodNameInput');
+    const input = document.getElementById('newPeriodMonthInput');
     if (input) input.value = '';
     const modal = new bootstrap.Modal(document.getElementById('addBudgetPeriodModal'));
     modal.show();
 }
 
 export function saveNewBudgetPeriod() {
-    const input = document.getElementById('newPeriodNameInput');
-    const name = input ? input.value.trim() : '';
+    const input = document.getElementById('newPeriodMonthInput');
+    const monthValue = input ? input.value : '';
 
-    if (!name) {
-        initial.showAlertModal('Nombre requerido', 'Por favor ingresa un nombre para el período.');
+    if (!monthValue) {
+        initial.showAlertModal('Mes requerido', 'Por favor selecciona el mes y año del presupuesto.');
+        return;
+    }
+
+    const name = monthValueToLabel(monthValue);
+
+    const alreadyExists = initial.masterBudgets.some(p => {
+        if (p.monthValue) return p.monthValue === monthValue;
+        return (p.periodName || '').trim().toLowerCase() === name.toLowerCase();
+    });
+
+    if (alreadyExists) {
+        initial.showAlertModal('Período existente', `Ya existe un período registrado para ${name}.`);
         return;
     }
 
     const newPeriod = {
         id: Date.now(),
         periodName: name,
+        monthValue,
         items: []
     };
 
@@ -358,25 +398,40 @@ export function openEditBudgetPeriodModal(periodId) {
     if (!period) return;
 
     currentEditingPeriodId = periodId;
-    const input = document.getElementById('editPeriodNameInput');
-    if (input) input.value = period.periodName;
+    const input = document.getElementById('editPeriodMonthInput');
+    if (input) input.value = period.monthValue || labelToMonthValue(period.periodName) || '';
 
     const modal = new bootstrap.Modal(document.getElementById('editBudgetPeriodModal'));
     modal.show();
 }
 
 export function saveEditedBudgetPeriod() {
-    const period = initial.masterBudgets.find(p => p.id === currentEditingPeriodId);
+    const period = initial.masterBudgets.find(p => p.id == currentEditingPeriodId);
     if (!period) return;
 
-    const input = document.getElementById('editPeriodNameInput');
-    const name = input ? input.value.trim() : '';
-    if (!name) {
-        showAlertModal('Nombre requerido', 'Ingresa un nombre válido.');
+    const input = document.getElementById('editPeriodMonthInput');
+    const monthValue = input ? input.value : '';
+
+    if (!monthValue) {
+        initial.showAlertModal('Mes requerido', 'Por favor selecciona el mes y año del presupuesto.');
+        return;
+    }
+
+    const name = monthValueToLabel(monthValue);
+
+    const alreadyExists = initial.masterBudgets.some(p => {
+        if (p.id === period.id) return false;
+        if (p.monthValue) return p.monthValue === monthValue;
+        return (p.periodName || '').trim().toLowerCase() === name.toLowerCase();
+    });
+
+    if (alreadyExists) {
+        initial.showAlertModal('Período existente', `Ya existe un período registrado para ${name}.`);
         return;
     }
 
     period.periodName = name;
+    period.monthValue = monthValue;
     renderMasterBudgetList();
     renderBudgetDetails();
     dashboard.renderDashboardSummary();

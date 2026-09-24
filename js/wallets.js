@@ -311,6 +311,7 @@ export function renderWalletMovementsTable() {
             ? '<div class="rounded-circle bg-success bg-opacity-10 text-success p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="fas fa-arrow-down fs-6"></i></div>' 
             : '<div class="rounded-circle bg-danger bg-opacity-10 text-danger p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="fas fa-arrow-up fs-6"></i></div>';
         const amountColor = isIncome ? 'text-success' : 'text-danger';
+        const badgeBackgroundColor = isIncome ? 'bg-success' : 'bg-danger';
         const amountPrefix = isIncome ? '+' : '-';
 
         // LÓGICA ELEGANTE PARA LA CATEGORÍA:
@@ -325,7 +326,7 @@ export function renderWalletMovementsTable() {
                 <div class="bg-secondary bg-opacity-10 rounded d-flex justify-content-center align-items-center text-secondary" style="width: 28px; height: 28px;">
                     <i class="${catIconClass}"></i>
                 </div>
-                <div><span>${catDesc}</span>${walletBadgeHtml}</div>
+                <div><span class="badge ${badgeBackgroundColor} bg-opacity-50">${catDesc}</span>${walletBadgeHtml}</div>
             </div>`;
         // <td class="py-3 fw-medium text-nowrap">${mov.category || 'General'}</td>
         const hasDesc = mov.desc && mov.desc.trim() !== '';

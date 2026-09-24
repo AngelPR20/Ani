@@ -125,6 +125,7 @@ a:hover {
     transform: translateY(-4px);
     border-color: var(--primary-accent);
     box-shadow: 0 10px 25px 0 rgba(59, 130, 246, 0.15);
+    background-color: initial;
 }
 
 .wallet-card-clickable:focus-visible {
@@ -213,7 +214,7 @@ a:hover {
     font-size: 1rem; 
     color: var(--text-muted); 
     transition: color 0.3s ease, font-size 0.3s ease; 
-    margin-right: 0.4rem; 
+    margin-right: 0.8rem; 
     flex-shrink: 0;
 }
 
@@ -311,7 +312,7 @@ a:hover {
         z-index: 1050;
     }
 
-    #sidebar .sidebar-header, #sidebar .sidebar-collapse-btn, #sidebar .menu-title {
+    #sidebar .sidebar-header, #sidebar .sidebar-collapse-btn, #sidebar .menu-title, #sidebar .sidebar-user-info {
         display: none !important;
     }
 
@@ -636,42 +637,44 @@ a:hover {
 /* DISEÑO ELEGANTE DE IMPRESIÓN (INFORME CARTERAS) */
 @media print {
     /* Reset de fondos a blanco puro y textos a negro/gris oscuro */
-    body {
+    html, body {
         background: #ffffff !important;
         color: #000000 !important;
-        padding: 0;
-        margin: 0;
-    }
-    
-    /* Ocultar elementos de UI y navegación */
-    #sidebar, #mobile-header, .sidebar-collapse-btn,
-    .d-print-none, .print-hide, .modal {
-        display: none !important;
-    }
-
-    /* Ocultar todas las vistas menos la de impresión */
-    #main-wrapper {
         margin: 0 !important;
         padding: 0 !important;
-        min-height: 0 !important;
-        height: auto !important;
-        display: block !important;
-    }
-
-    html, body {
         height: auto !important;
         min-height: 0 !important;
+        overflow: visible !important;
     }
 
-    .app-view:not(#wallet-movements-view) {
-        display: none !important;
+    /* PATRÓN DE AISLAMIENTO TOTAL: se oculta absolutamente todo el documento
+       (sin quitarlo del flujo) y solo se vuelve a mostrar la vista de movimientos,
+       ya reposicionada de forma independiente. Esto evita que el alto/posición de
+       cualquier contenedor padre (sidebar, main-wrapper, etc.) genere una página
+       en blanco adicional al imprimir. */
+    body * {
+        visibility: hidden;
+    }
+
+    #wallet-movements-view, #wallet-movements-view * {
+        visibility: visible;
     }
 
     #wallet-movements-view {
         display: block !important;
-        position: relative !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
         background: transparent !important;
+    }
+
+    /* Ocultar elementos de UI y navegación que no deben imprimirse */
+    #sidebar, #mobile-header, .sidebar-collapse-btn,
+    .d-print-none, .print-hide, .modal, #sidebar-backdrop {
+        display: none !important;
     }
 
     /* Mostrar cabecera de informe */
@@ -718,7 +721,12 @@ a:hover {
         background-color: transparent !important;
         border: 1px solid #ccc !important;
     }
-    
+
+    /* Evita que la tabla se corte generando una página extra casi vacía */
+    table.table, tr, td, th {
+        page-break-inside: avoid;
+    }
+
     @page {
         margin: 1cm;
         size: auto;
