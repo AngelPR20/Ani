@@ -64,14 +64,14 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
         }
         .category-pill {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 8px 12px;
-            border-radius: 12px;
+            border-radius: 5px;
             border: 1px solid var(--glass-border);
             background: var(--input-bg);
             cursor: pointer;
@@ -120,7 +120,7 @@
 
         <div class="mt-2 border-top border-secondary pt-2 others-sidebar-content" style="border-opacity: 0.2;">
 
-            <a class="sidebar-user-info d-flex align-items-center px-1 mb-3 nav-item-custom position-relative" id="sidebarUserInfo" data-tooltip="Usuario" >
+            <a class="sidebar-user-info d-flex align-items-center px-1 mb-3 nav-item-custom position-relative" id="sidebarUserInfo" data-tooltip="Angel Perez Rojas" >
                 <img id="sidebarUserAvatar" src="assets/profile-demo.png" alt="Usuario" class="rounded-circle border" style="width: 34px; height: 34px; min-width: 34px; object-fit: cover; margin-right: 0.7rem;">
                 <span class="text-truncate" id="sidebarUserName" style="max-width: 170px;">Angel Perez Rojas</span>
                 <!-- <div class="menu-title overflow-hidden ms-2">
@@ -237,6 +237,18 @@
                 </div>
 
                 <div class="row g-3">
+                    <div class="col-xl-4">
+                        <div class="glass p-4 h-100 d-flex flex-column">
+                            <h5 class="fw-bold mb-4">Últimos 5 Movimientos</h5>
+                            <div class="dash-scroll-fade flex-grow-1">
+                                <div class="dash-scroll-list" id="dashboard-movements-list">
+                                    <!-- Inyectado por JS -->
+                                </div>
+                            </div>
+                            <button class="btn btn-link text-primary text-decoration-none w-100 p-0 mt-2 fw-medium" id="btnViewAllMovements">Ver todo el historial <i class="fas fa-arrow-right ms-1"></i></button>
+                        </div>
+                    </div>
+
                     <div class="col-md-6 col-xl-4">
                         <div class="glass p-4 h-100 d-flex flex-column">
                             <h5 class="fw-bold mb-4">Carteras y Cuentas</h5>
@@ -259,17 +271,7 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-4">
-                        <div class="glass p-4 h-100 d-flex flex-column">
-                            <h5 class="fw-bold mb-4">Últimos 5 Movimientos</h5>
-                            <div class="dash-scroll-fade flex-grow-1">
-                                <div class="dash-scroll-list" id="dashboard-movements-list">
-                                    <!-- Inyectado por JS -->
-                                </div>
-                            </div>
-                            <button class="btn btn-link text-primary text-decoration-none w-100 p-0 mt-2 fw-medium" id="btnViewAllMovements">Ver todo el historial <i class="fas fa-arrow-right ms-1"></i></button>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -403,7 +405,7 @@
                 <div class="row g-4">
                     <!-- PANEL MAESTRO -->
                     <div class="col-lg-4 col-xl-4">
-                        <div class="glass py-3 overflow-auto" style="padding-left: 15px; padding-right: 5px;">
+                        <div class="glass py-3 overflow-auto" style="padding-left: 10px; padding-right: 5px;">
                             <h5 class="fw-bold mb-4">Períodos</h5>
                             <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px;">
                                 <!-- Inyectado por JS -->
@@ -412,11 +414,11 @@
                     </div>
 
                     <!-- PANEL DETALLE -->
-                    <div class="col-lg-8 col-xl-8" style="padding-left: 0;">
+                    <div class="col-lg-8 col-xl-8">
                         <div class="glass p-4 h-100" id="detail-view-container">
                             <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4 pb-3 border-bottom border-lightt" style="border-bottom-color: darkcyan;">
                                 <h4 class="fw-bold mb-0 text-info" id="detail-month-title">Detalles</h4>
-                                <button class="btn btn-sm btn-outline-secondary px-2 py-1 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
+                                <button class="btn btn-sm btn-outline-primary px-2 py-1 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
                                     <i class="fas fa-plus me-2"></i>Nuevo Registro
                                 </button>
                             </div>
@@ -631,7 +633,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-medium">Nombre Completo</label>
-                                <input type="text" id="profileNameInput" class="form-control glass-input" value="Angel de Jesus Perez Rojas">
+                                <input type="text" id="profileNameInput" class="form-control glass-input" value="Angel Perez Rojas">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-medium">Correo Electrónico</label>
@@ -679,7 +681,7 @@
             </div>
 
             <!-- Vistas adicionales -->
-            <div id="detalles" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Reportes y Detalles</h2><p class="text-muted mt-2">Módulo de impresión y exportación a Excel.</p></div></div>
+            <!-- <div id="detalles" class="app-view"><div class="glass glass-card"><h2 class="fw-bold">Reportes y Detalles</h2><p class="text-muted mt-2">Módulo de impresión y exportación a Excel.</p></div></div> -->
 
         </div>
     </div>
@@ -855,14 +857,14 @@
                 </div> -->
                 <!-- REEMPLAZO 8: Categoría -->
                 <div class="col-12">
-                    <label class="form-label text-muted small">Categoría (Concepto)</label>
+                    <label class="form-label text-muted small">Categoría</label>
                     <div class="dropdown w-100">
                         <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-txCategory">
                             <span>Seleccionar Categoría...</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">
-                            <div class="category-list-container p-2" id="list-txCategory"></div>
+                            <div class="category-list-container py-2 px-1" id="list-txCategory"></div>
                         </div>
                         <input type="hidden" id="txCategory" value="">
                     </div>
@@ -916,7 +918,7 @@
                     </div> -->
                     <!-- REEMPLAZO 9: Editar Categoría -->
                     <div class="col-12">
-                        <label class="form-label text-muted small">Categoría (Concepto)</label>
+                        <label class="form-label text-muted small">Categoría</label>
                         <div class="dropdown w-100">
                             <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-editTxCategory">
                                 <span>Seleccionar Categoría...</span>

@@ -281,7 +281,7 @@ export function renderDashboardWallets() {
         html += `
             <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
                 <div class="d-flex align-items-center">
-                    <div class="bg-primary text-white rounded p-2 me-3"><i class="${wallet.icon}"></i></div>
+                    <div class="bg-secondary bg-opacity-10 text-white rounded p-2 me-3"><i class="text-primary ${wallet.icon}"></i></div>
                     <p class="mb-0 fw-medium">${wallet.title}</p>
                 </div>
                 <h5 class="mb-0 fw-bold ${balanceColorClass}">$${formattedBalance}</h5>

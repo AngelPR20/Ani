@@ -10,7 +10,7 @@
     --text-muted: #64748b;
     --glass-bg: rgba(255, 255, 255, 0.55);
     --glass-sidebar: rgba(255, 255, 255, 0.65);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-border: rgba(151, 151, 151, 0.3);
     --input-bg: rgba(255, 255, 255, 0.7);
     --shadow-glass: 0 4px 20px 0 rgba(31, 38, 135, 0.03);
     --sidebar-hover: rgba(59, 130, 246, 0.1);

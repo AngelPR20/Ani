@@ -87,7 +87,7 @@ export let sysIcons = [
 export let sysCategories = [
     { id: 1, desc: 'Luz Eléctrica', iconId: 'fas fa-bolt' },
     { id: 2, desc: 'Supermercado', iconId: 'fas fa-shopping-basket' },
-    { id: 3, desc: 'Nómina / Salario', iconId: 'fas fa-briefcase' },
+    { id: 3, desc: 'Salario', iconId: 'fas fa-briefcase' },
     { id: 4, desc: 'Inversión', iconId: 'fas fa-piggy-bank' },
     { id: 5, desc: 'Vivienda', iconId: 'fas fa-home' },
     { id: 6, desc: 'General', iconId: 'fas fa-wallet' }
@@ -237,8 +237,8 @@ export function initCustomSelects() {
         sysCategories.forEach(cat => {
             html += `
             <div class="category-pill btnSelectCategory" data-input-id=${id} data-cat-id=${cat.id} data-cat-desc=${cat.desc} data-cat-iconId="${cat.iconId}">
-                <div class="bg-primary bg-opacity-10 text-primary rounded p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="${cat.iconId}"></i></div>
-                <span class="fw-medium">${cat.desc}</span>
+                <div class="bg-secondary bg-opacity-10 text-primary rounded p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="${cat.iconId}"></i></div>
+                <span class="fw-medium badge bg-primary bg-opacity-75">${cat.desc}</span>
             </div>`;
         });
         container.innerHTML = html;

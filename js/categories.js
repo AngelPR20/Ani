@@ -12,10 +12,10 @@ export function renderMantCategories() {
                 <div class="p-2 border rounded text-center position-relative" style="border-color: var(--glass-border) !important; background: var(--input-bg);">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded px-2 me-2 fss-4">
+                            <div class="bg-secondary bg-opacity-10 text-primary rounded px-2 me-2 fss-4">
                                 <i class="${cat.iconId}"></i>
                             </div>
-                            <h6 class="fw-medium mb-0 me-2">${cat.desc}</h6>
+                            <h6 class="fw-medium mb-0 me-2 badge bg-primary bg-opacity-75">${cat.desc}</h6>
                         </div>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-link text-muted px-2 py-1" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>

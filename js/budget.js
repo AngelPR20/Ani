@@ -58,7 +58,7 @@ export function renderMasterBudgetList() {
 
         html += `
             <div class="d-flex align-items-center gap-1">
-                <button class="btn ${activeClass} w-100 text-start py-2 px-3 btnSelectBudgetPeriod" style="border-radius: 10px;" data-id=${period.id}>
+                <button class="btn btn-sm ${activeClass} w-100 text-start p-2 btnSelectBudgetPeriod" style="border-radius: 10px;" data-id=${period.id}>
                     <i class="fas fa-calendar-alt me-2"></i>${period.periodName}
                 </button>
                 <div class="dropdown">
