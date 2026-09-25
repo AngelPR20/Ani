@@ -43,7 +43,9 @@ function getCurrentMonthBudgetTotal() {
     // return period.items.reduce((sum, item) => sum + (item.amount || 0), 0);
     let totalPresupuestado = 0;
     initial.masterBudgets.find(p => {
-        totalPresupuestado += p.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+        totalPresupuestado += p.items
+        .filter(item => !item.paid)
+        .reduce((sum, item) => sum + (item.amount || 0), 0);
     });
 
     return totalPresupuestado;

@@ -49,7 +49,50 @@ function initMaintenances() {
     renderNotifications();
     // populateSelects();
     initial.initCustomSelects(); // INICIAMOS LOS SELECTORES ELEGANTES
+
+    // Detectar el cambio en el tipo de transacción
+    const txTypeElement = document.getElementById('txType');
+    const txBudgetWrapper = document.getElementById('txBudgetWrapper');
+
+    if (txTypeElement) {
+        txTypeElement.addEventListener('change', function() {
+            // Verifica si el valor seleccionado es "Gasto" (ajusta el string según el value de tu HTML)
+            if (this.value === 'Gasto' || this.value === 'expense') {
+                txBudgetWrapper.style.display = 'block';
+                populateBudgetItemsForTransaction();
+            } else {
+                txBudgetWrapper.style.display = 'none';
+                document.getElementById('txBudgetItem').value = ''; // Limpiar la selección
+            }
+        });
+    }
 }
+
+    // Función para llenar dinámicamente el selector con los items de presupuesto no pagados
+function populateBudgetItemsForTransaction() {
+    const selectEl = document.getElementById('txBudgetItem');
+    if (!selectEl) return;
+
+    // Reiniciar las opciones manteniendo la opción por defecto
+    selectEl.innerHTML = '<option value="">No vincular a presupuesto</option>';
+
+    // Obtener el período de presupuesto activo
+    // const period = initial.masterBudgets;
+    const period = initial.masterBudgets.find(p => p.id == 1);
+
+    if (period && period.items) {
+        // Filtrar solo los items que NO están pagados
+        const pendingItems = period.items.filter(item => !item.paid);
+        
+        pendingItems.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = `${item.title} ($${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})})`;
+            selectEl.appendChild(option);
+        });
+    }
+}
+
 
 // --- RENDER NOTIFICACIONES ---
 function renderNotifications() {

@@ -839,10 +839,20 @@
                         <option value="Ingreso">Ingreso</option>
                     </select>
                 </div>
+
                 <div class="col-6">
                     <label class="form-label text-muted small">Monto</label>
                     <input type="number" id="txAmount" class="form-control glass-input" placeholder="0.00">
                 </div>
+
+                <div class="col-12" id="txBudgetWrapper" style="display: none;">
+                    <label class="form-label text-muted small">¿Pagar item de presupuesto?</label>
+                    <select id="txBudgetItem" class="form-select glass-input">
+                        <option value="">No vincular a presupuesto</option>
+                        <!-- Llenar dinámicamente con JS -->
+                    </select>
+                </div>
+
                 <div class="col-6">
                     <label class="form-label text-muted small">Fecha</label>
                     <input type="date" id="txDate" class="form-control glass-input">

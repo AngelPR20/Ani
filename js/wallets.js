@@ -1,4 +1,5 @@
 import * as initial from './initial.js';
+import * as budget from './budget.js';
 import * as dashboard from './dashboard.js';
 
 // ==========================================
@@ -393,6 +394,9 @@ export function prepareAddTransactionModal() {
     if (wrapper) {
         wrapper.style.display = activeWalletForMovements ? 'none' : '';
     }
+    // else {
+    //     wrapper.style.display = activeWalletForMovements ? 'none' : '';
+    // }
 
     // Fecha y hora por defecto: el momento actual
     const now = new Date();
@@ -406,7 +410,19 @@ export function prepareAddTransactionModal() {
 export function initTransactionModalEvents() {
     const modalEl = document.getElementById('addTransactionModal');
     if (!modalEl) return;
-    modalEl.addEventListener('show.bs.modal', () => {
+
+    console.log(modalEl)
+    const txTypeElement = document.getElementById('txType');
+
+    modalEl.addEventListener('show.bs.modal', (e) => {
+
+
+        // Dentro de openAddTransactionModalGeneral() o la función que abra el modal:
+        if (txTypeElement) {
+            txTypeElement.dispatchEvent(new Event('change'));
+        }
+
+        if(e.relatedTarget && e.relatedTarget.id == 'headerNewTransactionBtn') activeWalletForMovements = null;
         prepareAddTransactionModal();
     });
 }
@@ -462,6 +478,18 @@ export function saveNewTransaction() {
         targetWallet.balance -= amount;
     }
 
+    // Dentro de la función que guarda la transacción (ej. saveTransaction)
+    const selectedBudgetItemId = document.getElementById('txBudgetItem').value;
+    if (selectedBudgetItemId) {
+        initial.masterBudgets.forEach(p => {
+            const item = p.items.find(i => i.id == selectedBudgetItemId);
+            if (item) item.paid = true;
+        });
+        // Recarga el dashboard y presupuesto
+        budget.renderBudgetDetails();
+        dashboard.renderDashboardSummary();
+    }
+
     renderWallets();
     renderWalletMovementsTable();
     dashboard.renderDashboard();
@@ -494,7 +522,7 @@ export function openEditTransactionModal(movId) {
     document.getElementById('editTxAmount').value = mov.amount;
     document.getElementById('editTxCategory').value = mov.category || '';
     document.getElementById('editTxDesc').value = mov.desc || '';
-    document.getElementById('btn-editTxCategory').innerHTML = `<span><i class="${catObj.iconId} me-2 text-primary"></i>${catObj.desc}</span> <i class="fas fa-chevron-down"></i>`;
+    document.getElementById('btn-editTxCategory').innerHTML = `<span><i class="${catObj.iconId} me-2 text-primary"></i><span class="badge bg-primary bg-opacity-75">${catObj.desc}</span></span> <i class="fas fa-chevron-down"></i>`;
     
     const parts = mov.date.split(' ');
     document.getElementById('editTxDate').value = parts[0] || '';

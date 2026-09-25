@@ -4,6 +4,16 @@ export function renderMantCategories() {
     const tbody = document.getElementById('table-mant-cats');
     if (!tbody) return;
 
+    if (initial.sysCategories.length === 0) {
+        tbody.innerHTML = `
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-tags fa-4x text-muted mb-3 opacity-25"></i>
+            <h5 class="fw-bold text-muted mb-2">Aún no hay categorías registradas</h5>
+            <p class="text-muted">¡Anímate a crear la primera para organizar tus finanzas!</p>
+        </div>`;
+        return;
+    }
+
     let html = '';
 
     initial.sysCategories.map(cat => 
@@ -73,13 +83,12 @@ export function saveCategory() {
     
     if(!desc) { showAlertModal('Error', 'La descripción es obligatoria.'); return; }
     const icon = initial.sysIcons.find(i => i.val === iconClass);
-    const iconId = icon ? icon.id : 1;
 
     if (id) {
         const idx = initial.sysCategories.findIndex(x => x.id == id);
         initial.sysCategories[idx] = { ...initial.sysCategories[idx], desc, iconId: icon.val };
     } else {
-        initial.sysCategories.push({ id: initial.sysCategories.length+1, desc, iconId: icon.val });
+        initial.sysCategories.push({ id: initial.sysCategories.length+1, desc, iconId: icon?.val||'fas fa-tags' });
     }
     renderMantCategories();
     initial.initCustomSelects(); // Actualiza listados en transacciones/presupuestos

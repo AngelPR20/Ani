@@ -4,6 +4,17 @@ import * as initial from './initial.js';
 export function renderMantIcons() {
     const grid = document.getElementById('grid-mant-icons');
     if (!grid) return;
+
+    if (initial.sysIcons.length === 0) {
+        grid.innerHTML = `
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-icons fa-4x text-muted mb-3 opacity-25"></i>
+            <h5 class="fw-bold text-muted mb-2">Aún no hay iconos registrados</h5>
+            <p class="text-muted">¡Anímate a crear tu primer icono!</p>
+        </div>`;
+        return;
+    }
+
     let html = '';
     
     initial.sysIcons.map(icon => {

@@ -48,8 +48,8 @@ export let masterBudgets = [
         periodName: 'Septiembre 2026',
         monthValue: '2026-09',
         items: [
-            { id: 201, type: 'Gasto Fijo', title: 'Luz Eléctrica', amount: 85.50, affectsBalance: true, icon: 'fas fa-bolt', desc: 'Servicio eléctrico mensual' },
-            { id: 202, type: 'Reserva', title: 'Fondo de Emergencia', amount: 300.00, affectsBalance: false, icon: 'fas fa-shield-alt', desc: 'Ahorro preventivo' }
+            { id: 201, type: 'Gasto Fijo', title: 'Luz Eléctrica', amount: 85.50, affectsBalance: true, icon: 'fas fa-bolt', desc: 'Servicio eléctrico mensual', paid: false },
+            { id: 202, type: 'Reserva', title: 'Fondo de Emergencia', amount: 300.00, affectsBalance: false, icon: 'fas fa-shield-alt', desc: 'Ahorro preventivo', paid: true }
         ]
     },
     {
@@ -57,7 +57,7 @@ export let masterBudgets = [
         periodName: 'Agosto 2026',
         monthValue: '2026-08',
         items: [
-            { id: 203, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago de apartamento' }
+            { id: 203, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago de apartamento', paid: true }
         ]
     }
 ];
@@ -70,18 +70,18 @@ export let sysUsers = [
 export let sysIcons = [
     { id: 1, val: 'fas fa-university' },
     { id: 2, val: 'fas fa-piggy-bank' },
-    { id: 3, val: 'fas fa-wallet' },
-    { id: 4, val: 'fab fa-bitcoin' },
-    { id: 5, val: 'fas fa-money-check-alt' },
-    { id: 6, val: 'fas fa-briefcase' },
-    { id: 7, val: 'fas fa-gift' },
-    { id: 8, val: 'fas fa-globe-americas' },
-    { id: 9, val: 'fas fa-car' },
-    { id: 10, val: 'fas fa-home' },
-    { id: 11, val: 'fas fa-bolt' },
-    { id: 12, val: 'fas fa-shopping-basket' },
-    { id: 13, val: 'fas fa-shield-alt' },
-    { id: 14, val: 'fas fa-wifi' }
+    // { id: 3, val: 'fas fa-wallet' },
+    // { id: 4, val: 'fab fa-bitcoin' },
+    // { id: 5, val: 'fas fa-money-check-alt' },
+    // { id: 6, val: 'fas fa-briefcase' },
+    // { id: 7, val: 'fas fa-gift' },
+    // { id: 8, val: 'fas fa-globe-americas' },
+    // { id: 9, val: 'fas fa-car' },
+    // { id: 10, val: 'fas fa-home' },
+    // { id: 11, val: 'fas fa-bolt' },
+    // { id: 12, val: 'fas fa-shopping-basket' },
+    // { id: 13, val: 'fas fa-shield-alt' },
+    // { id: 14, val: 'fas fa-wifi' }
 ];
 
 export let sysCategories = [
@@ -225,7 +225,7 @@ export function initCustomSelects() {
         // Cargar selección default inicial
         const hiddenVal = document.getElementById(id).value;
         const defaultIcon = sysIcons.find(i => i.val === hiddenVal) || sysIcons[0];
-        if (defaultIcon) selectIcon(id, defaultIcon.val, defaultIcon.text, true);
+        if (defaultIcon) selectIcon(id, defaultIcon?.val||'fas fa-tags', defaultIcon.text, true);
     });
 
     // Configurar listas de Categorías
@@ -236,7 +236,7 @@ export function initCustomSelects() {
         let html = '';
         sysCategories.forEach(cat => {
             html += `
-            <div class="category-pill btnSelectCategory" data-input-id=${id} data-cat-id=${cat.id} data-cat-desc=${cat.desc} data-cat-iconId="${cat.iconId}">
+            <div class="category-pill btnSelectCategory" data-input-id=${id} data-cat-id=${cat.id} data-cat-desc="${cat.desc}" data-cat-iconId="${cat.iconId}">
                 <div class="bg-secondary bg-opacity-10 text-primary rounded p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="${cat.iconId}"></i></div>
                 <span class="fw-medium badge bg-primary bg-opacity-75">${cat.desc}</span>
             </div>`;
@@ -267,8 +267,8 @@ export function selectIcon(inputId, iconVal, iconText, init = false) {
 export function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
 
     document.getElementById(inputId).value = catId; 
-    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} text-primary me-2"></i> ${catDesc}</span> <i class="fas fa-chevron-down"></i>`;
-    
+    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} text-primary me-2"></i> <span class="badge bg-primary bg-opacity-75">${catDesc}</span></span> <i class="fas fa-chevron-down"></i>`;
+
     if (!init) {
         const btn = document.getElementById(`btn-${inputId}`);
         const dropdown = bootstrap.Dropdown.getInstance(btn);

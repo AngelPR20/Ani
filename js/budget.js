@@ -42,14 +42,28 @@ export function initMasterBudget() {
     renderBudgetDetails();
 }
 
+let copyFromPeriodId = null;
 export function renderMasterBudgetList() {
     const container = document.getElementById('master-month-list');
+    const detailContainer = document.getElementById('detail-view-container');
     if (!container) return;
 
+    // if (initial.masterBudgets.length === 0) {
+    //     container.innerHTML = `<p class="text-muted small text-center py-3">No hay períodos creados.</p>`;
+    //     return;
+    // }
+
     if (initial.masterBudgets.length === 0) {
-        container.innerHTML = `<p class="text-muted small text-center py-3">No hay períodos creados.</p>`;
+        container.innerHTML = `<div class="col-12 text-center py-5">
+            <i class="fas fa-calendar-alt fa-4x text-muted mb-3 opacity-25"></i>
+            <h5 class="fw-bold text-muted mb-2">Aún no hay periodos registrados</h5>
+            <p class="text-muted">¡Anímate a crear tu primer periodo!</p>
+        </div>`;
+        if (detailContainer) detailContainer.style.display = 'none'; // Ocultar detalle
         return;
     }
+    
+    if (detailContainer) detailContainer.style.display = ''; // Mostrar detalle si hay registros
 
     let html = '';
     initial.masterBudgets.forEach(period => {
@@ -65,6 +79,7 @@ export function renderMasterBudgetList() {
                     <button class="btn btn-sm btn-link text-muted px-2" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
                     <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
                         <li><button class="dropdown-item py-2 btnOpenEditBudgetPeriodModal" data-id=${period.id}><i class="fas fa-edit me-2 text-primary"></i>Editar</button></li>
+                        <li><button class="dropdown-item py-2 btnCopyBudgetPeriod" data-id=${period.id}><i class="fas fa-copy me-2 text-success"></i>Copiar</button></li>
                         <li><button class="dropdown-item py-2 text-danger btnConfirmDeleteBudgetPeriod" data-id=${period.id}><i class="fas fa-trash-alt me-2"></i>Eliminar</button></li>
                     </ul>
                 </div>
@@ -75,6 +90,12 @@ export function renderMasterBudgetList() {
     container.querySelectorAll('.btnSelectBudgetPeriod').forEach(btnSelectBudgetPeriod => {
         btnSelectBudgetPeriod.addEventListener('click', () => {
             selectBudgetPeriod(btnSelectBudgetPeriod.getAttribute('data-id'));
+        });
+    });
+    container.querySelectorAll('.btnCopyBudgetPeriod').forEach(btnCopyBudgetPeriod => {
+        btnCopyBudgetPeriod.addEventListener('click', () => {
+            copyFromPeriodId = btnCopyBudgetPeriod.getAttribute('data-id');
+            addNewBudgetPeriodModal(); // Reutilizamos el modal de nuevo período
         });
     });
     container.querySelectorAll('.btnOpenEditBudgetPeriodModal').forEach(btnOpenEditBudgetPeriodModal => {
@@ -119,7 +140,11 @@ export function renderBudgetDetails() {
         return;
     }
 
-    if (titleEl) titleEl.textContent = `${period.periodName}`;
+    const allPaid = period.items.length > 0 && period.items.every(item => item.paid);
+    const badgeAllPaid = allPaid ? `<span class="badge bg-success ms-2 fs-6 align-middle"><i class="fas fa-check-double me-1"></i>Presupuesto Pagado</span>` : '';
+    
+    if (titleEl) titleEl.innerHTML = `${period.periodName} ${badgeAllPaid}`;
+    // if (titleEl) titleEl.textContent = `${period.periodName}`;
 
     let totalFixed = 0;
     let totalReserves = 0;
@@ -168,6 +193,28 @@ export function renderBudgetDetails() {
             ? '<span class="text-success small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: Sí"><i class="fas fa-check-circle me-1 fs-6"></i></span>' 
             : '<span class="text-muted small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: No"><i class="fas fa-times-circle me-1 fs-6"></i></span>';
 
+        const paidStatusBadge = item.paid 
+            ? '<span class="badge bg-success bg-opacity-10 text-success ms-2">Pagado</span>' 
+            : '';
+
+        const actionButtons = item.paid
+            ? `<span class="text-success small fw-bold"><span class="badge bg-success bg-opacity-10 text-success"><i class="fas fa-check me-2"></i>Pagado</span></span>`
+            : `<button class="btn btn-sm btn-outline-primary p-1 px-2 btnOpenEditBudgetItemModal" data-id=${item.id}><i class="fas fa-edit"></i></button>
+               <button class="btn btn-sm btn-outline-danger p-1 px-2 btnConfirmDeleteBudgetItem" data-id=${item.id}><i class="fas fa-trash-alt"></i></button>`;
+
+        // tableHtml += `
+        //     <tr>
+        //         <td class="py-3 text-nowrap">${typeBadge}</td>
+        //         <td class="py-3 fw-medium text-nowrap"><i class="${item.icon} me-2 text-primary"></i>${item.title}</td>
+        //         <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
+        //         <td class="py-3 text-nowrap text-center">${affectsBadge}</td>
+        //         <td class="py-3 fw-bold text-nowrap">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+        //         <td class="py-3 text-end text-nowrap">
+        //             <button class="btn btn-sm btn-outline-primary p-1 px-2 btnOpenEditBudgetItemModal" data-id=${item.id}><i class="fas fa-edit"></i></button>
+        //             <button class="btn btn-sm btn-outline-danger p-1 px-2 btnConfirmDeleteBudgetItem" data-id=${item.id}><i class="fas fa-trash-alt"></i></button>
+        //         </td>
+        //     </tr>`;
+
         tableHtml += `
             <tr>
                 <td class="py-3 text-nowrap">${typeBadge}</td>
@@ -175,17 +222,12 @@ export function renderBudgetDetails() {
                 <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
                 <td class="py-3 text-nowrap text-center">${affectsBadge}</td>
                 <td class="py-3 fw-bold text-nowrap">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                <td class="py-3 text-end text-nowrap">
-                    <button class="btn btn-sm btn-outline-primary p-1 px-2 btnOpenEditBudgetItemModal" data-id=${item.id}><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-outline-danger p-1 px-2 btnConfirmDeleteBudgetItem" data-id=${item.id}><i class="fas fa-trash-alt"></i></button>
-                </td>
+                <td class="py-3 text-center text-nowrap">${actionButtons}</td>
             </tr>`;
 
         cardsHtml += `
             <div class="col-12">
                 <div class="glass px-3 py-2 d-flex justify-content-between align-items-center shadow-none border-0 border-top border-bottom rounded-0">
-                    
-                
                     <div>
                         <div class="d-flex align-items-center gap-2">
                             <div class="mb-2">${typeBadge}</div>
@@ -197,8 +239,7 @@ export function renderBudgetDetails() {
                     </div>
                     <div class="text-end">
                         <div>
-                            <button class="btn btn-sm btn-outline-primary p-1 px-2 btnOpenEditBudgetItemModal" data-id=${item.id}><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger p-1 px-2 btnConfirmDeleteBudgetItem" data-id=${item.id}><i class="fas fa-trash-alt"></i></button>
+                            ${actionButtons}
                         </div>
                     </div>
                 </div>
@@ -232,7 +273,9 @@ export function renderBudgetDetails() {
 }
 
 export function saveBudgetItem() {
-    const period = initial.masterBudgets.find(p => p.id === activeBudgetPeriodId);
+
+    const period = initial.masterBudgets.find(p => p.id == activeBudgetPeriodId);
+
     if (!period) {
         initial.showAlertModal('Error', 'Selecciona un período de presupuesto válido.');
         return;
@@ -379,6 +422,19 @@ export function saveNewBudgetPeriod() {
         monthValue,
         items: []
     };
+
+    // Si viene de una copia, duplicar los items (reiniciando IDs y status de pago)
+    if (copyFromPeriodId) {
+        const sourcePeriod = initial.masterBudgets.find(p => p.id == copyFromPeriodId);
+        if (sourcePeriod) {
+            newPeriod.items = sourcePeriod.items.map(item => ({
+                ...item,
+                id: Date.now() + Math.random(), // Generar nuevo ID
+                paid: false // Reiniciar el status
+            }));
+        }
+        copyFromPeriodId = null; // Limpiar variable global
+    }
 
     initial.masterBudgets.push(newPeriod);
     activeBudgetPeriodId = newPeriod.id;
