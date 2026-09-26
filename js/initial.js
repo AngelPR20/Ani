@@ -57,7 +57,7 @@ export let masterBudgets = [
         periodName: 'Agosto 2026',
         monthValue: '2026-08',
         items: [
-            { id: 203, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago de apartamento', paid: true }
+            { id: 203, type: 'Gasto Fijo', title: 'Alquiler', amount: 500.00, affectsBalance: true, icon: 'fas fa-home', desc: 'Pago de apartamento', paid: false }
         ]
     }
 ];
@@ -274,6 +274,60 @@ export function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
         const dropdown = bootstrap.Dropdown.getInstance(btn);
         if (dropdown) dropdown.hide();
     }
+}
+
+
+
+export function initCustomSelects2() {
+    // Configurar listas de Categorías
+    const budgetItemInputs = ['txBudgetItem'];
+
+    budgetItemInputs.forEach(id => {
+        const container = document.getElementById(`list-${id}`);
+        if (!container) return;
+
+        let html = '';
+        masterBudgets.forEach(budget => {
+            budget.items.filter(item => !item.paid).forEach(item => {
+                html += `
+                <div class="budgetItem-pill btnSelectBudgetItem" data-input-id=${budget.id} data-budget-id=${item.id} data-budget-title="${item.title}" data-budget-amount="${item.amount}" data-budget-periodName="${budget.periodName}">
+                    <div>
+                        <span class="fw-normall small">${item.title}</span>
+                        <span class="fw-bold small">$${item.amount}</span>
+                    </div>
+                    <span class="badge bg-secondary bg-opacity-10 fw-normal text-muted">${budget.periodName}</span>
+                </div>`;
+            });
+        });
+        container.innerHTML = html;
+
+        container.querySelectorAll('.btnSelectBudgetItem').forEach(btnSelectBudgetItem => {
+            btnSelectBudgetItem.addEventListener('click', () => {
+
+                const txType = document.getElementById('txType');
+                const txAmount = document.getElementById('txAmount');
+                const txBudgetItem = document.getElementById('txBudgetItem');
+                const btn = document.getElementById(`btn-${id}`);
+
+                btn.innerHTML = `
+                    <div>
+                        <span class="fw-normall small">${btnSelectBudgetItem.getAttribute('data-budget-title')}</span>
+                        <span class="fw-bold small">$${btnSelectBudgetItem.getAttribute('data-budget-amount')}</span>
+                        <span class="badge bg-success bg-opacity-75 fw-normal text-mutedd">${btnSelectBudgetItem.getAttribute('data-budget-periodName')}</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>`;
+
+                txAmount.readOnly = true;
+                txType.disabled = true;
+
+                txAmount.value = btnSelectBudgetItem.getAttribute('data-budget-amount');
+                txBudgetItem.value = btnSelectBudgetItem.getAttribute('data-budget-id');
+
+                const dropdown = bootstrap.Dropdown.getInstance(btn);
+                if (dropdown) dropdown.hide();
+            });
+        });
+    });
 }
 
 // function initCustomSelects() {

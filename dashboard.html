@@ -77,7 +77,19 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .category-pill:hover, .category-pill.selected {
+        .budgetItem-pill {
+            display: flex;
+            /* flex-direction: column; */
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--glass-border);
+            background: var(--input-bg);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-pill:hover, .category-pill.selected, .budgetItem-pill:hover, .budgetItem-pill.selected {
             background: rgba(13, 110, 253, 0.1);
             border-color: #0d6efd;
         }
@@ -402,18 +414,18 @@
                     </div>
                 </div>
 
-                <div class="row g-4">
-                    <!-- PANEL MAESTRO -->
+                <div class="row g-4" id="budget-container">
+                    <!-- PANEL MAESTRO
                     <div class="col-lg-4 col-xl-4">
                         <div class="glass py-3 overflow-auto" style="padding-left: 10px; padding-right: 5px;">
                             <h5 class="fw-bold mb-4">Períodos</h5>
                             <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px;">
-                                <!-- Inyectado por JS -->
+                                !-- Inyectado por JS --
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
-                    <!-- PANEL DETALLE -->
+                    <!-- PANEL DETALLE
                     <div class="col-lg-8 col-xl-8">
                         <div class="glass p-4 h-100" id="detail-view-container">
                             <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4 pb-3 border-bottom border-lightt" style="border-bottom-color: darkcyan;">
@@ -423,7 +435,7 @@
                                 </button>
                             </div>
 
-                            <!-- Resumen Financiero Superior -->
+                            !-- Resumen Financiero Superior --
                             <div class="row justifyy-content-around flex-wrapp g-3 mb-4">
                                 <div class="col-md-6">
                                     <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
@@ -435,7 +447,7 @@
                                     </div>
                                 </div>
 
-                                <!-- <div class="col-md-6">
+                                !-- <div class="col-md-6">
                                     <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border); min-width:245px;">
                                         <div class="bg-info bg-opacity-10 text-info rounded p-3 me-3 fs-4"><i class="fas fa-piggy-bank"></i></div>
                                         <div>
@@ -443,7 +455,7 @@
                                             <h5 class="fw-bold mb-0 text-info" id="totalReserves">$0.00</h5>
                                         </div>
                                     </div>
-                                </div> -->
+                                </div> --
     
                                 <div class="col-md-6">
                                     <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
@@ -456,7 +468,7 @@
                                 </div>
                             </div>
 
-                            <!-- Vista de Tabla (Escritorio) -->
+                            !-- Vista de Tabla (Escritorio) --
                             <div class="d-none d-lg-block">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
@@ -471,20 +483,20 @@
                                             </tr>
                                         </thead>
                                         <tbody id="budget-table-body">
-                                            <!-- Inyectado mediante JavaScript -->
+                                            !-- Inyectado mediante JavaScript --
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
 
-                            <!-- Vista de Tarjetas (Móviles/Tablets) -->
+                            !-- Vista de Tarjetas (Móviles/Tablets) --
                             <div class="d-lg-none">
                                 <div class="row gg-3" id="budget-cards-container">
-                                    <!-- Inyectado mediante JavaScript -->
+                                    !-- Inyectado mediante JavaScript --
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -518,7 +530,7 @@
                                 <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#userModal" id="btnOpenAddUserModal"><i class="fas fa-plus me-1"></i>Nuevo Usuario</button>
                             </div>
 
-                            <div class="glass p-2" id="walletTableContainer">
+                            <div class="glass p-2" id="userTableContainer">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
                                         <thead>
@@ -832,6 +844,27 @@
                         <!-- Inyectado por JS -->
                     </select>
                 </div>
+
+                <!-- ****************************************************************************** -->
+                <div class="col-12">
+                    <!-- <label class="form-label text-muted small">Testing</label> -->
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="chbPayBudgetItem">
+                        <label class="form-label text-muted small" for="chbPayBudgetItem">¿Pagar item de presupuesto?</label>
+                    </div>
+                    <div class="dropdown w-100">
+                        <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input d-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-txBudgetItem">
+                            <span>- Seleccionar Item -</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">
+                            <div class="category-list-container py-2 px-1" id="list-txBudgetItem"></div>
+                        </div>
+                        <input type="hidden" id="txBudgetItem" value="">
+                    </div>
+                </div>
+                <!-- ****************************************************************************** -->
+
                 <div class="col-6">
                     <label class="form-label text-muted small">Tipo</label>
                     <select id="txType" class="form-select glass-input">
@@ -845,13 +878,16 @@
                     <input type="number" id="txAmount" class="form-control glass-input" placeholder="0.00">
                 </div>
 
-                <div class="col-12" id="txBudgetWrapper" style="display: none;">
+                <!-- <div class="col-12 d-none" id="txBudgetWrapper" style="display: none;">
                     <label class="form-label text-muted small">¿Pagar item de presupuesto?</label>
                     <select id="txBudgetItem" class="form-select glass-input">
                         <option value="">No vincular a presupuesto</option>
-                        <!-- Llenar dinámicamente con JS -->
+                        !-- Llenar dinámicamente con JS --
                     </select>
-                </div>
+                </div> -->
+
+                
+
 
                 <div class="col-6">
                     <label class="form-label text-muted small">Fecha</label>
@@ -870,7 +906,7 @@
                     <label class="form-label text-muted small">Categoría</label>
                     <div class="dropdown w-100">
                         <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-txCategory">
-                            <span>Seleccionar Categoría...</span>
+                            <span>- Seleccionar Categoría -</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">

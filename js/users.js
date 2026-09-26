@@ -1,7 +1,7 @@
 import * as initial from './initial.js';
 
 export function renderMantUsers() {
-    const mantUsers = document.getElementById('mant-users');
+    const userTableContainer = document.getElementById('userTableContainer');
     const tbody = document.getElementById('table-mant-users');
     // const avatarImg = u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`;
     if (!tbody) return;
@@ -9,7 +9,7 @@ export function renderMantUsers() {
     // </td>
 
     if (initial.sysUsers.length === 0) {
-        mantUsers.innerHTML = `
+        userTableContainer.innerHTML = `
         <div class="col-12 text-center py-5">
             <i class="fas fa-users fa-4x text-muted mb-3 opacity-25"></i>
             <h5 class="fw-bold text-muted mb-2">Aún no hay usuarios registrados</h5>

@@ -61,6 +61,7 @@ a:hover {
 * {
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
+    scroll-behavior: smooth;
 }
 
 *::-webkit-scrollbar { 

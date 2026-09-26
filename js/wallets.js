@@ -411,7 +411,6 @@ export function initTransactionModalEvents() {
     const modalEl = document.getElementById('addTransactionModal');
     if (!modalEl) return;
 
-    console.log(modalEl)
     const txTypeElement = document.getElementById('txType');
 
     modalEl.addEventListener('show.bs.modal', (e) => {
@@ -428,6 +427,7 @@ export function initTransactionModalEvents() {
 }
 
 export function saveNewTransaction() {
+
     const walletSelect = document.getElementById('txWallet');
     const walletId = walletSelect ? walletSelect.value : null;
     const targetWallet = walletId ? initial.userWallets.find(w => w.id == walletId) : activeWalletForMovements;
@@ -488,6 +488,7 @@ export function saveNewTransaction() {
         // Recarga el dashboard y presupuesto
         budget.renderBudgetDetails();
         dashboard.renderDashboardSummary();
+        initial.initCustomSelects2();
     }
 
     renderWallets();
@@ -499,6 +500,12 @@ export function saveNewTransaction() {
     document.getElementById('txDesc').value = '';
     document.getElementById('txDate').value = '';
     document.getElementById('txTime').value = '';
+
+    document.getElementById('chbPayBudgetItem').checked = false;
+    document.getElementById('chbPayBudgetItem').dispatchEvent(new Event("change"));
+    document.getElementById('txType').selectedIndex = 0;
+
+
 
     const modalEl = document.getElementById('addTransactionModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);

@@ -49,23 +49,24 @@ function initMaintenances() {
     renderNotifications();
     // populateSelects();
     initial.initCustomSelects(); // INICIAMOS LOS SELECTORES ELEGANTES
+    initial.initCustomSelects2();
 
     // Detectar el cambio en el tipo de transacción
-    const txTypeElement = document.getElementById('txType');
-    const txBudgetWrapper = document.getElementById('txBudgetWrapper');
+    // const txTypeElement = document.getElementById('txType');
+    // const txBudgetWrapper = document.getElementById('txBudgetWrapper');
 
-    if (txTypeElement) {
-        txTypeElement.addEventListener('change', function() {
-            // Verifica si el valor seleccionado es "Gasto" (ajusta el string según el value de tu HTML)
-            if (this.value === 'Gasto' || this.value === 'expense') {
-                txBudgetWrapper.style.display = 'block';
-                populateBudgetItemsForTransaction();
-            } else {
-                txBudgetWrapper.style.display = 'none';
-                document.getElementById('txBudgetItem').value = ''; // Limpiar la selección
-            }
-        });
-    }
+    // if (txTypeElement) {
+    //     txTypeElement.addEventListener('change', function() {
+    //         // Verifica si el valor seleccionado es "Gasto" (ajusta el string según el value de tu HTML)
+    //         if (this.value === 'Gasto' || this.value === 'expense') {
+    //             txBudgetWrapper.style.display = 'block';
+    //             populateBudgetItemsForTransaction();
+    //         } else {
+    //             txBudgetWrapper.style.display = 'none';
+    //             document.getElementById('txBudgetItem').value = ''; // Limpiar la selección
+    //         }
+    //     });
+    // }
 }
 
     // Función para llenar dinámicamente el selector con los items de presupuesto no pagados
@@ -391,4 +392,25 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSaveUser.addEventListener('click', () => {
         users.saveUser();
     });
+
+    const btntxBudgetItem = document.getElementById('btn-txBudgetItem');
+    const txBudgetItem = document.getElementById('txBudgetItem');
+
+    const chbPayBudgetItem = document.getElementById('chbPayBudgetItem');
+    const txType = document.getElementById('txType');
+    const txAmount = document.getElementById('txAmount');
+    
+    if (chbPayBudgetItem) {
+        chbPayBudgetItem.addEventListener('change', function() {
+            btntxBudgetItem.classList.toggle('d-none');
+
+            btntxBudgetItem.innerHTML = '<span>- Seleccionar Item -</span><i class="fas fa-chevron-down"></i>';
+            txAmount.readOnly = !txAmount.readOnly;
+            txType.disabled = !txType.disabled;
+            txAmount.value = "";
+            txBudgetItem.value = "";
+
+            if(chbPayBudgetItem.checked) txType.selectedIndex = 0;
+        });
+    }
 });

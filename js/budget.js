@@ -45,8 +45,10 @@ export function initMasterBudget() {
 let copyFromPeriodId = null;
 export function renderMasterBudgetList() {
     const container = document.getElementById('master-month-list');
+    const budgetContainer = document.getElementById('budget-container');
+
     const detailContainer = document.getElementById('detail-view-container');
-    if (!container) return;
+    // if (!container) return;
 
     // if (initial.masterBudgets.length === 0) {
     //     container.innerHTML = `<p class="text-muted small text-center py-3">No hay períodos creados.</p>`;
@@ -54,16 +56,19 @@ export function renderMasterBudgetList() {
     // }
 
     if (initial.masterBudgets.length === 0) {
-        container.innerHTML = `<div class="col-12 text-center py-5">
+        
+        budgetContainer.innerHTML = `<div class="col-12 text-center py-5">
             <i class="fas fa-calendar-alt fa-4x text-muted mb-3 opacity-25"></i>
             <h5 class="fw-bold text-muted mb-2">Aún no hay periodos registrados</h5>
             <p class="text-muted">¡Anímate a crear tu primer periodo!</p>
         </div>`;
-        if (detailContainer) detailContainer.style.display = 'none'; // Ocultar detalle
+        // if (container) container.style.display = 'none'; // Ocultar detalle
+        // if (detailContainer) detailContainer.style.display = 'none'; // Ocultar detalle
         return;
     }
     
-    if (detailContainer) detailContainer.style.display = ''; // Mostrar detalle si hay registros
+    // if (detailContainer) detailContainer.style.display = ''; // Mostrar detalle si hay registros
+    // if (container) container.style.display = ''; // Ocultar detalle
 
     let html = '';
     initial.masterBudgets.forEach(period => {
@@ -85,25 +90,108 @@ export function renderMasterBudgetList() {
                 </div>
             </div>`;
     });
-    container.innerHTML = html;
+    budgetContainer.innerHTML = `
+    <!-- PANEL MAESTRO -->
+                    <div class="col-lg-4 col-xl-4">
+                        <div class="glass py-3 overflow-auto" style="padding-left: 10px; padding-right: 5px;">
+                            <h5 class="fw-bold mb-4">Períodos</h5>
+                            <div id="master-month-list" class="d-flex flex-column gap-2" style="max-height: 380px; min-height: 180px;">
+                                <!-- Inyectado por JS -->
+                                ${html}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PANEL DETALLE -->
+                    <div class="col-lg-8 col-xl-8">
+                        <div class="glass p-4 h-100" id="detail-view-container">
+                            <div class="d-flex justify-content-between align-items-sm-center align-items-start flex-wrap gap-3 mb-4 pb-3 border-bottom border-lightt" style="border-bottom-color: darkcyan;">
+                                <h4 class="fw-bold mb-0 text-info" id="detail-month-title">Detalles</h4>
+                                <button class="btn btn-sm btn-outline-primary px-2 py-1 shadow-sm" style="border-radius: 12px;" id="addNewItemBtn" data-bs-toggle="modal" data-bs-target="#addBudgetItemModal">
+                                    <i class="fas fa-plus me-2"></i>Nuevo Registro
+                                </button>
+                            </div>
 
-    container.querySelectorAll('.btnSelectBudgetPeriod').forEach(btnSelectBudgetPeriod => {
+                            <!-- Resumen Financiero Superior -->
+                            <div class="row justifyy-content-around flex-wrapp g-3 mb-4">
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                                        <div class="bg-danger bg-opacity-10 text-danger rounded p-3 me-3 fs-4"><i class="fas fa-file-invoice-dollar"></i></div>
+                                        <div>
+                                            <small class="text-muted d-block">Gastos Fijos</small>
+                                            <h5 class="fw-bold mb-0 text-danger" id="totalFixedExpenses">$0.00</h5>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="col-md-6">
+                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border); min-width:245px;">
+                                        <div class="bg-info bg-opacity-10 text-info rounded p-3 me-3 fs-4"><i class="fas fa-piggy-bank"></i></div>
+                                        <div>
+                                            <small class="text-muted d-block">Reservas</small>
+                                            <h5 class="fw-bold mb-0 text-info" id="totalReserves">$0.00</h5>
+                                        </div>
+                                    </div>
+                                </div> -->
+    
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded d-flex align-items-center" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 fs-4"><i class="fas fa-balance-scale"></i></div>
+                                        <div>
+                                            <small class="text-muted d-block">Afecta Balance</small>
+                                            <h5 class="fw-bold mb-0 text-primary" id="totalAffectingBalance">$0.00</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vista de Tabla (Escritorio) -->
+                            <div class="d-none d-lg-block">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
+                                        <thead>
+                                            <tr style="border-bottom: 2px solid var(--glass-border);">
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">CONCEPTO</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap text-center">DETALLE</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap text-center">AFECTA</th>
+                                                <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
+                                                <th class="bg-transparent text-muted small py-3 text-end text-nowrap"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="budget-table-body">
+                                            <!-- Inyectado mediante JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Vista de Tarjetas (Móviles/Tablets) -->
+                            <div class="d-lg-none">
+                                <div class="row gg-3" id="budget-cards-container">
+                                    <!-- Inyectado mediante JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+    budgetContainer.querySelectorAll('.btnSelectBudgetPeriod').forEach(btnSelectBudgetPeriod => {
         btnSelectBudgetPeriod.addEventListener('click', () => {
             selectBudgetPeriod(btnSelectBudgetPeriod.getAttribute('data-id'));
         });
     });
-    container.querySelectorAll('.btnCopyBudgetPeriod').forEach(btnCopyBudgetPeriod => {
+    budgetContainer.querySelectorAll('.btnCopyBudgetPeriod').forEach(btnCopyBudgetPeriod => {
         btnCopyBudgetPeriod.addEventListener('click', () => {
             copyFromPeriodId = btnCopyBudgetPeriod.getAttribute('data-id');
             addNewBudgetPeriodModal(); // Reutilizamos el modal de nuevo período
         });
     });
-    container.querySelectorAll('.btnOpenEditBudgetPeriodModal').forEach(btnOpenEditBudgetPeriodModal => {
+    budgetContainer.querySelectorAll('.btnOpenEditBudgetPeriodModal').forEach(btnOpenEditBudgetPeriodModal => {
         btnOpenEditBudgetPeriodModal.addEventListener('click', () => {
             openEditBudgetPeriodModal(btnOpenEditBudgetPeriodModal.getAttribute('data-id'));
         });
     });
-    container.querySelectorAll('.btnConfirmDeleteBudgetPeriod').forEach(btnConfirmDeleteBudgetPeriod => {
+    budgetContainer.querySelectorAll('.btnConfirmDeleteBudgetPeriod').forEach(btnConfirmDeleteBudgetPeriod => {
         btnConfirmDeleteBudgetPeriod.addEventListener('click', () => {
             confirmDeleteBudgetPeriod(btnConfirmDeleteBudgetPeriod.getAttribute('data-id'));
         });
@@ -437,6 +525,7 @@ export function saveNewBudgetPeriod() {
     }
 
     initial.masterBudgets.push(newPeriod);
+
     activeBudgetPeriodId = newPeriod.id;
     renderMasterBudgetList();
     renderBudgetDetails();
