@@ -57,7 +57,7 @@ export function renderWallets() {
                                 </div>
                             </div>
                             <div class="d-flex align-items-center">
-                                <i class="fas fa-exclamation-circle text-muted m-2" style="cursor:help;" data-bs-toggle="tooltip" data-bs-placement="top" title="${wallet.desc || 'Sin descripción provista'}"></i>
+                                <i class="fas fa-exclamation-circle text-muted p-3" style="cursor:help;" data-bs-toggle="tooltip" data-bs-placement="top" title="${wallet.desc || 'Sin descripción provista'}"></i>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-link text-muted px-2 py-1" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
                                     <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
