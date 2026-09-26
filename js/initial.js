@@ -263,11 +263,6 @@ export function initCustomSelects() {
 export function selectIcon(inputId, iconVal, iconText, init = false) {
     document.getElementById(inputId).value = iconVal;
     // const btnText = iconText.split(' ')[1] || iconText; // Para no mostrar todo muy largo
-    console.log(inputId);
-    console.log(iconVal);
-    console.log(iconText);
-    console.log(init);
-    console.log(document.getElementById(`btn-${inputId}`));
 
     document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${iconVal} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
     
@@ -326,8 +321,8 @@ export function initCustomSelects2() {
 
                 btn.innerHTML = `
                     <div>
-                        <i class="small ${btnSelectBudgetItem.getAttribute('data-budget-icon')} me-2 text-secondary"></i>
-                        <span class="small me-2">${btnSelectBudgetItem.getAttribute('data-budget-title')}</span>
+                        <i class="small ${btnSelectBudgetItem.getAttribute('data-budget-icon')} me-1 text-secondary"></i>
+                        <span class="small me-1">${btnSelectBudgetItem.getAttribute('data-budget-title')}</span>
                         <span class="fw-bold small me-2">$${btnSelectBudgetItem.getAttribute('data-budget-amount')}</span>
                         <span class="badge bg-success bg-opacity-75 fw-normal text-mutedd">${btnSelectBudgetItem.getAttribute('data-budget-periodName')}</span>
                     </div>

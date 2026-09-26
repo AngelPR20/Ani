@@ -2,19 +2,20 @@ import * as initial from './initial.js';
 
 export function renderMantUsers() {
     const userTableContainer = document.getElementById('userTableContainer');
-    const tbody = document.getElementById('table-mant-users');
+    // const tbody = document.getElementById('table-mant-users');
     // const avatarImg = u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`;
-    if (!tbody) return;
+    // if (!tbody) return;
     // <td>${u.avatar ? `<img src="${u.avatar}" class="rounded-circle border" width="35" height="35" style="object-fit:cover;">` : `<div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${u.name.charAt(0).toUpperCase()}</div>`}
     // </td>
 
     if (initial.sysUsers.length === 0) {
         userTableContainer.innerHTML = `
-        <div class="col-12 text-center py-5">
-            <i class="fas fa-users fa-4x text-muted mb-3 opacity-25"></i>
-            <h5 class="fw-bold text-muted mb-2">Aún no hay usuarios registrados</h5>
-            <p class="text-muted">¡Anímate a crear tu primer usuario!</p>
-        </div>`;
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-users fa-4x text-muted mb-3 opacity-25"></i>
+                <h5 class="fw-bold text-muted mb-2">Aún no hay usuarios registrados</h5>
+                <p class="text-muted">¡Anímate a crear tu primer usuario!</p>
+            </div>`;
+        userTableContainer.classList.remove('glass');
         return;
     }
 
@@ -32,14 +33,31 @@ export function renderMantUsers() {
         </tr>`;
     });
 
-    tbody.innerHTML = html;
+    userTableContainer.innerHTML = `
+        <div class="table-responsive border p-2">
+            <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--glass-border);">
+                        <!-- <th class="bg-transparent text-muted small py-3 text-nowrap"></th> -->
+                        <th class="bg-transparent text-muted small py-2 text-nowrap">NOMBRE</th>
+                        <th class="bg-transparent text-muted small py-2 text-nowrap">EMAIL</th>
+                        <th class="bg-transparent text-muted small py-2 text-nowrap">ROL</th>
+                        <th class="bg-transparent text-muted small py-2 text-nowrap"></th>
+                    </tr>
+                </thead>
+                <tbody id="table-mant-users">
+                    ${html}
+                </tbody>
+            </table>
+        </div>`;
+    // tbody.innerHTML = html;
 
-    tbody.querySelectorAll('.btnEditUser').forEach(btnEditUser => {
+    userTableContainer.querySelectorAll('.btnEditUser').forEach(btnEditUser => {
         btnEditUser.addEventListener('click', () => {
             editUser(btnEditUser.getAttribute('data-id'));
         });
     });
-    tbody.querySelectorAll('.btnDeleteUser').forEach(btnDeleteUser => {
+    userTableContainer.querySelectorAll('.btnDeleteUser').forEach(btnDeleteUser => {
         btnDeleteUser.addEventListener('click', () => {
             deleteUser(btnDeleteUser.getAttribute('data-id'));
         });

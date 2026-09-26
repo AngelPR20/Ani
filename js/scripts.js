@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chbPayBudgetItem.addEventListener('change', function() {
             btntxBudgetItem.classList.toggle('d-none');
 
-            btntxBudgetItem.innerHTML = '<span>- Seleccionar Item -</span><i class="fas fa-chevron-down"></i>';
+            btntxBudgetItem.innerHTML = '<span class="small">- Seleccionar Item -</span><i class="fas fa-chevron-down small"></i>';
             txAmount.readOnly = !txAmount.readOnly;
             txType.disabled = !txType.disabled;
             txAmount.value = "";
