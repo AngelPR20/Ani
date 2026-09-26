@@ -156,7 +156,7 @@
             
             <div id="mobile-header">
                 <div class="d-flex align-items-center gap-2">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i> FinanzasPro</h5>
+                    <h5 class="mb-0 fw-bold">FinanzasPro</h5>
                 </div>
                 <div class="d-flex align-items-center g-2">
                     <img id="mobileHeaderUserAvatar" src="assets/profile-demo.png" alt="Usuario" class="rounded-circle border mx-2" style="width: 32px; height: 32px; object-fit: cover;">
@@ -324,7 +324,7 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
                     <div>
                         <h4 class="fw-bold mb-1" id="pageWalletMovementsTitle">Movimientos de Cartera</h4>
-                        <p class="text-muted mb-0" id="pageWalletMovementsSubtitle">Filtrando registros de la cuenta.</p>
+                        <p class="text-muted mb-0 text-truncate overflow-hidden" id="pageWalletMovementsSubtitle" style="max-width: 350px;">Filtrando registros de la cuenta.</p>
                     </div>
                     <!-- Acciones ocultables por JS si no hay data -->
                     <div class="d-flex gap-2 d-print-none" id="walletMovementsActions">
@@ -360,24 +360,26 @@
                 </div>
 
                 <!-- Tabla de Movimientos -->
-                <div class="glass p-4" id="walletTableContainer">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
-                            <thead>
-                                <tr style="border-bottom: 2px solid var(--glass-border);">
-                                    <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
-                                    <th class="bg-transparent text-muted small py-3 text-nowrap">CATEGORÍA</th>
-                                    <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
-                                    <th class="bg-transparent text-muted small py-3 text-nowrap">FECHA</th>
-                                    <th class="bg-transparent text-muted small py-3 text-center print-hide">DETALLES</th>
-                                    <th class="bg-transparent text-muted small py-3 text-end text-nowrap print-hide"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="page-wallet-movements-table-body">
-                                <!-- Inyectado por JS -->
-                            </tbody>
-                        </table>
-                    </div>
+                <div id="movementsView">
+                    <!-- <div class="glass p-4" id="walletTableContainer">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--glass-border);">
+                                        <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
+                                        <th class="bg-transparent text-muted small py-3 text-nowrap">CATEGORÍA</th>
+                                        <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
+                                        <th class="bg-transparent text-muted small py-3 text-nowrap">FECHA</th>
+                                        <th class="bg-transparent text-muted small py-3 text-center print-hide">DETALLES</th>
+                                        <th class="bg-transparent text-muted small py-3 text-end text-nowrap print-hide"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="page-wallet-movements-table-body">
+                                    !-- Inyectado por JS --
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -530,8 +532,8 @@
                                 <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#userModal" id="btnOpenAddUserModal"><i class="fas fa-plus me-1"></i>Nuevo Usuario</button>
                             </div>
 
-                            <div class="glass p-2" id="userTableContainer">
-                                <div class="table-responsive">
+                            <div class="glass border-0" id="userTableContainer">
+                                <div class="table-responsive border p-2">
                                     <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
                                         <thead>
                                             <tr style="border-bottom: 2px solid var(--glass-border);">
@@ -906,8 +908,8 @@
                     <label class="form-label text-muted small">Categoría</label>
                     <div class="dropdown w-100">
                         <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-txCategory">
-                            <span>- Seleccionar Categoría -</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <span class="small">- Seleccionar Categoría -</span>
+                            <i class="fas fa-chevron-down small"></i>
                         </button>
                         <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">
                             <div class="category-list-container py-2 px-1" id="list-txCategory"></div>
@@ -967,8 +969,8 @@
                         <label class="form-label text-muted small">Categoría</label>
                         <div class="dropdown w-100">
                             <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center glass-input" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="btn-editTxCategory">
-                                <span>Seleccionar Categoría...</span>
-                                <i class="fas fa-chevron-down"></i>
+                                <span class="small">Seleccionar Categoría...</span>
+                                <i class="fas fa-chevron-down small"></i>
                             </button>
                             <div class="dropdown-menu w-100 p-0 shadow border-0" style="background: var(--body-bg);">
                                 <div class="category-list-container p-2" id="list-editTxCategory"></div>

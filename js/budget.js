@@ -46,6 +46,8 @@ let copyFromPeriodId = null;
 export function renderMasterBudgetList() {
     const container = document.getElementById('master-month-list');
     const budgetContainer = document.getElementById('budget-container');
+    const btnAddNewBudgetPeriodModal = document.getElementById('btnAddNewBudgetPeriodModal');
+
 
     const detailContainer = document.getElementById('detail-view-container');
     // if (!container) return;
@@ -56,11 +58,15 @@ export function renderMasterBudgetList() {
     // }
 
     if (initial.masterBudgets.length === 0) {
+        if (btnAddNewBudgetPeriodModal) btnAddNewBudgetPeriodModal.style.display = 'none';
         
         budgetContainer.innerHTML = `<div class="col-12 text-center py-5">
             <i class="fas fa-calendar-alt fa-4x text-muted mb-3 opacity-25"></i>
             <h5 class="fw-bold text-muted mb-2">Aún no hay periodos registrados</h5>
             <p class="text-muted">¡Anímate a crear tu primer periodo!</p>
+            <button class="btn btn-sm btn-primary px-3 py-2" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addBudgetPeriodModal">
+                <i class="fas fa-plus me-2"></i>Crear Período
+            </button>
         </div>`;
         // if (container) container.style.display = 'none'; // Ocultar detalle
         // if (detailContainer) detailContainer.style.display = 'none'; // Ocultar detalle

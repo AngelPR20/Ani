@@ -279,7 +279,7 @@ a:hover {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem 1.5rem;
+        padding: 1rem;
         background: var(--glass-sidebar);
         backdrop-filter: blur(20px);
         border-bottom: 1px solid var(--glass-border);

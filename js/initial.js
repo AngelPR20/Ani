@@ -213,18 +213,24 @@ export function initCustomSelects() {
         const container = document.getElementById(`grid-${id}`);
         if (!container) return;
         let html = '';
+
         sysIcons.forEach(icon => {
             html += `<div class="icon-btn bg-primary bg-opacity-10 text-primary btnSelectIcon" data-text="${icon.text}" data-val="${icon.val}" title="${icon.text}"><i class="${icon.val}"></i></div>`;
         });
+
+        if(sysIcons.lenght === 0) {}
         container.innerHTML = html;
 
         container.querySelectorAll('.btnSelectIcon').forEach((btnSelectIcon) => {
             btnSelectIcon.addEventListener('click', () => selectIcon(id, btnSelectIcon.getAttribute('data-val'), btnSelectIcon.getAttribute('data-text')));
-        })
+        });
         
         // Cargar selección default inicial
+        // document.getElementById(id).value = "fas fa-tags";
         const hiddenVal = document.getElementById(id).value;
-        const defaultIcon = sysIcons.find(i => i.val === hiddenVal) || sysIcons[0];
+        const defaultIcon = sysIcons.find(i => i.val === hiddenVal) || "fas fa-tags";
+        // console.log(document.getElementById(id));
+        // console.log(hiddenVal);
         if (defaultIcon) selectIcon(id, defaultIcon?.val||'fas fa-tags', defaultIcon.text, true);
     });
 
@@ -243,6 +249,9 @@ export function initCustomSelects() {
         });
         container.innerHTML = html;
 
+        document.getElementById(id).value = '';
+        document.getElementById(`btn-${id}`).innerHTML = '<span class="small">- Seleccionar Categoría -</span><i class="fas fa-chevron-down small"></i>';
+
         container.querySelectorAll('.btnSelectCategory').forEach(btnSelectCategory => {
             btnSelectCategory.addEventListener('click', () => {
                 selectCategory(btnSelectCategory.getAttribute('data-input-id'), btnSelectCategory.getAttribute('data-cat-id'), btnSelectCategory.getAttribute('data-cat-desc'), btnSelectCategory.getAttribute('data-cat-iconId'));
@@ -254,7 +263,12 @@ export function initCustomSelects() {
 export function selectIcon(inputId, iconVal, iconText, init = false) {
     document.getElementById(inputId).value = iconVal;
     // const btnText = iconText.split(' ')[1] || iconText; // Para no mostrar todo muy largo
-    
+    console.log(inputId);
+    console.log(iconVal);
+    console.log(iconText);
+    console.log(init);
+    console.log(document.getElementById(`btn-${inputId}`));
+
     document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${iconVal} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
     
     if (!init) {
@@ -266,7 +280,7 @@ export function selectIcon(inputId, iconVal, iconText, init = false) {
 
 export function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
 
-    document.getElementById(inputId).value = catId; 
+    document.getElementById(inputId).value = catId;
     document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} text-primary me-2"></i> <span class="badge bg-primary bg-opacity-75">${catDesc}</span></span> <i class="fas fa-chevron-down"></i>`;
 
     if (!init) {
@@ -290,10 +304,11 @@ export function initCustomSelects2() {
         masterBudgets.forEach(budget => {
             budget.items.filter(item => !item.paid).forEach(item => {
                 html += `
-                <div class="budgetItem-pill btnSelectBudgetItem" data-input-id=${budget.id} data-budget-id=${item.id} data-budget-title="${item.title}" data-budget-amount="${item.amount}" data-budget-periodName="${budget.periodName}">
+                <div class="budgetItem-pill btnSelectBudgetItem" data-input-id=${budget.id} data-budget-id=${item.id} data-budget-icon="${item.icon}" data-budget-title="${item.title}" data-budget-amount="${item.amount}" data-budget-periodName="${budget.periodName}">
                     <div>
-                        <span class="fw-normall small">${item.title}</span>
-                        <span class="fw-bold small">$${item.amount}</span>
+                        <i class="small ${item.icon} me-2 text-secondary"></i>
+                        <span class="me-2">${item.title}</span>
+                        <span class="fw-bold small me-2">$${item.amount}</span>
                     </div>
                     <span class="badge bg-secondary bg-opacity-10 fw-normal text-muted">${budget.periodName}</span>
                 </div>`;
@@ -311,8 +326,9 @@ export function initCustomSelects2() {
 
                 btn.innerHTML = `
                     <div>
-                        <span class="fw-normall small">${btnSelectBudgetItem.getAttribute('data-budget-title')}</span>
-                        <span class="fw-bold small">$${btnSelectBudgetItem.getAttribute('data-budget-amount')}</span>
+                        <i class="small ${btnSelectBudgetItem.getAttribute('data-budget-icon')} me-2 text-secondary"></i>
+                        <span class="small me-2">${btnSelectBudgetItem.getAttribute('data-budget-title')}</span>
+                        <span class="fw-bold small me-2">$${btnSelectBudgetItem.getAttribute('data-budget-amount')}</span>
                         <span class="badge bg-success bg-opacity-75 fw-normal text-mutedd">${btnSelectBudgetItem.getAttribute('data-budget-periodName')}</span>
                     </div>
                     <i class="fas fa-chevron-down"></i>`;

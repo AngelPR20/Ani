@@ -17,7 +17,7 @@ export function renderWallets() {
         container.innerHTML = `
             <div class="col-12 text-center py-5">
                 <div class="p-4 d-inline-block" style="border-radius: 16px;">
-                    <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                    <i class="fas fa-wallet fa-3x text-muted mb-3 opacity-25"></i>
                     <h5 class="fw-bold text-muted">No tienes carteras registradas</h5>
                     <p class="text-muted small mb-3">Crea tu primera cuenta para comenzar a organizar tu dinero.</p>
                     <button class="btn btn-sm btn-primary px-3 py-2" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addWalletModal">
@@ -237,12 +237,13 @@ export function exportWalletMovementsExcel() {
 }
 
 export function renderWalletMovementsTable() {
+    const movementsView = document.getElementById('movementsView');
     const tbody = document.getElementById('page-wallet-movements-table-body');
     const actionsDiv = document.getElementById('walletMovementsActions');
     const filtersDiv = document.getElementById('walletMovementsFilters');
     const tableContainer = document.getElementById('walletTableContainer');
 
-    if (!tbody) return;
+    // if (!tbody) return;
     if (!viewingAllWallets && !activeWalletForMovements) return;
 
     const hasAnyMovement = viewingAllWallets
@@ -260,15 +261,13 @@ export function renderWalletMovementsTable() {
                         <i class="fas fa-plus me-2"></i>Registrar mi primer ingreso
                     </button>`;
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center py-5 border-0">
+        movementsView.innerHTML = `
+            <div class="col-12 text-center py-5">
                     <i class="fas fa-money-bill-wave fa-4x text-muted mb-3 opacity-25"></i>
                     <h5 class="fw-bold text-muted mb-2">Aún no hay movimientos</h5>
                     <p class="text-muted mb-4">${viewingAllWallets ? 'Ninguna de tus carteras tiene movimientos registrados todavía.' : 'Esta cartera está totalmente en blanco.<br>¡Anímate a realizar un ingreso y comienza a gestionar tu dinero!'}</p>
                     ${emptyActionBtn}
-                </td>
-            </tr>`;
+            </div>`;
         return;
     } else {
         // Restaurar estado normal
@@ -350,14 +349,33 @@ export function renderWalletMovementsTable() {
                 </td>
             </tr>`;
     });
-    tbody.innerHTML = html;
+    movementsView.innerHTML = `
+                <div class="glass p-4" id="walletTableContainer">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--glass-border);">
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">CATEGORÍA</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">FECHA</th>
+                                    <th class="bg-transparent text-muted small py-3 text-center print-hide">DETALLES</th>
+                                    <th class="bg-transparent text-muted small py-3 text-end text-nowrap print-hide"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="page-wallet-movements-table-body">
+                                ${html}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
 
-    tbody.querySelectorAll('.btnEditTransactionModal').forEach(btnEditTransactionModal => {
+    movementsView.querySelectorAll('.btnEditTransactionModal').forEach(btnEditTransactionModal => {
         btnEditTransactionModal.addEventListener('click', () => {
             openEditTransactionModal(btnEditTransactionModal.getAttribute('data-id'));
         });
     });
-    tbody.querySelectorAll('.btnConfirmDeleteTransaction').forEach(btnConfirmDeleteTransaction => {
+    movementsView.querySelectorAll('.btnConfirmDeleteTransaction').forEach(btnConfirmDeleteTransaction => {
         btnConfirmDeleteTransaction.addEventListener('click', () => {
             confirmDeleteTransaction(btnConfirmDeleteTransaction.getAttribute('data-id'));
         });
