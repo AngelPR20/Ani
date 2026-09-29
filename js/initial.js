@@ -298,12 +298,13 @@ export function initCustomSelects2() {
         let html = '';
         masterBudgets.forEach(budget => {
             budget.items.filter(item => !item.paid).forEach(item => {
+
                 html += `
-                <div class="budgetItem-pill btnSelectBudgetItem" data-input-id=${budget.id} data-budget-id=${item.id} data-budget-icon="${item.icon}" data-budget-title="${item.title}" data-budget-amount="${item.amount}" data-budget-periodName="${budget.periodName}">
+                <div class="budgetItem-pill btnSelectBudgetItem" data-input-id=${budget.id} data-budget-id=${item.id} data-budget-icon="${item.icon}" data-budget-title="${item.title}" data-budget-amount="${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}" data-budget-periodName="${budget.periodName}">
                     <div>
                         <i class="small ${item.icon} me-2 text-secondary"></i>
                         <span class="me-2">${item.title}</span>
-                        <span class="fw-bold small me-2">$${item.amount}</span>
+                        <span class="fw-bold small me-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                     </div>
                     <span class="badge bg-secondary bg-opacity-10 fw-normal text-muted">${budget.periodName}</span>
                 </div>`;
@@ -340,65 +341,3 @@ export function initCustomSelects2() {
         });
     });
 }
-
-// function initCustomSelects() {
-//     // Configurar cuadriculas de Iconos
-//     const iconInputs = ['walletIcon', 'editWalletIcon', 'goalIcon', 'editGoalIcon', 'budgetIcon', 'editBudgetIcon', 'categoryIconId'];
-//     iconInputs.forEach(id => {
-//         const container = document.getElementById(`grid-${id}`);
-//         if (!container) return;
-//         let html = '';
-//         sysIcons.forEach(icon => {
-//             html += `<div class="icon-btn bg-primary bg-opacity-10 text-primary" onclick="selectIcon('${id}', '${icon.val}', '${icon.text}')" title="${icon.text}"><i class="${icon.val}"></i></div>`;
-//         });
-//         container.innerHTML = html;
-        
-//         // Cargar selección default inicial
-//         const hiddenVal = document.getElementById(id).value;
-//         const defaultIcon = sysIcons.find(i => i.val === hiddenVal) || sysIcons[0];
-//         if (defaultIcon) selectIcon(id, defaultIcon.val, defaultIcon.text, true);
-//     });
-
-//     // Configurar listas de Categorías
-//     const categoryInputs = ['txCategory', 'editTxCategory'];
-//     categoryInputs.forEach(id => {
-//         const container = document.getElementById(`list-${id}`);
-//         if (!container) return;
-//         let html = '';
-//         sysCategories.forEach(cat => {
-//             html += `
-//             <div class="category-pill" onclick="selectCategory('${id}', '${cat.id}', '${cat.desc}', '${cat.iconId}')">
-//                 <div class="bg-primary bg-opacity-10 text-primary rounded p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="${cat.iconId}"></i></div>
-//                 <span class="fw-medium">${cat.desc}</span>
-//             </div>`;
-//         });
-//         container.innerHTML = html;
-//     });
-// }
-
-
-
-
-// function selectIcon(inputId, iconVal, iconText, init = false) {
-//     document.getElementById(inputId).value = iconVal;
-//     // const btnText = iconText.split(' ')[1] || iconText; // Para no mostrar todo muy largo
-    
-//     document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${iconVal} me-2 text-primary"></i></span> <i class="fas fa-chevron-down"></i>`;
-    
-//     if (!init) {
-//         const btn = document.getElementById(`btn-${inputId}`);
-//         const dropdown = bootstrap.Dropdown.getInstance(btn);
-//         if (dropdown) dropdown.hide();
-//     }
-// }
-
-// function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
-//     document.getElementById(inputId).value = catId; 
-//     document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} text-primary me-2"></i> ${catDesc}</span> <i class="fas fa-chevron-down"></i>`;
-    
-//     if (!init) {
-//         const btn = document.getElementById(`btn-${inputId}`);
-//         const dropdown = bootstrap.Dropdown.getInstance(btn);
-//         if (dropdown) dropdown.hide();
-//     }
-// }

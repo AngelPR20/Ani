@@ -326,7 +326,7 @@ export function renderWalletMovementsTable() {
                 <div class="bg-secondary bg-opacity-10 rounded d-flex justify-content-center align-items-center text-secondary" style="width: 28px; height: 28px;">
                     <i class="${catIconClass}"></i>
                 </div>
-                <div><span class="badge ${badgeBackgroundColor} bg-opacity-50">${catDesc}</span>${walletBadgeHtml}</div>
+                <div><span class="badge ${badgeBackgroundColor} bg-opacity-75">${catDesc}</span>${walletBadgeHtml}</div>
             </div>`;
         // <td class="py-3 fw-medium text-nowrap">${mov.category || 'General'}</td>
         const hasDesc = mov.desc && mov.desc.trim() !== '';
@@ -341,7 +341,7 @@ export function renderWalletMovementsTable() {
                 <td class="py-3 fw-medium text-nowrap">${categoryHtml}</td>
 
                 <td class="py-3 fw-bold ${amountColor} text-nowrap">${amountPrefix}$${mov.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                <td class="py-3 text-muted small text-nowrap">${mov.date}</td>
+                <td class="py-3 text-muted small text-nowrap">${new Date(mov.date).toLocaleDateString('es-DO')}</td>
                 <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
                 <td class="py-3 text-end text-nowrap print-hide">
                     <button class="btn btn-sm btn-outline-primary p-1 px-2 btnEditTransactionModal" data-id=${mov.id}><i class="fas fa-edit"></i></button>

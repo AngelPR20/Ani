@@ -44,6 +44,7 @@ export function initMasterBudget() {
 
 let copyFromPeriodId = null;
 export function renderMasterBudgetList() {
+
     const container = document.getElementById('master-month-list');
     const budgetContainer = document.getElementById('budget-container');
     const btnAddNewBudgetPeriodModal = document.getElementById('btnAddNewBudgetPeriodModal');
@@ -283,9 +284,13 @@ export function renderBudgetDetails() {
             ? '<span class="text-success small fw-medium"><i class="fas fa-check-circle me-1"></i>Sí</span>' 
             : '<span class="text-muted small fw-medium"><i class="fas fa-times-circle me-1"></i>No</span>';
 
+        // const affectsBadgeCards = item.affectsBalance 
+        //     ? '<span class="text-success small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: Sí"><i class="fas fa-check-circle me-1 fs-6"></i></span>' 
+        //     : '<span class="text-muted small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: No"><i class="fas fa-times-circle me-1 fs-6"></i></span>';
+
         const affectsBadgeCards = item.affectsBalance 
-            ? '<span class="text-success small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: Sí"><i class="fas fa-check-circle me-1 fs-6"></i></span>' 
-            : '<span class="text-muted small fw-medium" data-bs-toggle="tooltip" data-bs-placement="top" title="Afecta Balance: No"><i class="fas fa-times-circle me-1 fs-6"></i></span>';
+            ? '<span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-check-circle me-1"></i> Afecta Balance</span>' 
+            : '<span class="badge bg-secondary bg-opacity-10 text-muted px-2 py-1"><i class="fas fa-times-circle me-1"></i> No Afecta Balance</span>';
 
         const paidStatusBadge = item.paid 
             ? '<span class="badge bg-success bg-opacity-10 text-success ms-2">Pagado</span>' 
@@ -315,7 +320,7 @@ export function renderBudgetDetails() {
                 <td class="py-3 fw-medium text-nowrap"><i class="${item.icon} me-2 text-primary"></i>${item.title}</td>
                 <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
                 <td class="py-3 text-nowrap text-center">${affectsBadge}</td>
-                <td class="py-3 fw-bold text-nowrap">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                <td class="py-3 text-nowrap">$<span class="fw-bold">${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span></td>
                 <td class="py-3 text-center text-nowrap">${actionButtons}</td>
             </tr>`;
 
@@ -324,12 +329,15 @@ export function renderBudgetDetails() {
                 <div class="glass px-3 py-2 d-flex justify-content-between align-items-center shadow-none border-0 border-top border-bottom rounded-0">
                     <div>
                         <div class="d-flex align-items-center gap-2">
-                            <div class="mb-2">${typeBadge}</div>
+                            <div class="">${typeBadge}</div>
                             ${affectsBadgeCards}
                             ${descIconHtml}
                         </div>
                         <h6 class="fw-bold my-2"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
-                        <h5 class="mb-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
+                        <div class="mb-2">
+                            <span class="small" style="margin-right:-4px;">$</span>
+                            <span class="fw-bold fs-5">${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                        </div>
                     </div>
                     <div class="text-end">
                         <div>
@@ -400,6 +408,7 @@ export function saveBudgetItem() {
     period.items.push(newItem);
     renderBudgetDetails();
     dashboard.renderDashboardSummary();
+    initial.initCustomSelects2();
 
     document.getElementById('budgetTitle').value = '';
     document.getElementById('budgetAmount').value = '';
@@ -466,6 +475,7 @@ export function saveEditedBudgetItem() {
     
     renderBudgetDetails();
     dashboard.renderDashboardSummary();
+    initial.initCustomSelects2();
 
     const modalEl = document.getElementById('editBudgetItemModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -479,6 +489,7 @@ export function confirmDeleteBudgetItem(itemId) {
         });
         renderBudgetDetails();
         dashboard.renderDashboardSummary();
+        initial.initCustomSelects2();
     });
 }
 
@@ -536,6 +547,7 @@ export function saveNewBudgetPeriod() {
     renderMasterBudgetList();
     renderBudgetDetails();
     dashboard.renderDashboardSummary();
+    initial.initCustomSelects2();
 
     const modalEl = document.getElementById('addBudgetPeriodModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
