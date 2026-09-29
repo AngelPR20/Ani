@@ -335,7 +335,7 @@ export function renderBudgetDetails() {
                         </div>
                         <h6 class="fw-bold my-2"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
                         <div class="mb-2">
-                            <span class="small" style="margin-right:-4px;">$</span>
+                            <span class="" style="margin-right:-4px;">$</span>
                             <span class="fw-bold fs-5">${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                         </div>
                     </div>
