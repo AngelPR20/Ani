@@ -281,12 +281,12 @@ export function renderDashboardWallets() {
         const formattedBalance = (wallet.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const balanceColorClass = wallet.balance <= 0 ? 'text-danger' : '';
         html += `
-            <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background: var(--input-bg); border: 1px solid var(--glass-border);">
                 <div class="d-flex align-items-center">
-                    <div class="bg-secondary bg-opacity-10 text-white rounded p-2 me-3"><i class="text-primary ${wallet.icon}"></i></div>
-                    <p class="mb-0 fw-medium">${wallet.title}</p>
+                    <div class="bg-primary bg-opacity-10 text-whitee rounded py-2 px-3 me-3"><i class="text-primary ${wallet.icon}"></i></div>
+                    <p class="mb-0 fw-normal">${wallet.title}</p>
                 </div>
-                <h5 class="mb-0 fw-bold ${balanceColorClass}">$${formattedBalance}</h5>
+                <span class="mb-0 fw-bold ${balanceColorClass}">$${formattedBalance}</span>
             </div>`;
     });
 
@@ -364,7 +364,7 @@ export function renderDashboardMovements() {
         html += `
             <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-3" style="border-opacity: 0.2;">
                 <div class="d-flex align-items-center">
-                    <div class="rounded bg-secondary bg-opacity-10 ${amountColor} p-2 me-3 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="${catIconClass}"></i></div>
+                    <div class="rounded bg-primary bg-opacity-10 text-primary p-2 me-3 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="${catIconClass}"></i></div>
                     <div>
                         <div class="badge ${bgColor} bg-opacity-75">
                             <p class="mb-0 fw-medium">${catDesc}</p>

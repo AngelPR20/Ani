@@ -70,18 +70,18 @@ export let sysUsers = [
 export let sysIcons = [
     { id: 1, val: 'fas fa-university' },
     { id: 2, val: 'fas fa-piggy-bank' },
-    // { id: 3, val: 'fas fa-wallet' },
-    // { id: 4, val: 'fab fa-bitcoin' },
-    // { id: 5, val: 'fas fa-money-check-alt' },
-    // { id: 6, val: 'fas fa-briefcase' },
-    // { id: 7, val: 'fas fa-gift' },
-    // { id: 8, val: 'fas fa-globe-americas' },
-    // { id: 9, val: 'fas fa-car' },
-    // { id: 10, val: 'fas fa-home' },
-    // { id: 11, val: 'fas fa-bolt' },
-    // { id: 12, val: 'fas fa-shopping-basket' },
-    // { id: 13, val: 'fas fa-shield-alt' },
-    // { id: 14, val: 'fas fa-wifi' }
+    { id: 3, val: 'fas fa-wallet' },
+    { id: 4, val: 'fab fa-bitcoin' },
+    { id: 5, val: 'fas fa-money-check-alt' },
+    { id: 6, val: 'fas fa-briefcase' },
+    { id: 7, val: 'fas fa-gift' },
+    { id: 8, val: 'fas fa-globe-americas' },
+    { id: 9, val: 'fas fa-car' },
+    { id: 10, val: 'fas fa-home' },
+    { id: 11, val: 'fas fa-bolt' },
+    { id: 12, val: 'fas fa-shopping-basket' },
+    { id: 13, val: 'fas fa-shield-alt' },
+    { id: 14, val: 'fas fa-wifi' }
 ];
 
 export let sysCategories = [
@@ -243,8 +243,8 @@ export function initCustomSelects() {
         sysCategories.forEach(cat => {
             html += `
             <div class="category-pill btnSelectCategory" data-input-id=${id} data-cat-id=${cat.id} data-cat-desc="${cat.desc}" data-cat-iconId="${cat.iconId}">
-                <div class="bg-secondary bg-opacity-10 text-primary rounded p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;"><i class="${cat.iconId}"></i></div>
-                <span class="fw-medium badge bg-primary bg-opacity-75">${cat.desc}</span>
+                <i class="${cat.iconId} bg-primary bg-opacity-10 text-primary rounded p-1"></i>
+                <span class="small bg-primary bg-opacity-10 p-1 rounded">${cat.desc}</span>
             </div>`;
         });
         container.innerHTML = html;
@@ -276,7 +276,7 @@ export function selectIcon(inputId, iconVal, iconText, init = false) {
 export function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
 
     document.getElementById(inputId).value = catId;
-    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} text-primary me-2"></i> <span class="badge bg-primary bg-opacity-75">${catDesc}</span></span> <i class="fas fa-chevron-down"></i>`;
+    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} bg-primary bg-opacity-10 p-1 rounded text-primary me-1"></i> <span class="badgee bg-primary bg-opacity-10 p-1 rounded small">${catDesc}</span></span> <i class="fas fa-chevron-down"></i>`;
 
     if (!init) {
         const btn = document.getElementById(`btn-${inputId}`);
@@ -288,7 +288,6 @@ export function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
 
 
 export function initCustomSelects2() {
-    // Configurar listas de Categorías
     const budgetItemInputs = ['txBudgetItem'];
 
     budgetItemInputs.forEach(id => {
@@ -302,7 +301,7 @@ export function initCustomSelects2() {
                 html += `
                 <div class="budgetItem-pill btnSelectBudgetItem" data-input-id=${budget.id} data-budget-id=${item.id} data-budget-icon="${item.icon}" data-budget-title="${item.title}" data-budget-amount="${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}" data-budget-periodName="${budget.periodName}">
                     <div>
-                        <i class="small ${item.icon} me-2 text-secondary"></i>
+                        <i class="small bg-primary bg-opacity-10 p-1 rounded me-2 text-primary ${item.icon}"></i>
                         <span class="me-2">${item.title}</span>
                         <span class="fw-bold small me-2">$${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                     </div>
@@ -322,7 +321,7 @@ export function initCustomSelects2() {
 
                 btn.innerHTML = `
                     <div>
-                        <i class="small ${btnSelectBudgetItem.getAttribute('data-budget-icon')} me-1 text-secondary"></i>
+                        <i class="small ${btnSelectBudgetItem.getAttribute('data-budget-icon')} me-1 text-primary bg-primary bg-opacity-10 p-1 rounded"></i>
                         <span class="small me-1">${btnSelectBudgetItem.getAttribute('data-budget-title')}</span>
                         <span class="fw-bold small me-2">$${btnSelectBudgetItem.getAttribute('data-budget-amount')}</span>
                         <span class="badge bg-success bg-opacity-75 fw-normal text-mutedd">${btnSelectBudgetItem.getAttribute('data-budget-periodName')}</span>

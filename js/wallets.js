@@ -323,7 +323,7 @@ export function renderWalletMovementsTable() {
 
         const categoryHtml = `
             <div class="d-flex align-items-center gap-2">
-                <div class="bg-secondary bg-opacity-10 rounded d-flex justify-content-center align-items-center text-secondary" style="width: 28px; height: 28px;">
+                <div class="bg-primary bg-opacity-10 rounded d-flex justify-content-center align-items-center text-primary" style="width: 28px; height: 28px;">
                     <i class="${catIconClass}"></i>
                 </div>
                 <div><span class="badge ${badgeBackgroundColor} bg-opacity-75">${catDesc}</span>${walletBadgeHtml}</div>

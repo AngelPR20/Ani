@@ -84,7 +84,7 @@ export function renderMasterBudgetList() {
 
         html += `
             <div class="d-flex align-items-center gap-1">
-                <button class="btn btn-sm ${activeClass} w-100 text-start p-2 btnSelectBudgetPeriod" style="border-radius: 10px;" data-id=${period.id}>
+                <button class="btn btn-sm ${activeClass} w-100 text-start py-2 px-3 btnSelectBudgetPeriod" style="border-radius: 10px;" data-id=${period.id}>
                     <i class="fas fa-calendar-alt me-2"></i>${period.periodName}
                 </button>
                 <div class="dropdown">
@@ -317,7 +317,7 @@ export function renderBudgetDetails() {
         tableHtml += `
             <tr>
                 <td class="py-3 text-nowrap">${typeBadge}</td>
-                <td class="py-3 fw-medium text-nowrap"><i class="${item.icon} me-2 text-primary"></i>${item.title}</td>
+                <td class="py-3 fw-medium text-nowrap"><i class="${item.icon} me-2 text-primary bg-primary bg-opacity-10 p-1 rounded"></i>${item.title}</td>
                 <td class="py-3 text-center text-nowrap print-hide">${descIconHtml}</td>
                 <td class="py-3 text-nowrap text-center">${affectsBadge}</td>
                 <td class="py-3 text-nowrap">$<span class="fw-bold">${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span></td>
@@ -333,7 +333,7 @@ export function renderBudgetDetails() {
                             ${affectsBadgeCards}
                             ${descIconHtml}
                         </div>
-                        <h6 class="fw-bold my-2"><i class="${item.icon} me-2 text-primary"></i>${item.title}</h6>
+                        <h6 class="fw-bold my-2"><i class="${item.icon} me-2 text-primary bg-primary bg-opacity-10 p-1 rounded"></i>${item.title}</h6>
                         <div class="mb-2">
                             <span class="" style="margin-right:-4px;">$</span>
                             <span class="fw-bold fs-5">${item.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
