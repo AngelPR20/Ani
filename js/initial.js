@@ -244,7 +244,7 @@ export function initCustomSelects() {
             html += `
             <div class="category-pill btnSelectCategory" data-input-id=${id} data-cat-id=${cat.id} data-cat-desc="${cat.desc}" data-cat-iconId="${cat.iconId}">
                 <i class="${cat.iconId} bg-primary bg-opacity-10 text-primary rounded p-1"></i>
-                <span class="small bg-primary bg-opacity-10 p-1 rounded">${cat.desc}</span>
+                <span class="small">${cat.desc}</span>
             </div>`;
         });
         container.innerHTML = html;
@@ -276,7 +276,7 @@ export function selectIcon(inputId, iconVal, iconText, init = false) {
 export function selectCategory(inputId, catId, catDesc, catIcon, init = false) {
 
     document.getElementById(inputId).value = catId;
-    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} bg-primary bg-opacity-10 p-1 rounded text-primary me-1"></i> <span class="badgee bg-primary bg-opacity-10 p-1 rounded small">${catDesc}</span></span> <i class="fas fa-chevron-down"></i>`;
+    document.getElementById(`btn-${inputId}`).innerHTML = `<span><i class="${catIcon} bg-primary bg-opacity-10 p-1 rounded text-primary me-1"></i> <span class="small">${catDesc}</span></span> <i class="fas fa-chevron-down"></i>`;
 
     if (!init) {
         const btn = document.getElementById(`btn-${inputId}`);

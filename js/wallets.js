@@ -238,7 +238,7 @@ export function exportWalletMovementsExcel() {
 
 export function renderWalletMovementsTable() {
     const movementsView = document.getElementById('movementsView');
-    const tbody = document.getElementById('page-wallet-movements-table-body');
+    // const tbody = document.getElementById('page-wallet-movements-table-body');
     const actionsDiv = document.getElementById('walletMovementsActions');
     const filtersDiv = document.getElementById('walletMovementsFilters');
     const tableContainer = document.getElementById('walletTableContainer');
@@ -296,7 +296,28 @@ export function renderWalletMovementsTable() {
     }
 
     if (movements.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted border-0">No se encontraron movimientos con los filtros de fecha seleccionados.</td></tr>`;
+        console.log(movements);
+        movementsView.innerHTML = `
+                <div class="glass p-4" id="walletTableContainer">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-nowrap" style="color: var(--bs-body-color);">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--glass-border);">
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">TIPO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">CATEGORÍA</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">MONTO</th>
+                                    <th class="bg-transparent text-muted small py-3 text-nowrap">FECHA</th>
+                                    <th class="bg-transparent text-muted small py-3 text-center print-hide">DETALLES</th>
+                                    <th class="bg-transparent text-muted small py-3 text-end text-nowrap print-hide"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="page-wallet-movements-table-body">
+                                <tr><td colspan="6" class="text-center py-4 text-muted border-0">No se encontraron movimientos en este rango de fecha.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+        // movementsView.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted border-0">No se encontraron movimientos con los filtros de fecha seleccionados.</td></tr>`;
         return;
     }
 
