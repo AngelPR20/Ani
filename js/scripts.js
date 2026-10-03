@@ -29,9 +29,10 @@ function toggleDesktopSidebar() {
 }
 
 function logout() {
-    localStorage.removeItem('finanzaspro_theme');
-    localStorage.removeItem('finanzaspro_sidebar_collapsed');
-    window.location.reload();
+    // localStorage.removeItem('finanzaspro_theme');
+    // localStorage.removeItem('finanzaspro_sidebar_collapsed');
+    // window.location.reload();
+    window.location = 'login.html';
 }
 
 // Función auxiliar para reiniciar Tooltips en elementos inyectados por JS
