@@ -88,7 +88,7 @@ export function renderGoals() {
                         <div class="progress mb-2" style="height: 8px; border-radius: 10px; background: var(--input-bg);">
                             <div class="progress-bar ${gradientClass}" style="width: ${percent}%; border-radius: 10px;"></div>
                         </div>
-                        <small class="text-muted d-block">$${formattedCurrent} / $${formattedTarget}</small>
+                        <small class="text-muted d-block">$${formattedCurrent} de $${formattedTarget}</small>
                     </div>
                 </div>
             </div>`;
