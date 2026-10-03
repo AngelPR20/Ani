@@ -62,7 +62,7 @@ export function renderGoals() {
 
         html += `
             <div class="col-md-6 col-xl-4">
-                <div class="glass p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="glass p-4 h-100 d-flex flex-column justify-content-between goal-card">
                     <div>
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="d-flex align-items-center">

@@ -20,7 +20,7 @@ export function renderMantIcons() {
     initial.sysIcons.map(icon => {
         html += `
         <div class="col-4 col-ssm-4 col-md-2 col-lg-2">
-            <div class="p-3 border rounded text-center position-relative" style="border-color: var(--glass-border) !important; background: var(--input-bg);">
+            <div class="p-3 rounded text-center position-relative icono-card">
                 <i class="${icon.val} fs-3 text-primary my-3"></i>
             
                 <div class="dropdown position-absolute top-0 end-0 m-2">

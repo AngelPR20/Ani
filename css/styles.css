@@ -129,6 +129,29 @@ a:hover {
     background-color: initial;
 }
 
+.category-card, .icono-card, .goal-card {
+    background: var(--glass-bg);
+    /* backdrop-filter: blur(24px) saturate(180%); */
+    /* -webkit-backdrop-filter: blur(24px) saturate(180%); */
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    /* box-shadow: var(--shadow-glass); */
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.category-card:hover,
+.category-card:focus-visible,
+
+.goal-card:hover,
+.goal-card:focus-visible,
+
+.icono-card:hover,
+.icono-card:focus-visible {
+    border-color: var(--primary-accent);
+    box-shadow: 0 10px 25px 0 rgba(59, 130, 246, 0.15);
+    background-color: initial;
+    /* backdrop-filter: blur(24px) saturate(180%); */
+}
+
 .wallet-card-clickable:focus-visible {
     outline: none;
 }

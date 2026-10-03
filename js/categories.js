@@ -19,7 +19,7 @@ export function renderMantCategories() {
     initial.sysCategories.map(cat => 
         html += `
             <div class="col-md-4 col-xl-3">
-                <div class="p-2 border rounded text-center position-relative" style="border-color: var(--glass-border) !important; background: var(--input-bg);">
+                <div class="p-2 borderr rounded text-center position-relative category-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <div class="bg-secondary bg-opacity-10 text-primary rounded px-2 me-2 fss-4">
