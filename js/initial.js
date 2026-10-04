@@ -94,9 +94,9 @@ export let sysCategories = [
 ];
 
 export const notificacionesData = [
-    { id: 1, icon: 'fas fa-motorcycle text-primary', title: 'Recordatorio', text: 'Recuerda revisar el nivel de aceite 20W-50 de tu motocicleta Tauro Fénix 105 para mantenerla en óptimas condiciones locales.', time: 'Hace 2 horas' },
-    { id: 2, icon: 'fas fa-map-marker-alt text-info', title: 'Seguridad', text: 'Nuevo inicio de sesión detectado en Moca, Provincia Espaillat.', time: 'Hace 5 horas' },
-    { id: 3, icon: 'fas fa-chart-line text-success', title: 'Meta alcanzada', text: '¡Felicidades! Has superado el 50% de tu meta de ahorro.', time: 'Ayer' }
+    { id: 1, icon: 'fas fa-motorcycle text-primary', title: 'Recordatorio', text: 'Recuerda revisar el nivel de aceite 20W-50 de tu motocicleta Tauro Fénix 105 para mantenerla en óptimas condiciones locales.', time: 'Hace 2 horas', isRead: false },
+    { id: 2, icon: 'fas fa-map-marker-alt text-info', title: 'Seguridad', text: 'Nuevo inicio de sesión detectado en Moca, Provincia Espaillat.', time: 'Hace 5 horas', isRead: false },
+    { id: 3, icon: 'fas fa-chart-line text-success', title: 'Meta alcanzada', text: '¡Felicidades! Has superado el 50% de tu meta de ahorro.', time: 'Ayer', isRead: false }
 ];
 
 export function navigate(viewId, element) {

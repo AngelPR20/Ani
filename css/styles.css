@@ -288,7 +288,7 @@ a:hover {
     100% { transform: rotate(0); }
 }
 
-.bell-ring {
+.bell-ring.activated {
     animation: ring 2.5s infinite;
     color: #cfcf20b0;
 }

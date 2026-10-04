@@ -99,9 +99,16 @@ function populateBudgetItemsForTransaction() {
 // --- RENDER NOTIFICACIONES ---
 function renderNotifications() {
     const list = document.getElementById('notificationsList');
+    const bellRingNotifications = document.getElementById('bell-ring-notifications');
+    const dotNotifications = document.getElementById('dot-notifications');
+    const btnNotificationsMobile = document.getElementById('btnNotificationsMobile');
+
     if (!list) return;
 
     if (initial.notificacionesData.length === 0) {
+        btnNotificationsMobile.classList.remove('btn-outline-warning');
+        bellRingNotifications.classList.remove('activated');
+        dotNotifications.classList.add('d-none');
         list.innerHTML = `<p class="text-muted text-center py-4">No tienes notificaciones nuevas.</p>`;
         return;
     }
@@ -119,6 +126,17 @@ function renderNotifications() {
             </div>`;
     });
     list.innerHTML = html;
+
+    if (initial.notificacionesData.filter(x => !x.isRead).length === 0) {
+        btnNotificationsMobile.classList.remove('btn-outline-warning');
+        bellRingNotifications.classList.remove('activated', 'text-warning');
+        dotNotifications.classList.add('d-none');
+        return;
+    }
+
+    btnNotificationsMobile.classList.add('btn-outline-warning');
+    bellRingNotifications.classList.add('activated', 'text-warning');
+    dotNotifications.classList.remove('d-none');
 }
 
 // Vincula un switch de preferencia a una clave de localStorage: carga su estado guardado
@@ -414,4 +432,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if(chbPayBudgetItem.checked) txType.selectedIndex = 0;
         });
     }
+
+    const notificationsModal = document.getElementById('notificationsModal');
+
+    notificationsModal.addEventListener('shown.bs.modal', function () {
+        initial.notificacionesData.map(x => x.isRead = true);
+        renderNotifications();
+    });
 });

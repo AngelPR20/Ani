@@ -141,8 +141,8 @@
             </a>
 
             <a class="nav-item-custom position-relative" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones">
-                <i class="fas fa-bell bell-ring" style="color:#cfcf20b0"></i> <span>Notificaciones</span>
-                <span class="position-absolute top-50 end-0 translate-middle-y p-1 bg-danger border border-light rounded-circle me-2">
+                <i class="fas fa-bell bell-ring" id="bell-ring-notifications"></i> <span>Notificaciones</span>
+                <span class="position-absolute top-50 end-0 translate-middle-y p-1 bg-danger border border-light rounded-circle me-2 d-none" id="dot-notifications">
                     <span class="visually-hidden">Nuevas alertas</span>
                 </span>
             </a>
@@ -160,7 +160,7 @@
                 </div>
                 <div class="d-flex align-items-center g-2">
                     <img id="mobileHeaderUserAvatar" src="assets/profile-demo.png" alt="Usuario" class="rounded-circle border mx-2" style="width: 32px; height: 32px; object-fit: cover;">
-                    <button id="btnNotificationsMobile" class="bell-ring btn btn-outline-warning border-0 d-flex align-items-center justify-content-center p-2" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Notificaciones">
+                    <button id="btnNotificationsMobile" class="bell-ring btn btn-outline-secondary border-0 d-flex align-items-center justify-content-center p-2" data-bs-toggle="modal" data-bs-target="#notificationsModal" data-tooltip="Notificaciones" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Notificaciones">
                         <i class="fas fa-bell fs-5"></i>
                     </button>
                     <button id="btnSettingMobile" class="btn btn-outline-secondary border-0 d-flex align-items-center justify-content-center p-2" style="border-radius: 8px; width: 40px; height: 40px;" data-tooltip="Configuración">
@@ -558,7 +558,7 @@
                                 <h6 class="text-truncate pe-3 mb-0">Listado de Iconos</h6>
                                 <button class="btn btn-sm btn-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#iconModal" id="btnOpenAddIconModal"><i class="fas fa-plus me-1"></i>Nuevo Icono</button>
                             </div>
-                            <div class="row g-1" id="grid-mant-icons">
+                            <div class="row g-2" id="grid-mant-icons">
                                 <!-- JS Dinámico -->
                             </div>
                         </div>
@@ -569,7 +569,7 @@
                                 <h6 class="text-truncate pe-3 mb-0">Listado de Categorías</h6>
                                 <button class="btn btn-sm btn-primary" style="border-radius: 8px; min-width: 160px;" data-bs-toggle="modal" data-bs-target="#categoryModal" id="btnOpenAddCategoryModal"><i class="fas fa-plus me-1"></i>Nueva Categoría</button>
                             </div>
-                            <div class="row g-1" id="table-mant-cats">
+                            <div class="row g-2" id="table-mant-cats">
                                 <!-- JS Dinámico -->
                             </div>
                             <!-- <div class="table-responsive">
@@ -1322,7 +1322,7 @@
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content glass p-2 border-0" style="background: var(--body-bg);">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-bell text-warning me-2"></i> Notificaciones</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-bell text-warning me-2 bell-ring activated"></i> Notificaciones</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="notificationsList">
